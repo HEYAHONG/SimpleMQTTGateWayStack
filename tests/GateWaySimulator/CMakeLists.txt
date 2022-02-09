@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(GateWaySimulator C CXX ASM)
+
+#添加可执行文件
+add_executable(GateWaySimulator)
+
+#添加SMGS库
+add_subdirectory(../../lib lib)
+target_link_libraries(GateWaySimulator SMGS)
+
+#添加argtable3库
+cmake_policy(SET CMP0077 NEW)
+set(ARGTABLE3_ENABLE_TESTS OFF)
+set(ARGTABLE3_ENABLE_EXAMPLES OFF)
+add_subdirectory(lib/3rdparty/argtable3/)
+target_link_libraries(GateWaySimulator argtable3)
+
+#添加源代码
+file(GLOB  GateWaySimulator_C_FILES *.cpp *.CPP *.c *.C)
+
+target_sources(GateWaySimulator PUBLIC ${GateWaySimulator_C_FILES})
