@@ -88,7 +88,7 @@ static void argtable_parse_arg(int argc,char *argv[])
     }
     else
     {
-        printf("未设置网关序列号,将自动生成序列号\r\n");
+        printf("未设置网关序列号,将自动生成序列号!\r\n");
         GateWaySerialNumber="Simulate";
         {
             //将时间戳作为后缀
@@ -164,6 +164,7 @@ int main(int argc,char *argv[])
 
     //启动MQTT Ping线程
     std::thread ping(MQTT_Ping_Thread);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     while(true)
     {
