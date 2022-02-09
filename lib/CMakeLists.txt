@@ -17,4 +17,4 @@ target_sources(SMGS PUBLIC ${LIBSMGS_C_FILES})
 #添加paho.mqtt.embedded-c源代码
 file(GLOB PAHO_MQTT_EMBEDDED_C_SOURCES "3rdparty/paho.mqtt.embedded-c/MQTTPacket/src/*.c")
 target_sources(SMGS PUBLIC ${PAHO_MQTT_EMBEDDED_C_SOURCES})
-target_include_directories(SMGS PRIVATE 3rdparty/paho.mqtt.embedded-c/MQTTPacket/src/)
+target_include_directories(SMGS PUBLIC 3rdparty/paho.mqtt.embedded-c/MQTTPacket/src/)

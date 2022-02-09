@@ -7,6 +7,5 @@
  */
 
 
-#include "libSMGS_DefaultConfig.h"
 #include "libSMGS.h"
 

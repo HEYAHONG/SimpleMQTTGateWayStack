@@ -14,7 +14,7 @@ extern "C"
 {
 #endif // __cplusplus
 
-
+#include "libSMGS_DefaultConfig.h"
 
 
 #ifdef __cplusplus
