@@ -25,6 +25,10 @@ target_include_directories(GateWaySimulator PRIVATE lib/3rdparty/argtable3/src)
 FIND_PACKAGE(Threads REQUIRED)
 TARGET_LINK_LIBRARIES(GateWaySimulator  ${CMAKE_THREAD_LIBS_INIT})
 
+#添加WS2_32(WIN32)
+if(WIN32)
+TARGET_LINK_LIBRARIES(GateWaySimulator  ws2_32)
+endif()
 
 #添加源代码
 file(GLOB  GateWaySimulator_C_FILES *.cpp *.CPP *.c *.C)

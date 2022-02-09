@@ -224,6 +224,90 @@ void NetworkDisconnect(Network* n)
 
 #else
 
-#error 暂不支持windows
+int win32_read(Network* n, unsigned char* buffer, int len, int timeout_ms)
+{
+    //TODO 处理超时
+    return recv(n->my_socket,buffer,len,0);
+}
+
+int win32_write(Network* n, unsigned char* buffer, int len, int timeout_ms)
+{
+    //TODO 处理超时
+    return send(n->my_socket,buffer,len,0);
+}
+
+static bool IsWSAStartUp=false;
+static WSADATA wsaData;
+static WORD wVersionRequested;
+void NetworkInit(Network* n)
+{
+    if(!IsWSAStartUp)
+    {
+        wVersionRequested = MAKEWORD( 2, 2 );
+        IsWSAStartUp=(0==WSAStartup( wVersionRequested, &wsaData ));
+    }
+    n->my_socket = INVALID_SOCKET;
+    n->mqttread = win32_read;
+    n->mqttwrite = win32_write;
+    n->disconnect=NetworkDisconnect;
+}
+
+int NetworkConnect(Network* n, char* host, int port)
+{
+    int rc=-1;
+
+
+    struct addrinfo hints;
+    struct addrinfo *res, *cur;
+    struct sockaddr_in *addr=NULL;
+
+    //初始化 hints
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;	//IPv4
+    hints.ai_flags = AI_PASSIVE; //匹配所有 IP 地址
+    hints.ai_protocol = 0;        //匹配所有协议
+    hints.ai_socktype = SOCK_STREAM; //流类型
+
+    if(getaddrinfo(host, NULL, &hints, &res) < 0)
+    {
+        return rc;
+    }
+
+    //输出获取的信息
+    for (cur = res; cur != NULL; cur = cur->ai_next)
+    {
+        addr = (struct sockaddr_in *) cur->ai_addr; //获取当前 address
+    }
+
+    if(addr==NULL)
+    {
+        return rc;
+    }
+
+    struct sockaddr_in serveraddr= {0};
+
+    serveraddr.sin_port=htons(port);
+    serveraddr.sin_addr=addr->sin_addr;
+    serveraddr.sin_family=AF_INET;
+
+    freeaddrinfo(res);
+
+    n->my_socket=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(n->my_socket==INVALID_SOCKET)
+    {
+        return rc;
+    }
+
+    rc=((SOCKET_ERROR==connect(n->my_socket,(struct sockaddr *)&serveraddr,sizeof(serveraddr)))?-1:0);
+
+
+    return rc;
+}
+
+void NetworkDisconnect(Network* n)
+{
+    closesocket(n->my_socket);
+}
+
 
 #endif

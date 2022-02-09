@@ -59,7 +59,7 @@ static void argtable_parse_arg(int argc,char *argv[])
         printf("%s:\r\n","帮助");
         printf("%s ",argv[0]);
         arg_print_syntax(stdout,argtable,"\r\n");
-        arg_print_glossary(stdout,argtable,"%-25s %s\n");
+        arg_print_glossary(stdout,argtable,"%-40s %s\n");
         //退出程序
         exit(0);
     }
@@ -156,6 +156,9 @@ static void MQTT_Ping_Thread()
 */
 int main(int argc,char *argv[])
 {
+    //关闭输出缓冲
+    setbuf(stdout,NULL);
+
     //检查命令参数
     argtable_parse_arg(argc,argv);
 

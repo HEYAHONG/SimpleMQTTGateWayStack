@@ -33,6 +33,7 @@
 #include <Winsock2.h>
 #include <Windows.h>
 #include <time.h>
+#include <WS2tcpip.h>
 #else
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -51,6 +52,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
+#include <stdbool.h>
 
 typedef struct Timer
 {
@@ -76,7 +78,8 @@ int linux_read(Network*, unsigned char*, int, int);
 int linux_write(Network*, unsigned char*, int, int);
 #else
 
-//TODO:Win32支持
+int win32_read(Network*, unsigned char*, int, int);
+int win32_write(Network*, unsigned char*, int, int);
 
 #endif // WIN32
 
