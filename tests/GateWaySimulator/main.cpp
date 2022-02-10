@@ -140,7 +140,7 @@ static bool mqtt_ping(MQTTClient * client)
 }
 static void MQTT_Ping_Thread()
 {
-    printf("MQTT Ping线程已启动\r\n");
+    printf("MQTT Ping线程已启动!!\r\n");
     while(true)
     {
         std::this_thread::sleep_for(std::chrono::seconds(keepalive));
@@ -168,7 +168,7 @@ int main(int argc,char *argv[])
 
     while(true)
     {
-        printf("%s:序列号是%s\r\n",TAG,GateWaySerialNumber.c_str());
+        printf("%s:序列号是%s!!\r\n",TAG,GateWaySerialNumber.c_str());
 
         //MQTT连接
         printf("%s:MQTT连接开始(%s:%d)!!\r\n",TAG,MQTTBrokerServerAddr,MQTTBrokerServerPort);
