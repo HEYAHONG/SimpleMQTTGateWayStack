@@ -152,6 +152,44 @@ static void MQTT_Ping_Thread()
 }
 
 /*
+协议栈相关
+*/
+SMGS_gateway_context_t gateway_context;
+
+static bool SMGS_MessagePublish(struct __SMGS_gateway_context_t *ctx,const char * topic,void * payload,size_t payloadlen,uint8_t qos,int retain)
+{
+    if(mqttclient.isconnected==0)
+    {
+        return false;
+    }
+
+    QoS Qos=QOS0;
+    switch(qos)
+    {
+    default:
+        break;
+    case 0:
+        Qos=QOS0;
+        break;
+    case 1:
+        Qos=QOS1;
+        break;
+    case 2:
+        Qos=QOS2;
+        break;
+
+    }
+
+    MQTTMessage msg;
+    memset(&msg,0,sizeof(msg));
+    msg.payload=payload;
+    msg.payloadlen=payloadlen;
+    msg.qos=Qos;
+    msg.retained=retain;
+    return MQTTPublish(&mqttclient,topic,&msg)==0;
+}
+
+/*
 主程序
 */
 int main(int argc,char *argv[])
@@ -166,9 +204,12 @@ int main(int argc,char *argv[])
     std::thread ping(MQTT_Ping_Thread);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
+    //初始化网关上下文
+    SMGS_GateWay_Context_Init(&gateway_context,GateWaySerialNumber.c_str(),SMGS_MessagePublish);
+
     while(true)
     {
-        printf("%s:序列号是%s!!\r\n",TAG,GateWaySerialNumber.c_str());
+        printf("%s:序列号是%s!!\r\n",TAG,gateway_context.GateWaySerialNumber);
 
         //MQTT连接
         printf("%s:MQTT连接开始(%s:%d)!!\r\n",TAG,MQTTBrokerServerAddr,MQTTBrokerServerPort);
@@ -200,6 +241,18 @@ int main(int argc,char *argv[])
         cfg.username.cstring=(char *)GateWaySerialNumber.c_str();
         cfg.password.cstring=(char *)GateWaySerialNumber.c_str();
 
+        //填写will
+        uint8_t willbuff[256]= {0};
+        SMGS_gateway_will_t will= {0};
+        SMGS_GateWay_Will_Encode(&gateway_context,&will,willbuff,sizeof(willbuff));
+
+        cfg.will.topicName.cstring=(char *)will.topic;
+        cfg.will.qos=will.qos;
+        cfg.will.message.lenstring.data=(char *)will.payload;
+        cfg.will.message.lenstring.len=will.payloadlen;
+        cfg.will.retained=will.ratain;
+        cfg.willFlag=1;
+
 
         if(SUCCESS!=MQTTConnect(&mqttclient,&cfg))
         {
@@ -218,6 +271,11 @@ int main(int argc,char *argv[])
         }
 
         printf("%s:连接成功!!\r\n",TAG);
+        {
+            //发送网关上线消息
+            uint8_t buff[512]= {0};
+            SMGS_GateWay_Online(&gateway_context,buff,sizeof(buff),0,0);
+        }
 
         {
             while(true)

@@ -230,3 +230,300 @@ int SMGS_Get_Topic_Ply_CMD(SMGS_topic_string_ptr_t str)
     return SMGS_TOPIC_PLY_CMD_END;
 }
 
+
+void SMGS_Device_Context_Init(SMGS_device_context_t *ctx)
+{
+    if(ctx==NULL)
+    {
+        return;
+    }
+
+    memset(ctx,0,sizeof(SMGS_device_context_t));
+}
+
+bool SMGS_Is_Device_Context_OK(SMGS_device_context_t *ctx)
+{
+    if(ctx==NULL)
+    {
+        return false;
+    }
+
+    if(ctx->DeviceSerialNumber==NULL)
+    {
+        return false;
+    }
+
+    if(ctx->IsOnline==NULL)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool SMGS_Is_GateWay_Context_OK(SMGS_gateway_context_t *ctx)
+{
+    if(ctx==NULL)
+    {
+        return false;
+    }
+
+
+    //检查序列号
+    if(ctx->GateWaySerialNumber==NULL || strlen(ctx->GateWaySerialNumber)<CONFIG_SMGS_MIN_GATEWAY_SERIALNUMBER_LENGTH)
+    {
+        return false;
+    }
+
+    //检查 MQTT消息发布
+    if(ctx->MessagePublish==NULL)
+    {
+        return false;
+    }
+
+    //检查 设备模块相关函数
+    if(ctx->Device_Find_By_Pos == NULL || ctx->Device_Find_By_SerialNumber==NULL )
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
+static SMGS_device_context_t * Device_Find_By_SerialNumber(SMGS_gateway_context_t *ctx,const char* SerialNumber)
+{
+    if(ctx==NULL || ctx->Device_Next==NULL || SerialNumber==NULL)
+    {
+        return NULL;
+    }
+
+    SMGS_device_context_t * dev=NULL;
+
+    while((dev=ctx->Device_Next(ctx,dev))!=NULL)
+    {
+        if(SMGS_Is_Device_Context_OK(dev))
+        {
+            if(strcmp(dev->DeviceSerialNumber,SerialNumber)==0)
+            {
+                break;
+            }
+        }
+    }
+
+    return dev;
+
+}
+
+static SMGS_device_context_t * Device_Find_By_Pos(struct __SMGS_gateway_context_t *ctx,uint8_t Pos)
+{
+    if(ctx==NULL || ctx->Device_Next==NULL)
+    {
+        return NULL;
+    }
+
+    SMGS_device_context_t * dev=NULL;
+
+    while((dev=ctx->Device_Next(ctx,dev))!=NULL)
+    {
+        if(SMGS_Is_Device_Context_OK(dev))
+        {
+            if(dev->DevicePosNumber==Pos)
+            {
+                break;
+            }
+        }
+    }
+
+    return dev;
+}
+
+void SMGS_GateWay_Context_Init(SMGS_gateway_context_t *ctx,const char *SerialNumber, bool (*MessagePublish)(SMGS_gateway_context_t *,const char *,void *,size_t,uint8_t,int ))
+{
+    if(ctx==NULL)
+    {
+        return;
+    }
+
+    if(SerialNumber==NULL || strlen(SerialNumber)<CONFIG_SMGS_MIN_GATEWAY_SERIALNUMBER_LENGTH)
+    {
+        return;
+    }
+
+    if(MessagePublish==NULL)
+    {
+        return;
+    }
+
+    memset(ctx,0,sizeof(SMGS_gateway_context_t));
+
+    ctx->GateWaySerialNumber=SerialNumber;
+    ctx->MessagePublish=MessagePublish;
+    ctx->Device_Find_By_SerialNumber=Device_Find_By_SerialNumber;
+    ctx->Device_Find_By_Pos=Device_Find_By_Pos;
+}
+
+
+bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
+{
+    if(buff==NULL || buff_size == 0)
+    {
+        return false;
+    }
+
+    if(!SMGS_Is_GateWay_Context_OK(ctx))
+    {
+        return false;
+    }
+
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+
+    plies[SMGS_TOPIC_PLY_DESTADDR]=CONFIG_SMGS_SERVER_DEFAULT_NAME; //目的地址
+    plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;
+    plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINEVT);
+    plies[SMGS_TOPIC_PLY_MODULE]=SMGS_Get_Topic_Ply_Module_String(SMGS_TOPIC_PLY_MODULE_GATEWAY);
+    plies[SMGS_TOPIC_PLY_CMD]=SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND);
+    plies[SMGS_TOPIC_PLY_CMD_PARA_1]=cmd_para_1;
+    plies[SMGS_TOPIC_PLY_CMD_PARA_2]=cmd_para_2;
+    plies[SMGS_TOPIC_PLY_CMD_PARA_3]=cmd_para_3;
+
+    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,buff_size);
+    if(topic==NULL)
+    {
+        return false;
+    }
+
+    //检查剩余buff大小
+    if((sizeof(cmdid)+cmddata_length) > (buff_size-(strlen(topic)+1)))
+    {
+        return false;//buff不够
+    }
+
+    uint8_t * payload=&buff[strlen(topic)+1];
+    {
+        payload[0]=(cmdid&0xFF);
+        payload[1]=((cmdid>>8)&0xFF);
+        if(cmddata!=NULL &&cmddata_length!=0)
+        {
+            memcpy(&payload[2],cmddata,cmddata_length);
+        }
+    }
+    size_t payload_length=sizeof(cmdid)+cmddata_length;
+
+    return ctx->MessagePublish(ctx,topic,payload,payload_length,qos,retian);
+}
+
+
+bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
+{
+    return SMGS_GateWay_Send_GateWay_Event(ctx,"online",NULL,NULL,SMGS_GATEWAY_CMDID_ONLINE,NULL,0,buff,buff_size,qos,retian);
+}
+
+bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
+{
+    if(buff==NULL || buff_size == 0)
+    {
+        return false;
+    }
+
+    if(!SMGS_Is_GateWay_Context_OK(ctx))
+    {
+        return false;
+    }
+
+    if(!SMGS_Is_Device_Context_OK(devctx))
+    {
+        return false;
+    }
+
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+
+    plies[SMGS_TOPIC_PLY_DESTADDR]=CONFIG_SMGS_SERVER_DEFAULT_NAME; //目的地址
+    plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;
+    plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINEVT);
+    plies[SMGS_TOPIC_PLY_MODULE]=devctx->DeviceSerialNumber;
+    plies[SMGS_TOPIC_PLY_CMD]=SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND);
+    plies[SMGS_TOPIC_PLY_CMD_PARA_1]=cmd_para_1;
+    plies[SMGS_TOPIC_PLY_CMD_PARA_2]=cmd_para_2;
+    plies[SMGS_TOPIC_PLY_CMD_PARA_3]=cmd_para_3;
+
+    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,buff_size);
+    if(topic==NULL)
+    {
+        return false;
+    }
+
+    //检查剩余buff大小
+    if((sizeof(cmdid)+cmddata_length) > (buff_size-(strlen(topic)+1)))
+    {
+        return false;//buff不够
+    }
+
+    uint8_t * payload=&buff[strlen(topic)+1];
+    {
+        payload[0]=(cmdid&0xFF);
+        payload[1]=((cmdid>>8)&0xFF);
+        if(cmddata!=NULL &&cmddata_length!=0)
+        {
+            memcpy(&payload[2],cmddata,cmddata_length);
+        }
+    }
+    size_t payload_length=sizeof(cmdid)+cmddata_length;
+
+    return ctx->MessagePublish(ctx,topic,payload,payload_length,qos,retian);
+}
+
+
+bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *will,uint8_t *buff,size_t buff_size)
+{
+    if(will==NULL)
+    {
+        return false;
+    }
+
+    if(buff==NULL || buff_size == 0)
+    {
+        return false;
+    }
+
+    if(!SMGS_Is_GateWay_Context_OK(ctx))
+    {
+        return false;
+    }
+
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+
+    plies[SMGS_TOPIC_PLY_DESTADDR]=CONFIG_SMGS_SERVER_DEFAULT_NAME; //目的地址
+    plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;
+    plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINEVT);
+    plies[SMGS_TOPIC_PLY_MODULE]=SMGS_Get_Topic_Ply_Module_String(SMGS_TOPIC_PLY_MODULE_GATEWAY);
+    plies[SMGS_TOPIC_PLY_CMD]=SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND);
+    plies[SMGS_TOPIC_PLY_CMD_PARA_1]="offline";
+
+    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,buff_size);
+    if(topic==NULL)
+    {
+        return false;
+    }
+
+    will->topic=topic;
+
+
+    if(sizeof(SMGS_payload_cmdid_t)> (buff_size-(strlen(topic)+1)))
+    {
+        return false;//buff不够
+    }
+
+    uint8_t *payload=&buff[strlen(topic)+1];
+    payload[0]=(SMGS_GATEWAY_CMDID_OFFLINE&0xFF);
+    payload[1]=((SMGS_GATEWAY_CMDID_OFFLINE>>8)&0xFF);
+
+    will->payload=payload;
+    will->payloadlen=sizeof(SMGS_payload_cmdid_t);
+
+    will->qos=CONFIG_SMGS_GATEWAY_WILL_QOS;
+    will->ratain=CONFIG_SMGS_GATEWAY_WILL_RETAIN;
+
+    return true;
+
+}
