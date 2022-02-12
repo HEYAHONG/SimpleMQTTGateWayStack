@@ -14,11 +14,8 @@ add_subdirectory(../../lib lib)
 target_link_libraries(GateWaySimulator SMGS)
 
 #添加argtable3库
-cmake_policy(SET CMP0077 NEW)
-set(ARGTABLE3_ENABLE_TESTS OFF)
-set(ARGTABLE3_ENABLE_EXAMPLES OFF)
-add_subdirectory(lib/3rdparty/argtable3/)
-target_link_libraries(GateWaySimulator argtable3)
+file(GLOB  ARGTABLE3_C_FILES lib/3rdparty/argtable3/src/*.c)
+target_sources(GateWaySimulator PUBLIC ${ARGTABLE3_C_FILES})
 target_include_directories(GateWaySimulator PRIVATE lib/3rdparty/argtable3/src)
 
 #添加线程库
