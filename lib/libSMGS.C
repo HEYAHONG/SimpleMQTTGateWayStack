@@ -416,7 +416,45 @@ bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd
 
 bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
 {
-    return SMGS_GateWay_Send_GateWay_Event(ctx,"online",NULL,NULL,SMGS_GATEWAY_CMDID_ONLINE,NULL,0,buff,buff_size,qos,retian);
+    //发送上线消息
+    if(!SMGS_GateWay_Send_GateWay_Event(ctx,"online",NULL,NULL,SMGS_GATEWAY_CMDID_ONLINE,NULL,0,buff,buff_size,qos,retian))
+    {
+        return false;
+    }
+
+    //上报设备表
+    if(ctx->Device_Next!=NULL)
+    {
+        SMGS_device_context_t *devctx=NULL;
+        while((devctx=ctx->Device_Next(ctx,devctx))!=NULL)
+        {
+            if(SMGS_Is_Device_Context_OK(devctx))
+            {
+                size_t cmddatalen=strlen(devctx->DeviceSerialNumber)+2;
+                if(cmddatalen>buff_size)
+                {
+                    continue;
+                }
+                memset(buff,0,cmddatalen);
+
+                //填写位置号
+                buff[0]=devctx->DevicePosNumber;
+
+                //复制字符串
+                strcpy((char *)&buff[1],devctx->DeviceSerialNumber);
+
+                if(!SMGS_GateWay_Send_GateWay_Event(ctx,NULL,NULL,NULL,SMGS_GATEWAY_CMDID_REPORT_DEVICETABLE_ONLINE,buff,cmddatalen,&buff[cmddatalen],buff_size-cmddatalen,qos,retian))
+                {
+                    return false;
+                }
+
+
+            }
+        }
+    }
+
+
+    return true;
 }
 
 bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)

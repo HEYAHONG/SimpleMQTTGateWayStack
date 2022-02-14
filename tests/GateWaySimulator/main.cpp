@@ -154,7 +154,31 @@ static void MQTT_Ping_Thread()
 /*
 协议栈相关
 */
+
+SMGS_device_context_t device_context;
+
+bool SMGS_IsOnline(struct __SMGS_device_context_t *ctx)
+{
+    //默认返回真
+    return true;
+}
+
 SMGS_gateway_context_t gateway_context;
+
+
+//设备查询函数
+SMGS_device_context_t * SMGS_Device_Next(struct __SMGS_gateway_context_t *ctx,SMGS_device_context_t * devctx)
+{
+    if(devctx==NULL)
+    {
+        return &device_context;//返回第一个设备
+    }
+
+    //由于只有一个设备，直接返回NULL
+
+    return NULL;
+}
+
 
 static bool SMGS_MessagePublish(struct __SMGS_gateway_context_t *ctx,const char * topic,void * payload,size_t payloadlen,uint8_t qos,int retain)
 {
@@ -204,8 +228,28 @@ int main(int argc,char *argv[])
     std::thread ping(MQTT_Ping_Thread);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-    //初始化网关上下文
-    SMGS_GateWay_Context_Init(&gateway_context,GateWaySerialNumber.c_str(),SMGS_MessagePublish);
+
+    {
+        //初始化设备上下文
+        SMGS_Device_Context_Init(&device_context);
+
+        //填写设备上下文
+        device_context.DeviceName=TAG;
+        device_context.DevicePosNumber=1;
+        device_context.DeviceSerialNumber=GateWaySerialNumber.c_str();//默认序列号同网关
+        device_context.IsOnline=SMGS_IsOnline;
+
+    }
+
+    {
+
+        //初始化网关上下文
+        SMGS_GateWay_Context_Init(&gateway_context,GateWaySerialNumber.c_str(),SMGS_MessagePublish);
+
+        //填写网关上下文
+        gateway_context.GateWayName=TAG;
+        gateway_context.Device_Next=SMGS_Device_Next;
+    }
 
     while(true)
     {
