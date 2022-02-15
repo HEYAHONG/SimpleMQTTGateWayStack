@@ -115,10 +115,14 @@ static void argtable_parse_arg(int argc,char *argv[])
 /*
 MQTT消息回调
 */
+extern SMGS_gateway_context_t gateway_context;
 static void mqttmessageHandler(struct MessageData*msg)
 {
     std::string topic(msg->topicName->lenstring.data,msg->topicName->lenstring.len);
     printf("%s:topic=%s,qos=%d,retain=%d\r\n",TAG,topic.c_str(),msg->message->qos,msg->message->retained);
+
+    uint8_t buff[4096]= {0};
+    SMGS_GateWay_Receive_MQTT_MSG(&gateway_context,msg->topicName->lenstring.data,msg->topicName->lenstring.len,(uint8_t *)msg->message->payload,msg->message->payloadlen,msg->message->qos,msg->message->retained,buff,sizeof(buff));
 }
 
 /*

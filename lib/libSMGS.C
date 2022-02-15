@@ -512,6 +512,166 @@ bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_cont
 }
 
 
+/*
+网关处理设备模块的BinReq。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+{
+    bool ret=false;
+    switch(SMGS_Get_Topic_Ply_CMD(plies[SMGS_TOPIC_PLY_CMD]))
+    {
+
+    case SMGS_TOPIC_PLY_CMD_END:
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+
+/*
+网关处理网关模块的BinReq。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+{
+    bool ret=false;
+
+    switch(SMGS_Get_Topic_Ply_CMD(plies[SMGS_TOPIC_PLY_CMD]))
+    {
+
+
+    case SMGS_TOPIC_PLY_CMD_END:
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+/*
+网关处理BinReq消息。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+{
+    int Moddule=SMGS_Get_Topic_Ply_Module(plies[SMGS_TOPIC_PLY_MODULE]);
+    bool ret=false;
+    switch(Moddule)
+    {
+    case SMGS_TOPIC_PLY_MODULE_GATEWAY:
+    {
+        ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(ctx,plies,plies_count,payload,payloadlen,qos,retain,buff,buff_size);
+    }
+    break;
+    default://默认为设备模块
+    {
+        bool IsDevicePosNumber=true;
+        uint8_t Pos=0;
+        {
+            //检查
+            for(size_t i=0; i<strlen(plies[SMGS_TOPIC_PLY_MODULE]); i++)
+            {
+                if(plies[SMGS_TOPIC_PLY_MODULE][i] < '0' || plies[SMGS_TOPIC_PLY_MODULE][i] > '9')
+                {
+                    IsDevicePosNumber=false;
+                    break;
+                }
+            }
+
+            int pos=atoi(plies[SMGS_TOPIC_PLY_MODULE]);
+
+            if(pos <=0 || pos > 255)
+            {
+                IsDevicePosNumber=false;
+            }
+
+            Pos=pos;
+        }
+
+        SMGS_device_context_t *devctx=NULL;
+
+        if(IsDevicePosNumber)
+        {
+            devctx=ctx->Device_Find_By_Pos(ctx,Pos);
+        }
+        else
+        {
+            devctx=ctx->Device_Find_By_SerialNumber(ctx,plies[SMGS_TOPIC_PLY_MODULE]);
+        }
+
+
+        if(devctx!=NULL)//只处理有效的设备模块
+        {
+            ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(ctx,devctx,plies,plies_count,payload,payloadlen,qos,retain,buff,buff_size);
+        }
+    }
+    break;
+    }
+
+
+    return ret;
+}
+
+bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic,size_t topiclen,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+{
+    if(!SMGS_Is_GateWay_Context_OK(ctx))
+    {
+        return false;
+    }
+
+    if(topic==NULL || topiclen==0 || payload==NULL || payloadlen==0 || buff==NULL || buff_size==0)
+    {
+        return false;//参数有误
+    }
+
+    if(topiclen>CONFIG_SMGS_MAX_TOPIC_LENGTH)
+    {
+        return false;//大于最大主题大小
+    }
+
+    size_t    free_buff_size=0;//已使用的buff大小
+    uint8_t *free_buff_start=buff;//空闲buff指针
+    bool ret=false;
+
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+
+    if(!SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,free_buff_start,free_buff_size,topic,topiclen))
+    {
+        return false;
+    }
+
+    if(free_buff_size<(topiclen+1))
+    {
+        return false;//剩余缓冲不够
+    }
+
+    //修改剩余buff大小
+    free_buff_size  -=(topiclen+1);
+    free_buff_start +=(topiclen+1);
+
+    if(strcmp(plies[SMGS_TOPIC_PLY_DESTADDR],ctx->GateWaySerialNumber)!=0)
+    {
+        return false;//目的地址不正确
+    }
+
+    int comtype=SMGS_Get_Topic_Ply_ComType(plies[SMGS_TOPIC_PLY_COMTYPE]);
+    //检查通信类型
+    switch(comtype)
+    {
+    case SMGS_TOPIC_PLY_COMTYPE_BINREQ://只响应BINREQ
+    {
+        ret=SMGS_GateWay_Process_Comtype_BinReq(ctx,plies,SMGS_TOPIC_PLY_END,payload,payloadlen,qos,retain,free_buff_start,free_buff_size);
+    }
+    break;
+    default:
+        break;
+    }
+
+
+
+    return ret;
+}
+
 bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *will,uint8_t *buff,size_t buff_size)
 {
     if(will==NULL)

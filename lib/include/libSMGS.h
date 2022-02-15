@@ -579,6 +579,24 @@ typedef struct
 
 } SMGS_gateway_will_t; /**< 网关遗嘱 */
 
+
+/** \brief MQTT网关接收消息,当有MQTT消息时必须调用此函数回应消息
+ *
+ * \param ctx 网关上下文
+ * \param topic MQTT主题
+ * \param topiclen MQTT主题长度
+ * \param payload MQTT负载
+ * \param payloadlen MQTT负载长度
+ * \param qos MQTT的QOS标志
+ * \param retain Retain标志
+ * \param buff 缓冲
+ * \param buff_size 缓冲长度
+ * \return 是否执行成功
+ *
+ */
+bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic,size_t topiclen,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size);
+
+
 /** \brief 网关遗嘱编码
  *
  * \param ctx 网关上下文
