@@ -746,7 +746,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
 
         {
             //填写数据
-            flag.val=payload[3];
+            flag.val=payload[2];
             for(size_t i=0; i< (payloadlen-3) && i< sizeof(dat); i++)
             {
                 dat|= (((uint64_t)payload[3+i])<<(8*i));
