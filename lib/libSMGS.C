@@ -555,7 +555,25 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Com
 {
     bool ret=false;
 
+    return ret;
+}
 
+/*
+网关处理网关模块的BinReq的内部读寄存器。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_ReadRegister(SMGS_gateway_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+
+    return ret;
+}
+
+/*
+网关处理网关模块的BinReq的内部写寄存器。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_WriteRegister(SMGS_gateway_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
 
     return ret;
 }
@@ -628,6 +646,165 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             }
         }
 
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_READREGISTER:
+    {
+        if(payloadlen < 2 || payload==NULL)
+        {
+            break;
+        }
+        SMGS_payload_register_address_t addr=0;
+
+        addr+=payload[1];
+        addr<<=8;
+        addr+=payload[0];
+
+        bool IsReadSuccess=false;
+        uint64_t dat=0;
+        SMGS_payload_register_flag_t flag= {0};
+
+        if(IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(addr))
+        {
+            IsReadSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_ReadRegister(ctx,addr,&dat,&flag);
+        }
+        else
+        {
+            if(ctx->ReadRegister!=NULL)
+            {
+                IsReadSuccess=ctx->ReadRegister(ctx,addr,&dat,&flag);
+            }
+        }
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        if(IsReadSuccess)
+        {
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t)+sizeof(SMGS_payload_register_flag_t)+pow(2,flag.reglen);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+            retpayload[3]=flag.val;
+
+            for(size_t i=0; i<pow(2,flag.reglen); i++)
+            {
+                retpayload[4+i]=((dat>>(8*i))&0xFF);
+            }
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            //读取失败
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+
+        }
+
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_WRITEREGISTER:
+    {
+        if(payloadlen < 2 || payload==NULL)
+        {
+            break;
+        }
+        SMGS_payload_register_address_t addr=0;
+
+        addr+=payload[1];
+        addr<<=8;
+        addr+=payload[0];
+
+        bool IsWriteSuccess=false;
+        uint64_t dat=0;
+        SMGS_payload_register_flag_t flag= {0};
+
+        if(IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(addr))
+        {
+            IsWriteSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_WriteRegister(ctx,addr,&dat,&flag);
+        }
+        else
+        {
+            if(ctx->WriteRegister!=NULL)
+            {
+                IsWriteSuccess=ctx->WriteRegister(ctx,addr,&dat,&flag);
+            }
+        }
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        if(IsWriteSuccess)
+        {
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t)+sizeof(SMGS_payload_register_flag_t)+pow(2,flag.reglen);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+            retpayload[3]=flag.val;
+
+            for(size_t i=0; i<pow(2,flag.reglen); i++)
+            {
+                retpayload[4+i]=((dat>>(8*i))&0xFF);
+            }
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            //读取失败
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+
+        }
     }
     break;
     case SMGS_TOPIC_PLY_CMD_END:

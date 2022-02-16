@@ -18,6 +18,7 @@ extern "C"
 #include "stdint.h"
 #include "string.h"
 #include "stdbool.h"
+#include "math.h"
 
 /*
 导入config.h的配置
