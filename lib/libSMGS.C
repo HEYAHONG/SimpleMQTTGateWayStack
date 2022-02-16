@@ -554,7 +554,114 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
 static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(SMGS_gateway_context_t *ctx,SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *retcode)
 {
     bool ret=false;
+    switch(*cmdid)
+    {
+    case SMGS_GATEWAY_CMDID_QUERY_GATEWAYNAME:
+    {
+        if(retbuff!=NULL && ctx->GateWayName!=NULL && (*retbuff_length)> (strlen(ctx->GateWayName)+1))
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            memset(retbuff,0,(strlen(ctx->GateWayName)+1));
+            strcpy((char *)retbuff,ctx->GateWayName);
+            ret=true;
+            (*retbuff_length)=(strlen(ctx->GateWayName)+1);
+        }
+        else
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_UNKOWN_ERROR;
+            ret=true;
+            (*retbuff_length)=0;
+        }
+    }
+    break;
+    case SMGS_GATEWAY_CMDID_QUERY_GATEWAYSERIALNUMBER:
+    {
+        if(retbuff!=NULL && ctx->GateWaySerialNumber!=NULL && (*retbuff_length)> (strlen(ctx->GateWaySerialNumber)+1))
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            memset(retbuff,0,(strlen(ctx->GateWaySerialNumber)+1));
+            strcpy((char *)retbuff,ctx->GateWaySerialNumber);
+            ret=true;
+            (*retbuff_length)=(strlen(ctx->GateWaySerialNumber)+1);
+        }
+        else
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_UNKOWN_ERROR;
+            ret=true;
+            (*retbuff_length)=0;
+        }
+    }
+    break;
+    case SMGS_GATEWAY_CMDID_QUERY_DEVICETABLE:
+    {
+        if(cmddata_length<1)
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_CMD_PAYLOAD_ERROR;
+            (*retbuff_length)=0;
+        }
+        else
+        {
+            uint8_t pos=cmddata[0];
 
+            SMGS_device_context_t *devctx=ctx->Device_Find_By_Pos(ctx,pos);
+            if(devctx==NULL)
+            {
+                (*retcode)=SMGS_PAYLOAD_RETCODE_UNKOWN_MODULE;
+                (*retbuff_length)=0;
+            }
+            else
+            {
+                if( retbuff!=NULL && devctx->DeviceName!=NULL && (*retbuff_length) > (strlen(devctx->DeviceSerialNumber)+3) )
+                {
+                    (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+                    memset(retbuff,0,(strlen(devctx->DeviceSerialNumber)+3));
+                    retbuff[0]=pos;
+                    retbuff[1]=(devctx->IsOnline(devctx)?1:0);
+                    strcpy((char *)&retbuff[2],devctx->DeviceSerialNumber);
+                    (*retbuff_length)=(strlen(devctx->DeviceSerialNumber)+3);
+                }
+                else
+                {
+                    (*retcode)=SMGS_PAYLOAD_RETCODE_UNKOWN_ERROR;
+                    (*retbuff_length)=0;
+                }
+            }
+        }
+
+        ret=true;
+    }
+    break;
+    case SMGS_GATEWAY_CMDID_QUERY_DEVICETABLE_LIST:
+    {
+        if((*retbuff_length) > 32 )
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            ret=true;
+            (*retbuff_length)=32;
+            memset(retbuff,0,(*retbuff_length));
+
+            for(uint16_t i=0; i< 256 ; i++)
+            {
+                SMGS_device_context_t *devctx=ctx->Device_Find_By_Pos(ctx,i);
+                if(devctx!=NULL)
+                {
+                    retbuff[devctx->DevicePosNumber/8] |= (0x01<<(devctx->DevicePosNumber%8));
+                }
+            }
+        }
+        else
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_UNKOWN_ERROR;
+            ret=true;
+            (*retbuff_length)=0;
+        }
+    }
+    break;
+
+
+    default:
+        break;
+    }
     return ret;
 }
 
