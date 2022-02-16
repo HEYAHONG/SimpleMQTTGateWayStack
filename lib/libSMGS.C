@@ -1108,13 +1108,13 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
 
                 if(IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(addr))
                 {
-                    IsWriteSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_ReadRegister(ctx,addr,&dat,&flag);
+                    IsWriteSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_WriteRegister(ctx,addr,&dat,&flag);
                 }
                 else
                 {
-                    if(ctx->ReadRegister!=NULL)
+                    if(ctx->WriteRegister!=NULL)
                     {
-                        IsWriteSuccess=ctx->ReadRegister(ctx,addr,&dat,&flag);
+                        IsWriteSuccess=ctx->WriteRegister(ctx,addr,&dat,&flag);
                     }
                 }
 
