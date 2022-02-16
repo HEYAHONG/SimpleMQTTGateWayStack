@@ -551,7 +551,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
 /*
 网关处理网关模块的BinReq的内部命令。参数必须有效
 */
-static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,SMGS_payload_cmdid_t cmdid,uint8_t *cmddata,size_t cmddatalen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(SMGS_gateway_context_t *ctx,SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *retcode)
 {
     bool ret=false;
 
@@ -602,7 +602,40 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
         if(IS_SMGS_GATEWAY_INTERNAL_CMDID(cmdid))
         {
             //处理内部命令
-            ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(ctx,plies,plies_count,cmdid,&payload[2],payloadlen-2,qos,retain,buff,buff_size);
+            uint8_t *free_buff=buff;
+            size_t  free_buff_size=buff_size;
+
+            uint8_t *retbuff=free_buff;
+            size_t retbufflen=free_buff_size;
+            SMGS_payload_retcode_t retcode=0;
+            if(SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(ctx,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
+            {
+                if(retbufflen < free_buff_size)
+                {
+                    //减去占用的字节数
+                    free_buff+=retbufflen;
+                    free_buff_size-=retbufflen;
+
+                    size_t retpaylodlen=sizeof(SMGS_payload_cmdid_t)+sizeof(SMGS_payload_retcode_t)+retbufflen;
+                    uint8_t *retpayload=free_buff;
+
+                    if(retpaylodlen < free_buff_size)
+                    {
+                        retpayload[0]=cmdid&0xFF;
+                        retpayload[1]=((cmdid>>8)&0xFF);
+                        retpayload[2]=retcode;
+                        memcpy(&retpayload[3],retbuff,retbufflen);
+
+                        //减去占用的字节数
+                        free_buff+=retpaylodlen;
+                        free_buff_size-=retpaylodlen;
+
+                        ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+
+                    }
+
+                }
+            }
         }
         else
         {
