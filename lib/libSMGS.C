@@ -851,7 +851,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
     break;
     case SMGS_TOPIC_PLY_CMD_READSENSOR:
     {
-        if(payloadlen < 4 || payload==NULL)
+        if(payloadlen < 3 || payload==NULL)
         {
             break;
         }
