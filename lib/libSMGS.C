@@ -730,7 +730,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
     break;
     case SMGS_TOPIC_PLY_CMD_WRITEREGISTER:
     {
-        if(payloadlen < 2 || payload==NULL)
+        if(payloadlen < 4 || payload==NULL)
         {
             break;
         }
@@ -743,6 +743,15 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
         bool IsWriteSuccess=false;
         uint64_t dat=0;
         SMGS_payload_register_flag_t flag= {0};
+
+        {
+            //填写数据
+            flag.val=payload[3];
+            for(size_t i=0; i< (payloadlen-3) && i< sizeof(dat); i++)
+            {
+                dat|= (((uint64_t)payload[3+i])<<(8*i));
+            }
+        }
 
         if(IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(addr))
         {
