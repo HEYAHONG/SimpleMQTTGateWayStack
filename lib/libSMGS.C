@@ -511,6 +511,25 @@ bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_cont
     return ctx->MessagePublish(ctx,topic,payload,payload_length,qos,retian);
 }
 
+/*
+网关回复设备模块的BinReq。参数必须有效
+*/
+static bool SMGS_GateWay_Reply_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t src_plies[],size_t src_plies_count,uint8_t *retpayload,size_t retpayloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+{
+    src_plies[SMGS_TOPIC_PLY_DESTADDR]=src_plies[SMGS_TOPIC_PLY_SRCADDR];//目的地址为源地址
+    src_plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;//源地址为网关序列号
+    src_plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINRESP);//通信类型为二进制回复
+
+    const char * topic=SMGS_Topic_Plies_EnCode(src_plies,src_plies_count,buff,buff_size);
+
+    if(topic!=NULL && ctx->MessagePublish!=NULL)
+    {
+        return ctx->MessagePublish(ctx,topic,retpayload,retpayloadlen,qos,retain);
+    }
+
+    return false;
+}
+
 
 /*
 网关处理设备模块的BinReq。参数必须有效
@@ -529,6 +548,17 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
     return ret;
 }
 
+/*
+网关处理网关模块的BinReq的内部命令。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,SMGS_payload_cmdid_t cmdid,uint8_t *cmddata,size_t cmddatalen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+{
+    bool ret=false;
+
+
+
+    return ret;
+}
 
 /*
 网关处理网关模块的BinReq。参数必须有效
@@ -540,7 +570,66 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
     switch(SMGS_Get_Topic_Ply_CMD(plies[SMGS_TOPIC_PLY_CMD]))
     {
 
+    case SMGS_TOPIC_PLY_CMD_COMMAND:
+    {
+        SMGS_payload_cmdid_t cmdid=0;
+        if(payloadlen<2 || payload==NULL)
+        {
+            break;
+        }
+        cmdid+=payload[1];
+        cmdid<<=8;
+        cmdid+=payload[0];
 
+        if(IS_SMGS_GATEWAY_INTERNAL_CMDID(cmdid))
+        {
+            //处理内部命令
+            ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Command(ctx,plies,plies_count,cmdid,&payload[2],payloadlen-2,qos,retain,buff,buff_size);
+        }
+        else
+        {
+            //调用回调函数
+            if(ctx->Command!=NULL)
+            {
+                uint8_t *free_buff=buff;
+                size_t  free_buff_size=buff_size;
+
+                uint8_t *retbuff=free_buff;
+                size_t retbufflen=free_buff_size;
+                SMGS_payload_retcode_t retcode=0;
+                if(ctx->Command(ctx,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
+                {
+                    if(retbufflen < free_buff_size)
+                    {
+                        //减去占用的字节数
+                        free_buff+=retbufflen;
+                        free_buff_size-=retbufflen;
+
+                        size_t retpaylodlen=sizeof(SMGS_payload_cmdid_t)+sizeof(SMGS_payload_retcode_t)+retbufflen;
+                        uint8_t *retpayload=free_buff;
+
+                        if(retpaylodlen < free_buff_size)
+                        {
+                            retpayload[0]=cmdid&0xFF;
+                            retpayload[1]=((cmdid>>8)&0xFF);
+                            retpayload[2]=retcode;
+                            memcpy(&retpayload[3],retbuff,retbufflen);
+
+                            //减去占用的字节数
+                            free_buff+=retpaylodlen;
+                            free_buff_size-=retpaylodlen;
+
+                            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+    break;
     case SMGS_TOPIC_PLY_CMD_END:
     default:
         break;
@@ -629,7 +718,7 @@ bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic
         return false;//大于最大主题大小
     }
 
-    size_t    free_buff_size=0;//已使用的buff大小
+    size_t    free_buff_size=buff_size;//空闲的buff大小
     uint8_t *free_buff_start=buff;//空闲buff指针
     bool ret=false;
 
