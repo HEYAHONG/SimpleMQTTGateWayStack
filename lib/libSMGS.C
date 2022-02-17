@@ -530,6 +530,104 @@ static bool SMGS_GateWay_Reply_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_t
     return false;
 }
 
+/*
+网关处理设备模块的BinReq的内部命令。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_Command(SMGS_device_context_t *ctx,SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *retcode)
+{
+    bool ret=false;
+
+    switch(*cmdid)
+    {
+    case SMGS_DEVICE_CMDID_QUERY_DEVICENAME:
+    {
+        if(ctx->IsOnline(ctx) && retbuff!=NULL && ctx->DeviceName!=NULL && (*retbuff_length)> (strlen(ctx->DeviceName)+1))
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            memset(retbuff,0,(strlen(ctx->DeviceName)+1));
+            strcpy((char *)retbuff,ctx->DeviceName);
+            ret=true;
+            (*retbuff_length)=(strlen(ctx->DeviceName)+1);
+        }
+        else
+        {
+            (*retcode)=(ctx->IsOnline(ctx)?SMGS_PAYLOAD_RETCODE_UNKOWN_ERROR:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            ret=true;
+            (*retbuff_length)=0;
+        }
+
+    }
+    break;
+    case SMGS_DEVICE_CMDID_QUERY_DEVICESERIALNUMBER:
+    {
+        if(ctx->IsOnline(ctx) && retbuff!=NULL && ctx->DeviceSerialNumber!=NULL && (*retbuff_length)> (strlen(ctx->DeviceSerialNumber)+1))
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            memset(retbuff,0,(strlen(ctx->DeviceSerialNumber)+1));
+            strcpy((char *)retbuff,ctx->DeviceSerialNumber);
+            ret=true;
+            (*retbuff_length)=(strlen(ctx->DeviceSerialNumber)+1);
+        }
+        else
+        {
+            (*retcode)=(ctx->IsOnline(ctx)?SMGS_PAYLOAD_RETCODE_UNKOWN_ERROR:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            ret=true;
+            (*retbuff_length)=0;
+        }
+
+    }
+    break;
+    case SMGS_DEVICE_CMDID_QUERY_ISONLINE:
+    {
+        if(ctx->IsOnline(ctx))
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            ret=true;
+            (*retbuff_length)=1;
+            if(retbuff!=NULL)
+            {
+                retbuff[0]=1;
+            }
+
+        }
+        else
+        {
+            (*retcode)=SMGS_PAYLOAD_RETCODE_MODULE_INVALID;
+            ret=true;
+            (*retbuff_length)=1;
+            if(retbuff!=NULL)
+            {
+                retbuff[0]=0;
+            }
+        }
+    }
+    break;
+    default:
+        break;
+    }
+
+    return ret;
+}
+
+/*
+网关处理设备模块的BinReq的读寄存器。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_ReadRegister(SMGS_device_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+
+    return ret;
+}
+
+/*
+网关处理设备模块的BinReq的写寄存器。参数必须有效
+*/
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_WriteRegister(SMGS_device_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+
+    return ret;
+}
 
 /*
 网关处理设备模块的BinReq。参数必须有效
@@ -539,7 +637,633 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
     bool ret=false;
     switch(SMGS_Get_Topic_Ply_CMD(plies[SMGS_TOPIC_PLY_CMD]))
     {
+    case SMGS_TOPIC_PLY_CMD_COMMAND:
+    {
+        SMGS_payload_cmdid_t cmdid=0;
+        if(payloadlen<2 || payload==NULL)
+        {
+            break;
+        }
+        cmdid+=payload[1];
+        cmdid<<=8;
+        cmdid+=payload[0];
 
+        if(IS_SMGS_DEVICE_INTERNAL_CMDID(cmdid))
+        {
+            //处理内部命令
+            uint8_t *free_buff=buff;
+            size_t  free_buff_size=buff_size;
+
+            uint8_t *retbuff=free_buff;
+            size_t retbufflen=free_buff_size;
+            SMGS_payload_retcode_t retcode=0;
+            if(SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_Command(devctx,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
+            {
+                if(retbufflen < free_buff_size)
+                {
+                    //减去占用的字节数
+                    free_buff+=retbufflen;
+                    free_buff_size-=retbufflen;
+
+                    size_t retpaylodlen=sizeof(SMGS_payload_cmdid_t)+sizeof(SMGS_payload_retcode_t)+retbufflen;
+                    uint8_t *retpayload=free_buff;
+
+                    if(retpaylodlen < free_buff_size)
+                    {
+                        retpayload[0]=cmdid&0xFF;
+                        retpayload[1]=((cmdid>>8)&0xFF);
+                        retpayload[2]=retcode;
+                        memcpy(&retpayload[3],retbuff,retbufflen);
+
+                        //减去占用的字节数
+                        free_buff+=retpaylodlen;
+                        free_buff_size-=retpaylodlen;
+
+                        ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+
+                    }
+
+                }
+            }
+        }
+        else
+        {
+            //调用回调函数
+            if(devctx->Command!=NULL)
+            {
+                uint8_t *free_buff=buff;
+                size_t  free_buff_size=buff_size;
+
+                uint8_t *retbuff=free_buff;
+                size_t retbufflen=free_buff_size;
+                SMGS_payload_retcode_t retcode=0;
+                if(devctx->Command(devctx,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
+                {
+                    if(retbufflen < free_buff_size)
+                    {
+                        //减去占用的字节数
+                        free_buff+=retbufflen;
+                        free_buff_size-=retbufflen;
+
+                        size_t retpaylodlen=sizeof(SMGS_payload_cmdid_t)+sizeof(SMGS_payload_retcode_t)+retbufflen;
+                        uint8_t *retpayload=free_buff;
+
+                        if(retpaylodlen < free_buff_size)
+                        {
+                            retpayload[0]=cmdid&0xFF;
+                            retpayload[1]=((cmdid>>8)&0xFF);
+                            retpayload[2]=retcode;
+                            memcpy(&retpayload[3],retbuff,retbufflen);
+
+                            //减去占用的字节数
+                            free_buff+=retpaylodlen;
+                            free_buff_size-=retpaylodlen;
+
+                            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_READREGISTER:
+    {
+        if(payloadlen < 2 || payload==NULL)
+        {
+            break;
+        }
+        SMGS_payload_register_address_t addr=0;
+
+        addr+=payload[1];
+        addr<<=8;
+        addr+=payload[0];
+
+        bool IsReadSuccess=false;
+        uint64_t dat=0;
+        SMGS_payload_register_flag_t flag= {0};
+
+        if(IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(addr))
+        {
+            IsReadSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_ReadRegister(devctx,addr,&dat,&flag);
+        }
+        else
+        {
+            if(devctx->ReadRegister!=NULL)
+            {
+                IsReadSuccess=devctx->ReadRegister(devctx,addr,&dat,&flag);
+            }
+        }
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        if(IsReadSuccess && devctx->IsOnline(devctx))
+        {
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t)+sizeof(SMGS_payload_register_flag_t)+pow(2,flag.reglen);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+            retpayload[3]=flag.val;
+
+            for(size_t i=0; i<pow(2,flag.reglen); i++)
+            {
+                retpayload[4+i]=((dat>>(8*i))&0xFF);
+            }
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            //读取失败
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+
+        }
+
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_READMULTIREGISTER:
+    {
+        if(payloadlen < 4 || payload==NULL)
+        {
+            break;
+        }
+        SMGS_payload_register_address_t addr=0;
+        size_t length=0;
+
+        addr+=payload[1];
+        addr<<=8;
+        addr+=payload[0];
+
+        length+=payload[3];
+        length<<=8;
+        length+=payload[2];
+
+        size_t success_count=0;
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        uint8_t *retpayload=free_buff;
+        size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t);
+
+        if(free_buff_size<retpayloadlen)
+        {
+            break;
+        }
+        free_buff_size-=retpayloadlen;
+        free_buff+=retpayloadlen;
+
+        {
+            //读取寄存器
+            for(size_t i=0; i<length; i++)
+            {
+                bool IsReadSuccess=false;
+                uint64_t dat=0;
+                SMGS_payload_register_flag_t flag= {0};
+
+                if(IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(addr+i))
+                {
+                    IsReadSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_ReadRegister(devctx,addr+i,&dat,&flag);
+                }
+                else
+                {
+                    if(devctx->ReadRegister!=NULL)
+                    {
+                        IsReadSuccess=devctx->ReadRegister(devctx,addr+i,&dat,&flag);
+                    }
+                }
+
+                if(IsReadSuccess)
+                {
+                    uint8_t *databuff=&retpayload[retpayloadlen];
+                    size_t  databufflen=sizeof(SMGS_payload_register_address_t)+sizeof(SMGS_payload_register_flag_t)+pow(2,flag.reglen);
+
+                    if(free_buff_size<databufflen)
+                    {
+                        break;
+                    }
+                    free_buff_size-=databufflen;
+                    free_buff+=databufflen;
+
+                    databuff[0]=((addr+i)&0xFF);
+                    databuff[1]=(((addr+i)>>8)&0xFF);
+                    databuff[2]=flag.val;
+
+                    for(size_t j=0; j<pow(2,flag.reglen); j++)
+                    {
+                        databuff[3+j]=((dat>>(8*j))&0XFF);
+                    }
+
+                    retpayloadlen+=databufflen;
+
+                    success_count++;
+
+                }
+            }
+        }
+
+        if(success_count>0 && devctx->IsOnline(devctx))
+        {
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_WRITEREGISTER:
+    {
+        if(payloadlen < 4 || payload==NULL)
+        {
+            break;
+        }
+        SMGS_payload_register_address_t addr=0;
+
+        addr+=payload[1];
+        addr<<=8;
+        addr+=payload[0];
+
+        bool IsWriteSuccess=false;
+        uint64_t dat=0;
+        SMGS_payload_register_flag_t flag= {0};
+
+        {
+            //填写数据
+            flag.val=payload[2];
+            for(size_t i=0; i< (payloadlen-3) && i< sizeof(dat); i++)
+            {
+                dat|= (((uint64_t)payload[3+i])<<(8*i));
+            }
+        }
+
+        if(IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(addr))
+        {
+            IsWriteSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_WriteRegister(devctx,addr,&dat,&flag);
+        }
+        else
+        {
+            if(devctx->WriteRegister!=NULL)
+            {
+                IsWriteSuccess=devctx->WriteRegister(devctx,addr,&dat,&flag);
+            }
+        }
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        if(IsWriteSuccess & devctx->IsOnline(devctx))
+        {
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t)+sizeof(SMGS_payload_register_flag_t)+pow(2,flag.reglen);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+            retpayload[3]=flag.val;
+
+            for(size_t i=0; i<pow(2,flag.reglen); i++)
+            {
+                retpayload[4+i]=((dat>>(8*i))&0xFF);
+            }
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            //读取失败
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_register_address_t);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+
+        }
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_WRITEMULTIREGISTER:
+    {
+        if(payloadlen < 4 || payload==NULL)
+        {
+            break;
+        }
+        size_t success_count=0;
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        uint8_t *retpayload=free_buff;
+        size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t);
+
+        if(free_buff_size<retpayloadlen)
+        {
+            break;
+        }
+        free_buff_size-=retpayloadlen;
+        free_buff+=retpayloadlen;
+
+        {
+            //写入寄存器
+            for(size_t i=0; i<payloadlen;)
+            {
+                bool IsWriteSuccess=false;
+                uint64_t dat=0;
+                SMGS_payload_register_flag_t flag= {0};
+                SMGS_payload_register_address_t addr=0;
+
+                addr+=payload[i+1];
+                addr<<=8;
+                addr+=payload[i+0];
+
+                flag.val=payload[i+2];
+
+                if(payloadlen-i >= (pow(2,flag.reglen)+3))
+                {
+                    for(size_t j=0; j<pow(2,flag.reglen); j++)
+                    {
+                        dat|=(((uint64_t)payload[i+3+j]) << (j*8));
+                    }
+                }
+                else
+                {
+                    break;
+                }
+
+                i+=(3+pow(2,flag.reglen));
+
+                if( i > payloadlen || payloadlen-i < 4)
+                {
+                    break;
+                }
+
+                if(IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(addr))
+                {
+                    IsWriteSuccess=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_WriteRegister(devctx,addr,&dat,&flag);
+                }
+                else
+                {
+                    if(devctx->WriteRegister!=NULL)
+                    {
+                        IsWriteSuccess=devctx->WriteRegister(devctx,addr,&dat,&flag);
+                    }
+                }
+
+                if(IsWriteSuccess)
+                {
+                    uint8_t *databuff=&retpayload[retpayloadlen];
+                    size_t  databufflen=sizeof(SMGS_payload_register_address_t)+sizeof(SMGS_payload_register_flag_t)+pow(2,flag.reglen);
+
+                    if(free_buff_size<databufflen)
+                    {
+                        break;
+                    }
+                    free_buff_size-=databufflen;
+                    free_buff+=databufflen;
+
+                    databuff[0]=((addr+i)&0xFF);
+                    databuff[1]=(((addr+i)>>8)&0xFF);
+                    databuff[2]=flag.val;
+
+                    for(size_t j=0; j<pow(2,flag.reglen); j++)
+                    {
+                        databuff[3+j]=((dat>>(8*j))&0XFF);
+                    }
+
+                    retpayloadlen+=databufflen;
+
+                    success_count++;
+
+                }
+            }
+        }
+
+        if(success_count>0 && devctx->IsOnline(devctx))
+        {
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_READSENSOR:
+    {
+        if(payloadlen < 3 || payload==NULL)
+        {
+            break;
+        }
+        SMGS_payload_sensor_address_t addr=0;
+        SMGS_payload_sensor_flag_t flag= {0};
+
+        addr+=payload[1];
+        addr<<=8;
+        addr+=payload[0];
+
+        flag.val=payload[2];
+
+        bool IsReadSuccess=false;
+        uint64_t dat=0;
+
+
+        {
+            if(devctx->ReadSensor!=NULL)
+            {
+                IsReadSuccess=devctx->ReadSensor(devctx,addr,&dat,&flag);
+            }
+        }
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        if(IsReadSuccess)
+        {
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_sensor_address_t)+sizeof(SMGS_payload_sensor_flag_t)+pow(2,flag.sensorlen);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+            retpayload[3]=flag.val;
+
+            for(size_t i=0; i<pow(2,flag.sensorlen); i++)
+            {
+                retpayload[4+i]=((dat>>(8*i))&0xFF);
+            }
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            //读取失败
+            uint8_t *retpayload=free_buff;
+            size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t)+sizeof(SMGS_payload_sensor_address_t);
+
+            if(free_buff_size<retpayloadlen)
+            {
+                break;
+            }
+
+            free_buff+=retpayloadlen;
+            free_buff_size-=retpayloadlen;
+
+            retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            retpayload[1]=(addr&0xFF);
+            retpayload[2]=((addr>>8)&0xFF);
+
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+
+        }
+    }
+    break;
+    case SMGS_TOPIC_PLY_CMD_READMULTISENSOR:
+    {
+        if(payloadlen < 3 || payloadlen%3 != 0 || payload==NULL)
+        {
+            break;
+        }
+
+        size_t success_count=0;
+
+
+        uint8_t *free_buff=buff;
+        size_t  free_buff_size=buff_size;
+
+        uint8_t *retpayload=free_buff;
+        size_t  retpayloadlen=sizeof(SMGS_payload_retcode_t);
+
+        if(free_buff_size<retpayloadlen)
+        {
+            break;
+        }
+        free_buff_size-=retpayloadlen;
+        free_buff+=retpayloadlen;
+
+        {
+            //读取传感器
+            for(size_t i=0; i< (payloadlen/3) ; i++)
+            {
+                bool IsReadSuccess=false;
+                uint64_t dat=0;
+                SMGS_payload_sensor_address_t addr= 0;
+                SMGS_payload_sensor_flag_t flag= {0};
+
+                addr+=payload[3*i+1];
+                addr<<=8;
+                addr+=payload[3*i+0];
+
+                flag.val=payload[3*i+2];
+
+                {
+                    if(devctx->ReadSensor!=NULL)
+                    {
+                        IsReadSuccess=devctx->ReadSensor(devctx,addr,&dat,&flag);
+                    }
+                }
+
+                if(IsReadSuccess)
+                {
+                    uint8_t *databuff=&retpayload[retpayloadlen];
+                    size_t  databufflen=sizeof(SMGS_payload_sensor_address_t)+sizeof(SMGS_payload_sensor_flag_t)+pow(2,flag.sensorlen);
+
+                    if(free_buff_size<databufflen)
+                    {
+                        break;
+                    }
+                    free_buff_size-=databufflen;
+                    free_buff+=databufflen;
+
+                    databuff[0]=((addr)&0xFF);
+                    databuff[1]=(((addr)>>8)&0xFF);
+                    databuff[2]=flag.val;
+
+                    for(size_t j=0; j<pow(2,flag.sensorlen); j++)
+                    {
+                        databuff[3+j]=((dat>>(8*j))&0XFF);
+                    }
+
+                    retpayloadlen+=databufflen;
+
+                    success_count++;
+
+                }
+            }
+        }
+
+        if(success_count>0 && devctx->IsOnline(devctx))
+        {
+            retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+        else
+        {
+            retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+        }
+    }
+    break;
     case SMGS_TOPIC_PLY_CMD_END:
     default:
         break;
