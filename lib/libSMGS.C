@@ -376,7 +376,8 @@ bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd
         return false;
     }
 
-    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END];
+    memset(plies,0,sizeof(plies));
 
     plies[SMGS_TOPIC_PLY_DESTADDR]=CONFIG_SMGS_SERVER_DEFAULT_NAME; //目的地址
     plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;
@@ -474,7 +475,8 @@ bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_cont
         return false;
     }
 
-    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END];
+    memset(plies,0,sizeof(plies));
 
     plies[SMGS_TOPIC_PLY_DESTADDR]=CONFIG_SMGS_SERVER_DEFAULT_NAME; //目的地址
     plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;
@@ -744,7 +746,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
 
         bool IsReadSuccess=false;
         uint64_t dat=0;
-        SMGS_payload_register_flag_t flag= {0};
+        SMGS_payload_register_flag_t flag;
+        memset(&flag,0,sizeof(flag));
 
         if(IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(addr))
         {
@@ -849,7 +852,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             {
                 bool IsReadSuccess=false;
                 uint64_t dat=0;
-                SMGS_payload_register_flag_t flag= {0};
+                SMGS_payload_register_flag_t flag;
+                memset(&flag,0,sizeof(flag));
 
                 if(IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(addr+i))
                 {
@@ -918,7 +922,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
 
         bool IsWriteSuccess=false;
         uint64_t dat=0;
-        SMGS_payload_register_flag_t flag= {0};
+        SMGS_payload_register_flag_t flag;
+        memset(&flag,0,sizeof(flag));
 
         {
             //填写数据
@@ -1020,7 +1025,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             {
                 bool IsWriteSuccess=false;
                 uint64_t dat=0;
-                SMGS_payload_register_flag_t flag= {0};
+                SMGS_payload_register_flag_t flag;
+                memset(&flag,0,sizeof(flag));
                 SMGS_payload_register_address_t addr=0;
 
                 addr+=payload[i+1];
@@ -1108,7 +1114,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             break;
         }
         SMGS_payload_sensor_address_t addr=0;
-        SMGS_payload_sensor_flag_t flag= {0};
+        SMGS_payload_sensor_flag_t flag;
+        memset(&flag,0,sizeof(flag));
 
         addr+=payload[1];
         addr<<=8;
@@ -1208,7 +1215,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 bool IsReadSuccess=false;
                 uint64_t dat=0;
                 SMGS_payload_sensor_address_t addr= 0;
-                SMGS_payload_sensor_flag_t flag= {0};
+                SMGS_payload_sensor_flag_t flag;
+                memset(&flag,0,sizeof(flag));
 
                 addr+=payload[3*i+1];
                 addr<<=8;
@@ -1526,7 +1534,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
 
         bool IsReadSuccess=false;
         uint64_t dat=0;
-        SMGS_payload_register_flag_t flag= {0};
+        SMGS_payload_register_flag_t flag;
+        memset(&flag,0,sizeof(flag));
 
         if(IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(addr))
         {
@@ -1631,7 +1640,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             {
                 bool IsReadSuccess=false;
                 uint64_t dat=0;
-                SMGS_payload_register_flag_t flag= {0};
+                SMGS_payload_register_flag_t flag;
+                memset(&flag,0,sizeof(flag));
 
                 if(IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(addr+i))
                 {
@@ -1700,7 +1710,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
 
         bool IsWriteSuccess=false;
         uint64_t dat=0;
-        SMGS_payload_register_flag_t flag= {0};
+        SMGS_payload_register_flag_t flag;
+        memset(&flag,0,sizeof(flag));
 
         {
             //填写数据
@@ -1802,7 +1813,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             {
                 bool IsWriteSuccess=false;
                 uint64_t dat=0;
-                SMGS_payload_register_flag_t flag= {0};
+                SMGS_payload_register_flag_t flag;
+                memset(&flag,0,sizeof(flag));
                 SMGS_payload_register_address_t addr=0;
 
                 addr+=payload[i+1];
@@ -1890,7 +1902,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             break;
         }
         SMGS_payload_sensor_address_t addr=0;
-        SMGS_payload_sensor_flag_t flag= {0};
+        SMGS_payload_sensor_flag_t flag;
+        memset(&flag,0,sizeof(flag));
 
         addr+=payload[1];
         addr<<=8;
@@ -1990,7 +2003,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 bool IsReadSuccess=false;
                 uint64_t dat=0;
                 SMGS_payload_sensor_address_t addr= 0;
-                SMGS_payload_sensor_flag_t flag= {0};
+                SMGS_payload_sensor_flag_t flag;
+                memset(&flag,0,sizeof(flag));
 
                 addr+=payload[3*i+1];
                 addr<<=8;
@@ -2138,7 +2152,8 @@ bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic
     uint8_t *free_buff_start=buff;//空闲buff指针
     bool ret=false;
 
-    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END];
+    memset(plies,0,sizeof(plies));
 
     if(!SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,free_buff_start,free_buff_size,topic,topiclen))
     {
@@ -2194,7 +2209,8 @@ bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *w
         return false;
     }
 
-    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+    SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END];
+    memset(plies,0,sizeof(plies));
 
     plies[SMGS_TOPIC_PLY_DESTADDR]=CONFIG_SMGS_SERVER_DEFAULT_NAME; //目的地址
     plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;
