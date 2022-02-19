@@ -239,7 +239,7 @@ typedef uint16_t SMGS_payload_cmdid_t; /**< Payload中命令ID */
  * \return 是否是内部命令ID
  *
  */
-#define IS_SMGS_DEVICE_INTERNAL_CMDID(x) (((CONFIG_SMGS_DEVICE_INTERNAL_CMDID_1_START)<=((long)x)) && ((CONFIG_SMGS_DEVICE_INTERNAL_CMDID_1_STOP)>=((long)x)))
+#define IS_SMGS_DEVICE_INTERNAL_CMDID(x) (((CONFIG_SMGS_DEVICE_INTERNAL_CMDID_1_START)<=((long)(x))) && ((CONFIG_SMGS_DEVICE_INTERNAL_CMDID_1_STOP)>=((long)(x))))
 
 
 enum
@@ -256,8 +256,8 @@ enum
  * \return 是否是内部设备寄存器地址
  *
  */
-#define IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(x) ((((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_1_START)<=((long)x)) && ((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_1_STOP)>=((long)x))) || \
-                                                     (((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_2_START)<=((long)x)) && ((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_2_STOP)>=((long)x))))
+#define IS_SMGS_DEVICE_INTERNAL_REGISTER_ADDRESS(x) ((((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_1_START)<=((long)(x))) && ((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_1_STOP)>=((long)(x)))) || \
+                                                     (((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_2_START)<=((long)(x))) && ((CONFIG_SMGS_DEVICE_INTERNAL_REGISTER_2_STOP)>=((long)(x)))))
 
 typedef struct __SMGS_device_context_t
 {
@@ -360,7 +360,7 @@ bool SMGS_Is_Device_Context_OK(SMGS_device_context_t *ctx);
  * \return 是否是内部命令ID
  *
  */
-#define IS_SMGS_GATEWAY_INTERNAL_CMDID(x) (((CONFIG_SMGS_GATEWAY_INTERNAL_CMDID_1_START)<=((long)x)) && ((CONFIG_SMGS_GATEWAY_INTERNAL_CMDID_1_STOP)>=((long)x)))
+#define IS_SMGS_GATEWAY_INTERNAL_CMDID(x) (((CONFIG_SMGS_GATEWAY_INTERNAL_CMDID_1_START)<=((long)(x))) && ((CONFIG_SMGS_GATEWAY_INTERNAL_CMDID_1_STOP)>=((long)(x))))
 
 enum
 {
@@ -381,7 +381,7 @@ enum
  * \return 是否是内部网关寄存器地址
  *
  */
-#define IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(x) (((CONFIG_SMGS_GATEWAY_INTERNAL_REGISTER_1_START)<=((long)x)) && ((CONFIG_SMGS_GATEWAY_INTERNAL_REGISTER_1_STOP)>=((long)x)))
+#define IS_SMGS_GATEWAY_INTERNAL_REGISTER_ADDRESS(x) (((CONFIG_SMGS_GATEWAY_INTERNAL_REGISTER_1_START)<=((long)(x))) && ((CONFIG_SMGS_GATEWAY_INTERNAL_REGISTER_1_STOP)>=((long)(x))))
 
 typedef struct __SMGS_gateway_context_t
 {
