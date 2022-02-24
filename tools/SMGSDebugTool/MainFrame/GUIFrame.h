@@ -19,6 +19,11 @@
 #include <wx/image.h>
 #include <wx/icon.h>
 #include <wx/menu.h>
+#include <wx/textctrl.h>
+#include <wx/wrapsizer.h>
+#include <wx/panel.h>
+#include <wx/timer.h>
+#include <wx/notebook.h>
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
 
@@ -40,12 +45,18 @@ class GUIFrame : public wxFrame
 		wxStatusBar* m_statusBar;
 		wxMenuBar* m_menubar;
 		wxMenu* Menu_File;
+		wxTimer m_timer_init;
+		wxNotebook* m_notebook_workspace;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMenuFileExit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
+		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }
 
 
 	public:
+		wxPanel* m_panel_log;
+		wxTextCtrl* m_textCtrl_log;
 
 		GUIFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 		wxAuiManager m_mgr;
