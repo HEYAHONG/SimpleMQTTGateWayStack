@@ -1,2 +1,3 @@
 lib/build
 tests/*/build
+tools/*/build
