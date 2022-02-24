@@ -23,7 +23,6 @@ IMPLEMENT_APP(SMGSDeubgToolApp);
 bool SMGSDeubgToolApp::OnInit()
 {
     SMGSDeubgToolFrame* frame = new SMGSDeubgToolFrame(0L);
-    frame->SetIcon(wxICON(aaaa)); // To Set App Icon
     frame->Show();
     
     return true;
