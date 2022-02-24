@@ -27,7 +27,7 @@ class SMGSLogFormatter : public wxLogFormatter
                             const wxLogRecordInfo& info) const
     {
         wxDateTime now = wxDateTime::Now();
-        return wxString::Format("%02d-%02d-%02d %02d:%02d:%02d %03d %s",now.GetYear(),now.GetMonth(),now.GetDay(),now.GetHour(),now.GetMinute(),now.GetSecond(),now.GetMillisecond(),msg);
+        return wxString::Format("%02d-%02d-%02d %02d:%02d:%02d  %s",now.GetYear(),now.GetMonth(),now.GetDay(),now.GetHour(),now.GetMinute(),now.GetSecond(),msg);
     }
 };
 
@@ -40,6 +40,9 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
 
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
 {
+    //设置标题
+    SetTitle(_T("SMGSDebugTool"));
+
     wxLog::EnableLogging(true);
     {
         //设置日志窗口
