@@ -23,14 +23,14 @@ if(STATIC_BUILD)
 	set(WX_CONFIG_STATIC_FLAGS "--static")
 endif()
 
-execute_process(COMMAND ${BASH} ${WX-CONFIG} ${WX_CONFIG_STATIC_FLAGS} --cxxflags 
+execute_process(COMMAND ${BASH} ${WX-CONFIG} ${WX_CONFIG_STATIC_FLAGS} --cxxflags all 
 		OUTPUT_VARIABLE WX_CXXFLAGS)
 
 
-execute_process(COMMAND ${BASH} ${WX-CONFIG} ${WX_CONFIG_STATIC_FLAGS} --cflags 
+execute_process(COMMAND ${BASH} ${WX-CONFIG} ${WX_CONFIG_STATIC_FLAGS} --cflags all 
                 OUTPUT_VARIABLE WX_CFLAGS)
 
-execute_process(COMMAND ${BASH} ${WX-CONFIG} ${WX_CONFIG_STATIC_FLAGS} --libs 
+execute_process(COMMAND ${BASH} ${WX-CONFIG} ${WX_CONFIG_STATIC_FLAGS} --libs all 
                 OUTPUT_VARIABLE WX_LIBS)
 
 string(FIND "${WX_CFLAGS}" "\n" WX_CFLAGS_LEN)
