@@ -85,3 +85,8 @@ endif()
 #添加libSMGSS库
 add_subdirectory(../lib lib)
 target_link_libraries(${PROJECT_NAME} SMGSS)
+
+#添加Sqlite3
+find_package(PkgConfig)
+pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET  sqlite3 )
+target_link_libraries(${PROJECT_NAME} PkgConfig::SQLITE3)

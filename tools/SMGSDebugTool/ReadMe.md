@@ -2,9 +2,10 @@
 
 简易MQTT网关协议栈调试工具,模拟后台对网关的操作,仅用于网关数量较少时的调试工作。
 
-## GUI库
+## 依赖库
 
-[wxWidgets](http://wxwidgets.org/)
+- [wxWidgets](http://wxwidgets.org/)
+- [sqlite3](https://www.sqlite.org)
 
 ## GUI设计工具
 
