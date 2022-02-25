@@ -39,7 +39,8 @@ class GUIFrame : public wxFrame
 	protected:
 		enum
 		{
-			ID_Menu_File_Exit = 1000
+			ID_Save = 1000,
+			ID_Menu_File_Exit
 		};
 
 		wxStatusBar* m_statusBar;
@@ -49,6 +50,7 @@ class GUIFrame : public wxFrame
 		wxNotebook* m_notebook_workspace;
 
 		// Virtual event handlers, override them in your derived class
+		virtual void OnMenuFileSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuFileExit( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }

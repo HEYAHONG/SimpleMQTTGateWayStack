@@ -26,6 +26,9 @@ class SMGSDebugToolFrame: public GUIFrame
         //菜单退出
         virtual void OnMenuFileExit( wxCommandEvent& event );
 
+        //菜单保存
+        virtual void OnMenuFileSave( wxCommandEvent& event );
+
         //日志窗口改变大小
         virtual void OnLogPanelSize( wxSizeEvent& event );
 

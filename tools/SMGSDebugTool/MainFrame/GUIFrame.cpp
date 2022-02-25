@@ -18,6 +18,12 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_statusBar = this->CreateStatusBar( 1, wxSTB_SIZEGRIP, wxID_ANY );
 	m_menubar = new wxMenuBar( 0 );
 	Menu_File = new wxMenu();
+	wxMenuItem* Menu_File_Save;
+	Menu_File_Save = new wxMenuItem( Menu_File, ID_Save, wxString( wxT("保存") ) + wxT('\t') + wxT("Ctrl+S"), wxT("保存内部数据"), wxITEM_NORMAL );
+	Menu_File->Append( Menu_File_Save );
+
+	Menu_File->AppendSeparator();
+
 	wxMenuItem* Menu_File_Exit;
 	Menu_File_Exit = new wxMenuItem( Menu_File, ID_Menu_File_Exit, wxString( wxT("退出") ) + wxT('\t') + wxT("Alt+F4"), wxT("退出程序"), wxITEM_NORMAL );
 	Menu_File->Append( Menu_File_Exit );
@@ -63,6 +69,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	this->Centre( wxBOTH );
 
 	// Connect Events
+	Menu_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuFileSave ), this, Menu_File_Save->GetId());
 	Menu_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuFileExit ), this, Menu_File_Exit->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );

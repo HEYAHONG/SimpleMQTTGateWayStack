@@ -17,9 +17,11 @@
 
 #include <wx/log.h>
 #include <wx/datetime.h>
+#include <wx/filedlg.h>
 #include "Res.h"
 
 #include "SMGSDebugToolMain.h"
+#include "InternalDatabase.h"
 
 class SMGSLogFormatter : public wxLogFormatter
 {
@@ -57,16 +59,35 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
     }
 
     wxLogMessage(_T("程序已启动!"));
+
+    //初始化内部数据
+    InternalDatabase_Init();
+
+    InternalDatebase_ProgramInfo_Set(_T("Name"),_T("SMGSDebugTool"));
+
 }
 
-SMGSDebugToolFrame::~SMGSDebugToolFrame()
-{
-}
 
 void SMGSDebugToolFrame::OnMenuFileExit( wxCommandEvent& event )
 {
     //退出程序
     Close();
+}
+
+void SMGSDebugToolFrame::OnMenuFileSave( wxCommandEvent& event )
+{
+    wxFileDialog saveFileDialog(this, _T("保存内部数据"), "", "","db files (*.db)|*.db", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if(saveFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+    if(InternalDatabase_Backup(saveFileDialog.GetPath()))
+    {
+        wxLogMessage(_T("保存内部数据成功!"));
+    }
+    else
+    {
+        wxLogMessage(_T("保存内部数据失败!"));
+    }
+
 }
 
 void SMGSDebugToolFrame::OnLogPanelSize( wxSizeEvent& event )
@@ -90,3 +111,8 @@ void SMGSDebugToolFrame::OnAbout(wxCommandEvent &event)
 
 }
 
+SMGSDebugToolFrame::~SMGSDebugToolFrame()
+{
+    //反初始化内部数据库
+    InternalDatabase_Deinit();
+}
