@@ -2148,6 +2148,11 @@ bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic
         return false;//大于最大主题大小
     }
 
+    if(payloadlen> CONFIG_SMGS_MAX_PAYLOAD_LENGTH)
+    {
+        return false;//大于最大负载大小
+    }
+
     size_t    free_buff_size=buff_size;//空闲的buff大小
     uint8_t *free_buff_start=buff;//空闲buff指针
     bool ret=false;

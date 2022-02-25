@@ -43,7 +43,7 @@ typedef enum
     SMGS_TOPIC_PLY_CMD_PARA_1,/**< 命令参数1 */
     SMGS_TOPIC_PLY_CMD_PARA_2,/**< 命令参数2 */
     SMGS_TOPIC_PLY_CMD_PARA_3,/**< 命令参数3 */
-    SMGS_TOPIC_PLY_END,/**< 枚举结束,没有实际意义,通常用于创建数组,通常等于SMGS_TOPIC_NUMBER_OF_PLIES*/
+    SMGS_TOPIC_PLY_END=SMGS_TOPIC_NUMBER_OF_PLIES,/**< 枚举结束,没有实际意义,通常用于创建数组,通常等于SMGS_TOPIC_NUMBER_OF_PLIES*/
 } SMGS_topic_plies_index_t; /**< 主题中各层的引索*/
 
 
