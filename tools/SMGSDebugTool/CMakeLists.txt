@@ -49,9 +49,9 @@ set(CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS} ${WX_CXXFLAGS} ")
 
 
 
-file(GLOB MAIN_CXX_FILES *.cpp MainFrame/*cpp )
+file(GLOB MAIN_C_CXX_FILES *.c *.cpp MainFrame/*cpp MainFrame/*c )
 
-list(APPEND MAIN_SRCS ${MAIN_CXX_FILES})
+list(APPEND MAIN_SRCS ${MAIN_C_CXX_FILES})
 
 if(WIN32)
 	file(GLOB_RECURSE MAIN_RC_FILES win32/*.rc)
@@ -77,6 +77,10 @@ MainFrame
 add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
 
+#添加WS2_32(WIN32)
+if(WIN32)
+target_link_libraries(${PROJECT_NAME}  ws2_32)
+endif()
 
 #添加libSMGSS库
 add_subdirectory(../lib lib)
