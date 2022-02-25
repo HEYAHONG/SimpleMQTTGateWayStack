@@ -28,7 +28,7 @@ class SMGSLogFormatter : public wxLogFormatter
                             const wxLogRecordInfo& info) const
     {
         wxDateTime now = wxDateTime::Now();
-        return wxString::Format("%02d-%02d-%02d %02d:%02d:%02d  %s",now.GetYear(),now.GetMonth()+1,now.GetDay(),now.GetHour(),now.GetMinute(),now.GetSecond(),msg);
+        return wxString::Format("%02d-%02d-%02d %02d:%02d:%02d  %s",now.GetYear(),now.GetMonth()-wxDateTime::Month::Jan+1,now.GetDay(),now.GetHour(),now.GetMinute(),now.GetSecond(),msg);
     }
 };
 
