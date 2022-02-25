@@ -250,7 +250,7 @@
                 <property name="id">wxID_ANY</property>
                 <property name="name">m_timer_init</property>
                 <property name="oneshot">1</property>
-                <property name="period">1000</property>
+                <property name="period">50</property>
                 <property name="permission">protected</property>
                 <event name="OnTimer">OnInitTimer</event>
             </object>

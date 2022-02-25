@@ -17,6 +17,7 @@
 
 #include <wx/log.h>
 #include <wx/datetime.h>
+#include "Res.h"
 
 #include "SMGSDebugToolMain.h"
 
@@ -35,13 +36,15 @@ class SMGSLogFormatter : public wxLogFormatter
 SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
     : GUIFrame(frame)
 {
+    //设置icon
+    SetIcon(logo_xpm);
 
+    //设置标题
+    SetTitle(_T("SMGSDebugTool"));
 }
 
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
 {
-    //设置标题
-    SetTitle(_T("SMGSDebugTool"));
 
     wxLog::EnableLogging(true);
     {
@@ -86,3 +89,4 @@ void SMGSDebugToolFrame::OnAbout(wxCommandEvent &event)
 {
 
 }
+

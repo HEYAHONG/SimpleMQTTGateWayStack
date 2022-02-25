@@ -52,7 +52,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_panel_log->Layout();
 	wSizer1->Fit( m_panel_log );
 	m_timer_init.SetOwner( this, wxID_ANY );
-	m_timer_init.Start( 1000, true );
+	m_timer_init.Start( 50, true );
 
 	m_notebook_workspace = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	m_mgr.AddPane( m_notebook_workspace, wxAuiPaneInfo() .Center() .CloseButton( false ).PaneBorder( false ).Dock().Resizable().FloatingSize( wxDefaultSize ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ).CentrePane() );
