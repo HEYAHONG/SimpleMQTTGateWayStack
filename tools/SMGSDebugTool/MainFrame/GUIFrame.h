@@ -23,7 +23,7 @@
 #include <wx/wrapsizer.h>
 #include <wx/panel.h>
 #include <wx/timer.h>
-#include <wx/notebook.h>
+#include <wx/aui/auibook.h>
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
 #include <wx/sizer.h>
@@ -48,7 +48,7 @@ class GUIFrame : public wxFrame
 		wxMenuBar* m_menubar;
 		wxMenu* Menu_File;
 		wxTimer m_timer_init;
-		wxNotebook* m_notebook_workspace;
+		wxAuiNotebook* m_notebook_workspace;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMenuFileSave( wxCommandEvent& event ) { event.Skip(); }
