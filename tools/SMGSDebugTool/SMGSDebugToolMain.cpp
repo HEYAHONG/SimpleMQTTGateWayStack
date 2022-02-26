@@ -64,7 +64,6 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
     InternalDatabase_Init();
 
     InternalDatebase_ProgramInfo_Set(_T("Name"),_T("SMGSDebugTool"));
-
 }
 
 

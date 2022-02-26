@@ -29,12 +29,22 @@ bool InternalDatebase_ProgramInfo_Set(wxString key,wxString value)
 
     int rc=0;
 
-    wxString sql=((wxString)"INSERT INTO  ProgramInfo VALUES(\'")+key+"\',\'"+value+"\');";
-    //操作表
-    if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+
     {
-        wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
-        return false;
+        //删除之前的数据
+        wxString sql=((wxString)"DELETE FROM ProgramInfo WHERE KEY=\'")+key+"\';";
+        sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL);
+    }
+
+    {
+        //插入信息
+        wxString sql=((wxString)"INSERT INTO  ProgramInfo VALUES(\'")+key+"\',\'"+value+"\');";
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+            return false;
+        }
     }
 
 
