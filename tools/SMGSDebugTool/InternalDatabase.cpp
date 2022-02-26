@@ -51,6 +51,52 @@ bool InternalDatebase_ProgramInfo_Set(wxString key,wxString value)
     return true;
 }
 
+static int InternalDatebase_ProgramInfo_Get_cb(void *para,int ncolumn,char ** columnvalue,char *columnname[])
+{
+    if(para==NULL)
+    {
+        return 0;
+    }
+
+    wxString &ret=(*(wxString *)para);
+
+    int i;
+    for(i = 0; i < ncolumn; i++)
+    {
+        if(wxString(_T("VALUE"))==columnname[i])
+        {
+            ret=columnvalue[i];
+        }
+    }
+    return 0;
+}
+
+wxString InternalDatebase_ProgramInfo_Get(wxString key)
+{
+    wxString ret;
+
+    if(memdb==NULL)
+    {
+        return ret;
+    }
+
+    int rc=0;
+
+    {
+        //查询信息
+        wxString sql=((wxString)"SELECT * FROM ProgramInfo WHERE KEY=\'")+key+"\';";
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),InternalDatebase_ProgramInfo_Get_cb,&ret,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+            return ret;
+        }
+    }
+
+    return ret;
+
+}
+
 bool InternalDatabase_Backup(wxString destpath)
 {
     if(memdb==NULL)

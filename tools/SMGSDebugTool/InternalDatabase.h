@@ -19,6 +19,9 @@ bool InternalDatabase_Backup(wxString destpath);
 //程序信息设定
 bool InternalDatebase_ProgramInfo_Set(wxString key,wxString value);
 
+//程序信息获取
+wxString InternalDatebase_ProgramInfo_Get(wxString key);
+
 //内部数据库反初始化
 void InternalDatabase_Deinit();
 
