@@ -84,3 +84,25 @@ GUIFrame::~GUIFrame()
 	m_mgr.UnInit();
 
 }
+
+MainPage::MainPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	bSizer1 = new wxBoxSizer( wxVERTICAL );
+
+
+	this->SetSizer( bSizer1 );
+	this->Layout();
+	bSizer1->Fit( this );
+
+	// Connect Events
+	this->Connect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( MainPage::OnInit ) );
+	this->Connect( wxEVT_SIZE, wxSizeEventHandler( MainPage::OnSize ) );
+}
+
+MainPage::~MainPage()
+{
+	// Disconnect Events
+	this->Disconnect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( MainPage::OnInit ) );
+	this->Disconnect( wxEVT_SIZE, wxSizeEventHandler( MainPage::OnSize ) );
+
+}

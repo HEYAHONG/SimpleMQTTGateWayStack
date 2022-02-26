@@ -26,6 +26,7 @@
 #include <wx/notebook.h>
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
+#include <wx/sizer.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -64,6 +65,29 @@ class GUIFrame : public wxFrame
 		wxAuiManager m_mgr;
 
 		~GUIFrame();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class MainPage
+///////////////////////////////////////////////////////////////////////////////
+class MainPage : public wxPanel
+{
+	private:
+
+	protected:
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnInit( wxInitDialogEvent& event ) { event.Skip(); }
+		virtual void OnSize( wxSizeEvent& event ) { event.Skip(); }
+
+
+	public:
+		wxBoxSizer* bSizer1;
+
+		MainPage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~MainPage();
 
 };
 

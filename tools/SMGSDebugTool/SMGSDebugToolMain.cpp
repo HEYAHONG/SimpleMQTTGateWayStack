@@ -19,6 +19,7 @@
 #include <wx/datetime.h>
 #include <wx/filedlg.h>
 #include "Res.h"
+#include "GuiMainPage.h"
 
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
@@ -64,6 +65,13 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
     InternalDatabase_Init();
 
     InternalDatebase_ProgramInfo_Set(_T("Name"),_T("SMGSDebugTool"));
+
+    {
+        //打开首页
+        GuiMainPage *page=new GuiMainPage(m_notebook_workspace);
+        m_notebook_workspace->InsertPage(0,page,_T("首页"));
+
+    }
 }
 
 
