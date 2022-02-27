@@ -24,6 +24,7 @@
 #include <wx/panel.h>
 #include <wx/timer.h>
 #include <wx/aui/auibook.h>
+#include <wx/treectrl.h>
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
 #include <wx/sizer.h>
@@ -55,6 +56,7 @@ class GUIFrame : public wxFrame
 		wxMenu* Menu_Help;
 		wxTimer m_timer_init;
 		wxAuiNotebook* m_notebook_workspace;
+		wxTreeCtrl* m_maintree;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMenuFileSave( wxCommandEvent& event ) { event.Skip(); }

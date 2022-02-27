@@ -71,6 +71,11 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_mgr.AddPane( m_notebook_workspace, wxAuiPaneInfo() .Center() .CloseButton( false ).PaneBorder( false ).Dock().Resizable().FloatingSize( wxDefaultSize ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ).CentrePane() );
 
 
+	m_maintree = new wxTreeCtrl( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE|wxTR_HIDE_ROOT );
+	m_maintree->SetMinSize( wxSize( 200,-1 ) );
+
+	m_mgr.AddPane( m_maintree, wxAuiPaneInfo() .Left() .CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).BottomDockable( false ).TopDockable( false ).MinSize( wxSize( 200,-1 ) ) );
+
 
 	m_mgr.Update();
 	this->Centre( wxBOTH );
