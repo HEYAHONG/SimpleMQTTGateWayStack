@@ -30,6 +30,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_menubar->Append( Menu_File, wxT("文件") );
 
+	Menu_Help = new wxMenu();
+	wxMenuItem* Menu_About;
+	Menu_About = new wxMenuItem( Menu_Help, ID_Menu_About, wxString( wxT("关于本程序") ) , wxEmptyString, wxITEM_NORMAL );
+	Menu_Help->Append( Menu_About );
+
+	m_menubar->Append( Menu_Help, wxT("帮助") );
+
 	this->SetMenuBar( m_menubar );
 
 	m_panel_log = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE|wxTAB_TRAVERSAL );
@@ -71,6 +78,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	// Connect Events
 	Menu_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuFileSave ), this, Menu_File_Save->GetId());
 	Menu_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuFileExit ), this, Menu_File_Exit->GetId());
+	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
 }
@@ -105,4 +113,39 @@ MainPage::~MainPage()
 	this->Disconnect( wxEVT_INIT_DIALOG, wxInitDialogEventHandler( MainPage::OnInit ) );
 	this->Disconnect( wxEVT_SIZE, wxSizeEventHandler( MainPage::OnSize ) );
 
+}
+
+AboutDialog::AboutDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxSize( 400,150 ), wxDefaultSize );
+
+	wxBoxSizer* bSizer2;
+	bSizer2 = new wxBoxSizer( wxVERTICAL );
+
+	m_staticText1 = new wxStaticText( this, wxID_ANY, wxT("SMGSDebugTool BY 何亚红"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL );
+	m_staticText1->Wrap( -1 );
+	bSizer2->Add( m_staticText1, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticline1 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer2->Add( m_staticline1, 0, wxEXPAND | wxALL, 5 );
+
+	m_hyperlink1 = new wxHyperlinkCtrl( this, wxID_ANY, wxT("项目地址:https://github.com/HEYAHONG/SimpleMQTTGateWayStack"), wxT("https://github.com/HEYAHONG/SimpleMQTTGateWayStack"), wxDefaultPosition, wxDefaultSize, wxHL_DEFAULT_STYLE );
+	bSizer2->Add( m_hyperlink1, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_hyperlink2 = new wxHyperlinkCtrl( this, wxID_ANY, wxT("备用地址:https://gitee.com/HEYAHONG/SimpleMQTTGateWayStack"), wxT("https://gitee.com/HEYAHONG/SimpleMQTTGateWayStack"), wxDefaultPosition, wxDefaultSize, wxHL_ALIGN_CENTRE|wxHL_DEFAULT_STYLE );
+	bSizer2->Add( m_hyperlink2, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+
+	m_hyperlink3 = new wxHyperlinkCtrl( this, wxID_ANY, wxT("个人网址:http://hyhsystem.cn"), wxT("http://hyhsystem.cn"), wxDefaultPosition, wxDefaultSize, wxHL_ALIGN_CENTRE|wxHL_DEFAULT_STYLE );
+	bSizer2->Add( m_hyperlink3, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+
+
+	this->SetSizer( bSizer2 );
+	this->Layout();
+	bSizer2->Fit( this );
+
+	this->Centre( wxBOTH );
+}
+
+AboutDialog::~AboutDialog()
+{
 }

@@ -115,7 +115,11 @@ void SMGSDebugToolFrame::OnQuit(wxCommandEvent &event)
 
 void SMGSDebugToolFrame::OnAbout(wxCommandEvent &event)
 {
-
+    AboutDialog dlg(this);
+    dlg.Centre();
+    dlg.SetTitle(_T("关于SMGSDebugTool"));
+    dlg.SetIcon(logo_xpm);
+    dlg.ShowModal();
 }
 
 SMGSDebugToolFrame::~SMGSDebugToolFrame()

@@ -27,6 +27,10 @@
 #include <wx/frame.h>
 #include <wx/aui/aui.h>
 #include <wx/sizer.h>
+#include <wx/stattext.h>
+#include <wx/statline.h>
+#include <wx/hyperlink.h>
+#include <wx/dialog.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -41,18 +45,21 @@ class GUIFrame : public wxFrame
 		enum
 		{
 			ID_Save = 1000,
-			ID_Menu_File_Exit
+			ID_Menu_File_Exit,
+			ID_Menu_About
 		};
 
 		wxStatusBar* m_statusBar;
 		wxMenuBar* m_menubar;
 		wxMenu* Menu_File;
+		wxMenu* Menu_Help;
 		wxTimer m_timer_init;
 		wxAuiNotebook* m_notebook_workspace;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMenuFileSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuFileExit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }
 
@@ -88,6 +95,28 @@ class MainPage : public wxPanel
 		MainPage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~MainPage();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class AboutDialog
+///////////////////////////////////////////////////////////////////////////////
+class AboutDialog : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText1;
+		wxStaticLine* m_staticline1;
+		wxHyperlinkCtrl* m_hyperlink1;
+		wxHyperlinkCtrl* m_hyperlink2;
+		wxHyperlinkCtrl* m_hyperlink3;
+
+	public:
+
+		AboutDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+
+		~AboutDialog();
 
 };
 
