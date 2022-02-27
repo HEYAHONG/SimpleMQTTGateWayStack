@@ -63,7 +63,7 @@
                 <property name="context_menu">1</property>
                 <property name="enabled">1</property>
                 <property name="fg"></property>
-                <property name="fields">1</property>
+                <property name="fields">3</property>
                 <property name="font"></property>
                 <property name="hidden">0</property>
                 <property name="id">wxID_ANY</property>
@@ -73,7 +73,7 @@
                 <property name="permission">protected</property>
                 <property name="pos"></property>
                 <property name="size"></property>
-                <property name="style">wxSTB_SIZEGRIP</property>
+                <property name="style">wxSTB_DEFAULT_STYLE|wxSTB_SIZEGRIP</property>
                 <property name="subclass">; ; forward_declare</property>
                 <property name="tooltip"></property>
                 <property name="window_extra_style"></property>
@@ -146,7 +146,7 @@
                         <property name="bitmap"></property>
                         <property name="checked">0</property>
                         <property name="enabled">1</property>
-                        <property name="help"></property>
+                        <property name="help">关于本程序</property>
                         <property name="id">ID_Menu_About</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">关于本程序</property>

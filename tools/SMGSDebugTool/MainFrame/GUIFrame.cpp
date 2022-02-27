@@ -15,7 +15,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_mgr.SetManagedWindow(this);
 	m_mgr.SetFlags(wxAUI_MGR_DEFAULT);
 
-	m_statusBar = this->CreateStatusBar( 1, wxSTB_SIZEGRIP, wxID_ANY );
+	m_statusBar = this->CreateStatusBar( 3, wxSTB_DEFAULT_STYLE|wxSTB_SIZEGRIP, wxID_ANY );
 	m_menubar = new wxMenuBar( 0 );
 	Menu_File = new wxMenu();
 	wxMenuItem* Menu_File_Save;
@@ -32,7 +32,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	Menu_Help = new wxMenu();
 	wxMenuItem* Menu_About;
-	Menu_About = new wxMenuItem( Menu_Help, ID_Menu_About, wxString( wxT("关于本程序") ) , wxEmptyString, wxITEM_NORMAL );
+	Menu_About = new wxMenuItem( Menu_Help, ID_Menu_About, wxString( wxT("关于本程序") ) , wxT("关于本程序"), wxITEM_NORMAL );
 	Menu_Help->Append( Menu_About );
 
 	m_menubar->Append( Menu_Help, wxT("帮助") );
