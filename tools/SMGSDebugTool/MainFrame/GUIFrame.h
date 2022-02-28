@@ -159,7 +159,7 @@ class MQTTDialog : public wxDialog
 
 	public:
 
-		MQTTDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("MQTT"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+		MQTTDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("MQTT"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 
 		~MQTTDialog();
 
