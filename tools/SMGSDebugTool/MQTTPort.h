@@ -29,20 +29,6 @@
 #endif
 
 #include <sys/types.h>
-#ifdef WIN32
-#include <Winsock2.h>
-#include <Windows.h>
-#include <time.h>
-#include <WS2tcpip.h>
-#else
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/time.h>
-#endif // WIN32
 #include <sys/param.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -53,6 +39,13 @@
 #include <string.h>
 #include <signal.h>
 #include <stdbool.h>
+
+#ifdef WIN32
+#include <time.h>
+#else
+#include <sys/time.h>
+#endif // WIN32
+
 
 typedef struct Timer
 {

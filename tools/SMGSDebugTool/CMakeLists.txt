@@ -3,6 +3,7 @@ Project(SMGSDebugTool)
 
 cmake_minimum_required(VERSION 3.8)
 
+set(CMAKE_CXX_STANDARD 17)
 
 find_program(BASH
                 NAMES sh bash sh.exe bash.exe
@@ -76,6 +77,7 @@ MainFrame
 
 add_executable(${PROJECT_NAME} ${MAIN_SRCS})
 target_link_libraries(${PROJECT_NAME} ${MAIN_LIBS})
+
 
 #添加WS2_32(WIN32)
 if(WIN32)

@@ -32,6 +32,7 @@
 #include <wx/statline.h>
 #include <wx/hyperlink.h>
 #include <wx/dialog.h>
+#include <wx/button.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -47,23 +48,37 @@ class GUIFrame : public wxFrame
 		{
 			ID_Save = 1000,
 			ID_Menu_File_Exit,
-			ID_Menu_About
+			ID_Menu_MQTT,
+			ID_Menu_MQTT_Start,
+			ID_Menu_MQTT_Stop,
+			ID_Menu_About,
+			wxID_InitTimer,
+			wxID_MQTTPingTimer,
+			wxID_UpdateUItimer
 		};
 
 		wxStatusBar* m_statusBar;
 		wxMenuBar* m_menubar;
 		wxMenu* Menu_File;
+		wxMenu* Menu_Net;
 		wxMenu* Menu_Help;
-		wxTimer m_timer_init;
+		wxTimer m_Inittimer;
 		wxAuiNotebook* m_notebook_workspace;
 		wxTreeCtrl* m_maintree;
+		wxTimer m_MQTTPingtimer;
+		wxTimer m_UpdateUItimer;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMenuFileSave( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuFileExit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuMQTT( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuMQTTStart( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuMQTTStop( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }
+		virtual void OnMQTTPingTimer( wxTimerEvent& event ) { event.Skip(); }
+		virtual void OnUpdateUITimer( wxTimerEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -119,6 +134,34 @@ class AboutDialog : public wxDialog
 		AboutDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
 
 		~AboutDialog();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class MQTTDialog
+///////////////////////////////////////////////////////////////////////////////
+class MQTTDialog : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText3;
+		wxTextCtrl* m_textCtrl_Name;
+		wxStaticText* m_staticText4;
+		wxTextCtrl* m_textCtrl_ServerAddr;
+		wxStaticText* m_staticText5;
+		wxTextCtrl* m_textCtrl_ServerPort;
+		wxButton* m_button1;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnButtonOk( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		MQTTDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("MQTT"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+
+		~MQTTDialog();
 
 };
 

@@ -18,6 +18,21 @@
 #include "MQTTPort.h"
 
 #ifdef WIN32
+#include <Winsock2.h>
+#include <Windows.h>
+#include <time.h>
+#include <WS2tcpip.h>
+#else
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/time.h>
+#endif // WIN32
+
+#ifdef WIN32
 int gettimeofday(struct timeval *tp, void *tzp)
 {
     time_t clock;

@@ -196,7 +196,7 @@ int deliverMessage(MQTTClient* c, MQTTString* topicName, MQTTMessage* message)
             {
                 MessageData md;
                 NewMessageData(&md, topicName, message);
-                c->messageHandlers[i].fp(&md);
+                c->messageHandlers[i].fp(c,&md);
                 rc = SUCCESS;
             }
         }

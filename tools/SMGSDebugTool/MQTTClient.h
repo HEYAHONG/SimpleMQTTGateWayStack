@@ -93,7 +93,8 @@ typedef struct MQTTSubackData
     enum QoS grantedQoS;
 } MQTTSubackData;
 
-typedef void (*messageHandler)(MessageData*);
+struct MQTTClient;
+typedef void (*messageHandler)(struct MQTTClient *,MessageData*);
 
 typedef struct MQTTClient
 {
@@ -111,7 +112,7 @@ typedef struct MQTTClient
     struct MessageHandlers
     {
         const char* topicFilter;
-        void (*fp) (MessageData*);
+        void (*fp) (struct MQTTClient *,MessageData*);
     } messageHandlers[MAX_MESSAGE_HANDLERS];      /* Message handlers are indexed by subscription topic */
 
     void (*defaultMessageHandler) (MessageData*);
@@ -122,6 +123,8 @@ typedef struct MQTTClient
     Mutex mutex;
     Thread thread;
 #endif
+
+    void *UserPtr;
 } MQTTClient;
 
 #define DefaultClient {0, 0, 0, 0, NULL, NULL, 0, 0, 0}

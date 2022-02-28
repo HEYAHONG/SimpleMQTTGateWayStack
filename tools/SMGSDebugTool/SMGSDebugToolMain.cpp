@@ -20,6 +20,7 @@
 #include <wx/filedlg.h>
 #include "Res.h"
 #include "GuiMainPage.h"
+#include "GuiMQTTDialog.h"
 
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
@@ -44,6 +45,14 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
 
     //设置标题
     SetTitle(_T("SMGSDebugTool"));
+
+
+    //创建MQTTThread
+    MQTTThread=new MQTTClientThread();
+    MQTTThread->Run();
+
+    //关联回调函数
+    MQTTThread->SetConnectStateCallback(std::bind(&SMGSDebugToolFrame::OnMQTTConnectStateChange,this,std::placeholders::_1));
 }
 
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
@@ -64,7 +73,10 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
     //初始化内部数据
     InternalDatabase_Init();
 
+    //设定内部数据
     InternalDatebase_ProgramInfo_Set(_T("Name"),_T("SMGSDebugTool"));
+    InternalDatebase_ProgramInfo_Set(_T("Server"),_T("mqtt.hyhsystem.cn"));
+    InternalDatebase_ProgramInfo_Set(_T("Port"),_T("1883"));
 
     {
         //打开首页
@@ -72,8 +84,70 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
         m_notebook_workspace->InsertPage(0,page,_T("首页"));
 
     }
+
+    {
+        //打开MQTT设置窗口
+        GuiMQTTDialog dlg(this);
+        dlg.SetIcon(logo_xpm);
+        dlg.ShowModal();
+    }
+    //连接MQTT
+    MQTTThread->MQTT_StartConnect();
 }
 
+
+void SMGSDebugToolFrame::OnMQTTPingTimer( wxTimerEvent& event )
+{
+    MQTTThread->MQTT_Ping();
+}
+
+void SMGSDebugToolFrame::OnUpdateUITimer( wxTimerEvent& event )
+{
+
+}
+
+void SMGSDebugToolFrame::OnMQTTConnectStateChange(bool IsConnect)
+{
+    wxMutexGuiLocker Lock;
+    if(IsConnect)
+    {
+        Menu_Net->FindChildItem(ID_Menu_MQTT_Start)->Enable(false);
+        Menu_Net->FindChildItem(ID_Menu_MQTT_Stop)->Enable(true);
+        m_statusBar->SetStatusText(_T("已连接MQTT"),1);
+    }
+    else
+    {
+        Menu_Net->FindChildItem(ID_Menu_MQTT_Start)->Enable(true);
+        Menu_Net->FindChildItem(ID_Menu_MQTT_Stop)->Enable(false);
+        m_statusBar->SetStatusText(_T("未连接MQTT"),1);
+    }
+}
+
+void SMGSDebugToolFrame::OnMenuMQTT( wxCommandEvent& event )
+{
+    GuiMQTTDialog dlg(this);
+    dlg.SetIcon(logo_xpm);
+    if(dlg.ShowModal()==wxID_OK)
+    {
+        if(MQTTThread->MQTT_IsConnected())
+        {
+            //重启连接
+            MQTTThread->MQTT_StopConnect();
+            MQTTThread->MQTT_Ping();
+            wxThread::Sleep(10);
+            MQTTThread->MQTT_StartConnect();
+        }
+    }
+}
+void SMGSDebugToolFrame::OnMenuMQTTStart( wxCommandEvent& event )
+{
+    MQTTThread->MQTT_StartConnect();
+}
+void SMGSDebugToolFrame::OnMenuMQTTStop( wxCommandEvent& event )
+{
+    MQTTThread->MQTT_StopConnect();
+    MQTTThread->MQTT_Ping();
+}
 
 void SMGSDebugToolFrame::OnMenuFileExit( wxCommandEvent& event )
 {
@@ -124,6 +198,13 @@ void SMGSDebugToolFrame::OnAbout(wxCommandEvent &event)
 
 SMGSDebugToolFrame::~SMGSDebugToolFrame()
 {
+    //关闭Log
+    wxLog::SetActiveTarget(NULL);
+
+    MQTTThread->MQTT_StopConnect();
+    MQTTThread->MQTT_Ping();
+    MQTTThread->Delete();
+
     //反初始化内部数据库
     InternalDatabase_Deinit();
 }

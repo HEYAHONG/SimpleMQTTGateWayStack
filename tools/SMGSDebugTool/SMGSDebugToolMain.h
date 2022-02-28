@@ -13,9 +13,9 @@
 
 
 #include "SMGSDebugToolApp.h"
-
-
+#include "MQTTClientThread.h"
 #include "GUIFrame.h"
+
 
 class SMGSDebugToolFrame: public GUIFrame
 {
@@ -38,9 +38,30 @@ class SMGSDebugToolFrame: public GUIFrame
         */
         virtual void OnInitTimer( wxTimerEvent& event );
 
+        //MQTT定时器
+        virtual void OnMQTTPingTimer( wxTimerEvent& event );
+
+        //UI更新定时器。解锁GuiLock
+        virtual void OnUpdateUITimer( wxTimerEvent& event );
+
+        void OnMQTTConnectStateChange(bool IsConnect);
+
+        /*
+        MQTT菜单回调
+        */
+        virtual void OnMenuMQTT( wxCommandEvent& event );
+		virtual void OnMenuMQTTStart( wxCommandEvent& event );
+		virtual void OnMenuMQTTStop( wxCommandEvent& event );
+
         virtual void OnClose(wxCloseEvent& event);
         virtual void OnQuit(wxCommandEvent& event);
         virtual void OnAbout(wxCommandEvent& event);
+
+        //MQTT线程
+        MQTTClientThread * MQTTThread;
+        friend class MQTTClientThread;
+
+
 };
 
 #endif // SMGSDebugTOOLMAIN_H

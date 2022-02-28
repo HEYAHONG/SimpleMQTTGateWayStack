@@ -30,6 +30,23 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_menubar->Append( Menu_File, wxT("文件") );
 
+	Menu_Net = new wxMenu();
+	wxMenuItem* Menu_Net_MQTT;
+	Menu_Net_MQTT = new wxMenuItem( Menu_Net, ID_Menu_MQTT, wxString( wxT("MQTT") ) , wxEmptyString, wxITEM_NORMAL );
+	Menu_Net->Append( Menu_Net_MQTT );
+
+	Menu_Net->AppendSeparator();
+
+	wxMenuItem* Menu_Net_MQTT_Start;
+	Menu_Net_MQTT_Start = new wxMenuItem( Menu_Net, ID_Menu_MQTT_Start, wxString( wxT("MQTT开始") ) , wxT("开始MQTT连接"), wxITEM_NORMAL );
+	Menu_Net->Append( Menu_Net_MQTT_Start );
+
+	wxMenuItem* Menu_Net_MQTT_Stop;
+	Menu_Net_MQTT_Stop = new wxMenuItem( Menu_Net, ID_Menu_MQTT_Stop, wxString( wxT("MQTT停止") ) , wxT("停止MQTT连接"), wxITEM_NORMAL );
+	Menu_Net->Append( Menu_Net_MQTT_Stop );
+
+	m_menubar->Append( Menu_Net, wxT("网络") );
+
 	Menu_Help = new wxMenu();
 	wxMenuItem* Menu_About;
 	Menu_About = new wxMenuItem( Menu_Help, ID_Menu_About, wxString( wxT("关于本程序") ) , wxT("关于本程序"), wxITEM_NORMAL );
@@ -64,8 +81,8 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_panel_log->SetSizer( wSizer1 );
 	m_panel_log->Layout();
 	wSizer1->Fit( m_panel_log );
-	m_timer_init.SetOwner( this, wxID_ANY );
-	m_timer_init.Start( 50, true );
+	m_Inittimer.SetOwner( this, wxID_InitTimer );
+	m_Inittimer.Start( 50, true );
 
 	m_notebook_workspace = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_CLOSE_ON_ACTIVE_TAB|wxAUI_NB_CLOSE_ON_ALL_TABS );
 	m_mgr.AddPane( m_notebook_workspace, wxAuiPaneInfo() .Center() .CloseButton( false ).PaneBorder( false ).Dock().Resizable().FloatingSize( wxDefaultSize ).BottomDockable( false ).TopDockable( false ).LeftDockable( false ).RightDockable( false ).Floatable( false ).CentrePane() );
@@ -76,6 +93,12 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_mgr.AddPane( m_maintree, wxAuiPaneInfo() .Left() .CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).BottomDockable( false ).TopDockable( false ).MinSize( wxSize( 200,-1 ) ) );
 
+	m_MQTTPingtimer.SetOwner( this, wxID_MQTTPingTimer );
+	m_MQTTPingtimer.Start( 120000 );
+
+	m_UpdateUItimer.SetOwner( this, wxID_UpdateUItimer );
+	m_UpdateUItimer.Start( 10 );
+
 
 	m_mgr.Update();
 	this->Centre( wxBOTH );
@@ -83,16 +106,23 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	// Connect Events
 	Menu_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuFileSave ), this, Menu_File_Save->GetId());
 	Menu_File->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuFileExit ), this, Menu_File_Exit->GetId());
+	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTT ), this, Menu_Net_MQTT->GetId());
+	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStart ), this, Menu_Net_MQTT_Start->GetId());
+	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStop ), this, Menu_Net_MQTT_Stop->GetId());
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
-	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
+	this->Connect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
+	this->Connect( wxID_MQTTPingTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnMQTTPingTimer ) );
+	this->Connect( wxID_UpdateUItimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnUpdateUITimer ) );
 }
 
 GUIFrame::~GUIFrame()
 {
 	// Disconnect Events
 	m_panel_log->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
-	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
+	this->Disconnect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
+	this->Disconnect( wxID_MQTTPingTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnMQTTPingTimer ) );
+	this->Disconnect( wxID_UpdateUItimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnUpdateUITimer ) );
 
 	m_mgr.UnInit();
 
@@ -153,4 +183,95 @@ AboutDialog::AboutDialog( wxWindow* parent, wxWindowID id, const wxString& title
 
 AboutDialog::~AboutDialog()
 {
+}
+
+MQTTDialog::MQTTDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer3;
+	bSizer3 = new wxBoxSizer( wxVERTICAL );
+
+	wxFlexGridSizer* fgSizer1;
+	fgSizer1 = new wxFlexGridSizer( 1, 2, 0, 0 );
+	fgSizer1->SetFlexibleDirection( wxBOTH );
+	fgSizer1->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	m_staticText3 = new wxStaticText( this, wxID_ANY, wxT("名称:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT );
+	m_staticText3->Wrap( -1 );
+	m_staticText3->SetMinSize( wxSize( 100,-1 ) );
+
+	fgSizer1->Add( m_staticText3, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_textCtrl_Name = new wxTextCtrl( this, wxID_ANY, wxT("SMGSDebugTool"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl_Name->SetMinSize( wxSize( 150,-1 ) );
+
+	fgSizer1->Add( m_textCtrl_Name, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	bSizer3->Add( fgSizer1, 1, wxEXPAND, 5 );
+
+	wxFlexGridSizer* fgSizer2;
+	fgSizer2 = new wxFlexGridSizer( 1, 2, 0, 0 );
+	fgSizer2->SetFlexibleDirection( wxBOTH );
+	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	m_staticText4 = new wxStaticText( this, wxID_ANY, wxT("MQTT服务器地址:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT );
+	m_staticText4->Wrap( -1 );
+	m_staticText4->SetMinSize( wxSize( 100,-1 ) );
+
+	fgSizer2->Add( m_staticText4, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrl_ServerAddr = new wxTextCtrl( this, wxID_ANY, wxT("mqtt.hyhsystem.cn"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl_ServerAddr->SetMinSize( wxSize( 150,-1 ) );
+
+	fgSizer2->Add( m_textCtrl_ServerAddr, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	bSizer3->Add( fgSizer2, 1, wxEXPAND, 5 );
+
+	wxFlexGridSizer* fgSizer3;
+	fgSizer3 = new wxFlexGridSizer( 0, 2, 0, 0 );
+	fgSizer3->SetFlexibleDirection( wxBOTH );
+	fgSizer3->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	m_staticText5 = new wxStaticText( this, wxID_ANY, wxT("MQTT服务器端口:"), wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT );
+	m_staticText5->Wrap( -1 );
+	m_staticText5->SetMinSize( wxSize( 100,-1 ) );
+
+	fgSizer3->Add( m_staticText5, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_textCtrl_ServerPort = new wxTextCtrl( this, wxID_ANY, wxT("1883"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl_ServerPort->SetMinSize( wxSize( 150,-1 ) );
+
+	fgSizer3->Add( m_textCtrl_ServerPort, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	bSizer3->Add( fgSizer3, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer( wxVERTICAL );
+
+	m_button1 = new wxButton( this, wxID_ANY, wxT("确定"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer6->Add( m_button1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	bSizer3->Add( bSizer6, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	this->SetSizer( bSizer3 );
+	this->Layout();
+	bSizer3->Fit( this );
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_button1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MQTTDialog::OnButtonOk ), NULL, this );
+}
+
+MQTTDialog::~MQTTDialog()
+{
+	// Disconnect Events
+	m_button1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MQTTDialog::OnButtonOk ), NULL, this );
+
 }
