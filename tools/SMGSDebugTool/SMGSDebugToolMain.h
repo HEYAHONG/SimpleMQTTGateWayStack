@@ -41,7 +41,9 @@ class SMGSDebugToolFrame: public GUIFrame
         //MQTT定时器
         virtual void OnMQTTPingTimer( wxTimerEvent& event );
 
-        //UI更新定时器。解锁GuiLock
+        //UI更新定时器。
+        bool IsMQTTConnect;
+        bool IsMQTTConnect_Last;
         virtual void OnUpdateUITimer( wxTimerEvent& event );
 
         void OnMQTTConnectStateChange(bool IsConnect);

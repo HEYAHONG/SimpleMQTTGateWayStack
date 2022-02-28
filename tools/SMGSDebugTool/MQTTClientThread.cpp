@@ -203,7 +203,7 @@ MQTTClientThread::ExitCode MQTTClientThread::Entry()
             long port=1883;
             ServerPort.ToCLong(&port);
 
-            while(0!=NetworkConnect(&mqttserver,(char *)(const char *)ServerAddr.ToAscii(),port))
+            while(0!=NetworkConnect(&mqttserver,(char *)(const char *)ServerAddr,port))
             {
                 wxLogMessage(_T("%s:连接MQTT中(%s:%s)!"),TAG,ServerAddr.ToAscii(),ServerPort.ToAscii());
                 This()->Sleep(3000);
@@ -220,14 +220,14 @@ MQTTClientThread::ExitCode MQTTClientThread::Entry()
         cfg.keepAliveInterval=120;
 
         //填写clientID
-        cfg.clientID.cstring=(char *)(const char *)Name.ToAscii();
+        cfg.clientID.cstring=(char *)(const char *)Name;
 
         //填写cleansession
         cfg.cleansession=1;
 
         //填写用户名与密码
-        cfg.username.cstring=(char *)(const char *)Name.ToAscii();
-        cfg.password.cstring=(char *)(const char *)Name.ToAscii();
+        cfg.username.cstring=(char *)(const char *)Name;
+        cfg.password.cstring=(char *)(const char *)Name;
 
 
         if(SUCCESS!=MQTTConnect(&mqttclient,&cfg))

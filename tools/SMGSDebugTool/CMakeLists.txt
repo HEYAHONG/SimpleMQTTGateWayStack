@@ -92,3 +92,8 @@ target_link_libraries(${PROJECT_NAME} SMGSS)
 find_package(PkgConfig)
 pkg_check_modules(SQLITE3 REQUIRED IMPORTED_TARGET  sqlite3 )
 target_link_libraries(${PROJECT_NAME} PkgConfig::SQLITE3)
+
+#添加线程库
+FIND_PACKAGE(Threads REQUIRED)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}  ${CMAKE_THREAD_LIBS_INIT})
+
