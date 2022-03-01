@@ -64,7 +64,7 @@ class SMGSDebugToolFrame: public GUIFrame
         friend class MQTTClientThread;
 
 
-        wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
+        static wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
 };
 
 #endif // SMGSDebugTOOLMAIN_H

@@ -36,6 +36,8 @@ class SMGSLogFormatter : public wxLogFormatter
     }
 };
 
+//UI刷新队列
+wxMessageQueue<std::function<void()>> SMGSDebugToolFrame::UpdateUIMsgQueue;
 
 SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
     : GUIFrame(frame)
