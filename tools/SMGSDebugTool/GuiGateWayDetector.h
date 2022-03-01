@@ -7,17 +7,17 @@
 
 class GuiGateWayDetector:public GateWayDetectorDialog
 {
-    public:
-        GuiGateWayDetector(wxWindow* parent, wxWindowID id = wxID_ANY);
-        virtual ~GuiGateWayDetector();
+public:
+    GuiGateWayDetector(wxWindow* parent, wxWindowID id = wxID_ANY);
+    virtual ~GuiGateWayDetector();
 
-        void OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain);
-    protected:
+    void OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain);
+protected:
 
-        virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event );
+    virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event );
 
-    private:
-        wxMessageQueue<wxArrayString> Msg;
+private:
+    wxMessageQueue<wxArrayString> Msg;
 };
 
 #endif // GUIGATEWAYDETECTOR_H
