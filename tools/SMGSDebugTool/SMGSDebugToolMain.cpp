@@ -89,8 +89,8 @@ void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
         if(it->obj==obj)
         {
             MQTTOnMessage.List.erase(it);
+            break;
         }
-        break;
     }
 }
 
