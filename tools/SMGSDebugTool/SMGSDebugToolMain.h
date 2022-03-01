@@ -78,6 +78,8 @@ private:
     virtual void OnMenuMQTTStart( wxCommandEvent& event );
     virtual void OnMenuMQTTStop( wxCommandEvent& event );
 
+    virtual void OnMenuGateWayDetector( wxCommandEvent& event );
+
     virtual void OnClose(wxCloseEvent& event);
     virtual void OnQuit(wxCommandEvent& event);
     virtual void OnAbout(wxCommandEvent& event);

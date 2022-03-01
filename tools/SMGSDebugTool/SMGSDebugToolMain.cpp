@@ -24,6 +24,7 @@
 
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
+#include "GuiGateWayDetector.h"
 
 class SMGSLogFormatter : public wxLogFormatter
 {
@@ -240,6 +241,13 @@ void SMGSDebugToolFrame::OnMenuFileSave( wxCommandEvent& event )
         wxLogMessage(_T("保存内部数据失败!"));
     }
 
+}
+
+void SMGSDebugToolFrame::OnMenuGateWayDetector( wxCommandEvent& event )
+{
+    GuiGateWayDetector dlg(this);
+    dlg.SetIcon(logo_xpm);
+    dlg.ShowModal();
 }
 
 void SMGSDebugToolFrame::OnLogPanelSize( wxSizeEvent& event )

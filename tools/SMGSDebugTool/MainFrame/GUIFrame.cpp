@@ -32,7 +32,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	Menu_Net = new wxMenu();
 	wxMenuItem* Menu_Net_MQTT;
-	Menu_Net_MQTT = new wxMenuItem( Menu_Net, ID_Menu_MQTT, wxString( wxT("MQTT") ) , wxEmptyString, wxITEM_NORMAL );
+	Menu_Net_MQTT = new wxMenuItem( Menu_Net, ID_Menu_MQTT, wxString( wxT("MQTT") ) + wxT('\t') + wxT("Ctrl+M"), wxT("MQTT设置"), wxITEM_NORMAL );
 	Menu_Net->Append( Menu_Net_MQTT );
 
 	Menu_Net->AppendSeparator();
@@ -46,6 +46,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net->Append( Menu_Net_MQTT_Stop );
 
 	m_menubar->Append( Menu_Net, wxT("网络") );
+
+	Menu_GateWay = new wxMenu();
+	wxMenuItem* GateWayDetector;
+	GateWayDetector = new wxMenuItem( Menu_GateWay, ID_Menu_GateWayDetector, wxString( wxT("网关发现") ) + wxT('\t') + wxT("Ctrl+F"), wxT("打开网关发现窗口监测网关"), wxITEM_NORMAL );
+	Menu_GateWay->Append( GateWayDetector );
+
+	m_menubar->Append( Menu_GateWay, wxT("网关") );
 
 	Menu_Help = new wxMenu();
 	wxMenuItem* Menu_About;
@@ -109,6 +116,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTT ), this, Menu_Net_MQTT->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStart ), this, Menu_Net_MQTT_Start->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStop ), this, Menu_Net_MQTT_Stop->GetId());
+	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuGateWayDetector ), this, GateWayDetector->GetId());
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Connect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
@@ -273,5 +281,37 @@ MQTTDialog::~MQTTDialog()
 {
 	// Disconnect Events
 	m_button1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( MQTTDialog::OnButtonOk ), NULL, this );
+
+}
+
+GateWayDetectorDialog::GateWayDetectorDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer5;
+	bSizer5 = new wxBoxSizer( wxVERTICAL );
+
+	bSizer5->SetMinSize( wxSize( 300,500 ) );
+	m_listBox = new wxListBox( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB|wxLB_NEEDED_SB );
+	bSizer5->Add( m_listBox, 1, wxALL|wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer5 );
+	this->Layout();
+	bSizer5->Fit( this );
+	m_GateWayDetectorUpdatetimer.SetOwner( this, wxID_GateWayDetectorUpdatetimer );
+	m_GateWayDetectorUpdatetimer.Start( 100 );
+
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	this->Connect( wxID_GateWayDetectorUpdatetimer, wxEVT_TIMER, wxTimerEventHandler( GateWayDetectorDialog::OnGateWayDetectorUpdatetimer ) );
+}
+
+GateWayDetectorDialog::~GateWayDetectorDialog()
+{
+	// Disconnect Events
+	this->Disconnect( wxID_GateWayDetectorUpdatetimer, wxEVT_TIMER, wxTimerEventHandler( GateWayDetectorDialog::OnGateWayDetectorUpdatetimer ) );
 
 }

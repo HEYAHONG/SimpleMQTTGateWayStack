@@ -33,6 +33,7 @@
 #include <wx/hyperlink.h>
 #include <wx/dialog.h>
 #include <wx/button.h>
+#include <wx/listbox.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -51,6 +52,7 @@ class GUIFrame : public wxFrame
 			ID_Menu_MQTT,
 			ID_Menu_MQTT_Start,
 			ID_Menu_MQTT_Stop,
+			ID_Menu_GateWayDetector,
 			ID_Menu_About,
 			wxID_InitTimer,
 			wxID_MQTTPingTimer,
@@ -61,6 +63,7 @@ class GUIFrame : public wxFrame
 		wxMenuBar* m_menubar;
 		wxMenu* Menu_File;
 		wxMenu* Menu_Net;
+		wxMenu* Menu_GateWay;
 		wxMenu* Menu_Help;
 		wxTimer m_Inittimer;
 		wxAuiNotebook* m_notebook_workspace;
@@ -74,6 +77,7 @@ class GUIFrame : public wxFrame
 		virtual void OnMenuMQTT( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTStart( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTStop( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuGateWayDetector( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }
@@ -162,6 +166,34 @@ class MQTTDialog : public wxDialog
 		MQTTDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("MQTT"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP );
 
 		~MQTTDialog();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class GateWayDetectorDialog
+///////////////////////////////////////////////////////////////////////////////
+class GateWayDetectorDialog : public wxDialog
+{
+	private:
+
+	protected:
+		enum
+		{
+			wxID_GateWayDetectorUpdatetimer = 1000
+		};
+
+		wxListBox* m_listBox;
+		wxTimer m_GateWayDetectorUpdatetimer;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event ) { event.Skip(); }
+
+
+	public:
+
+		GateWayDetectorDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("网关发现"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+
+		~GateWayDetectorDialog();
 
 };
 
