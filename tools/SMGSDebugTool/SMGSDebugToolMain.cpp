@@ -47,7 +47,6 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
     SetTitle(_T("SMGSDebugTool"));
 
 
-    IsMQTTConnect=IsMQTTConnect_Last=false;
 
     //创建MQTTThread
     MQTTThread=new MQTTClientThread();
@@ -105,28 +104,42 @@ void SMGSDebugToolFrame::OnMQTTPingTimer( wxTimerEvent& event )
 
 void SMGSDebugToolFrame::OnUpdateUITimer( wxTimerEvent& event )
 {
-    if(IsMQTTConnect!=IsMQTTConnect_Last)
+    std::function<void()> cb=NULL;
+    while( wxMSGQUEUE_NO_ERROR==UpdateUIMsgQueue.ReceiveTimeout(1,cb))
     {
-        if(IsMQTTConnect)
+        //处理刷新事件
+        if(cb!=NULL)
         {
-            Menu_Net->FindChildItem(ID_Menu_MQTT_Start)->Enable(false);
-            Menu_Net->FindChildItem(ID_Menu_MQTT_Stop)->Enable(true);
-            m_statusBar->SetStatusText(_T("已连接MQTT"),1);
+            cb();
         }
-        else
-        {
-            Menu_Net->FindChildItem(ID_Menu_MQTT_Start)->Enable(true);
-            Menu_Net->FindChildItem(ID_Menu_MQTT_Stop)->Enable(false);
-            m_statusBar->SetStatusText(_T("未连接MQTT"),1);
-        }
-
-        IsMQTTConnect_Last=IsMQTTConnect;
     }
 }
 
 void SMGSDebugToolFrame::OnMQTTConnectStateChange(bool IsConnect)
 {
-    IsMQTTConnect=IsConnect;
+
+    //Lambda表达式
+    wxMenu* _Menu_Net=Menu_Net;
+    wxStatusBar* _m_statusBar=m_statusBar;
+
+    auto cb=[IsConnect,_Menu_Net,_m_statusBar]
+    {
+        if(IsConnect)
+        {
+            _Menu_Net->FindChildItem(ID_Menu_MQTT_Start)->Enable(false);
+            _Menu_Net->FindChildItem(ID_Menu_MQTT_Stop)->Enable(true);
+            _m_statusBar->SetStatusText(_T("已连接MQTT"),1);
+        }
+        else
+        {
+            _Menu_Net->FindChildItem(ID_Menu_MQTT_Start)->Enable(true);
+            _Menu_Net->FindChildItem(ID_Menu_MQTT_Stop)->Enable(false);
+            _m_statusBar->SetStatusText(_T("未连接MQTT"),1);
+        }
+    };
+
+    UpdateUIMsgQueue.Post(cb);//将刷新事件加入队列
+
 }
 
 void SMGSDebugToolFrame::OnMenuMQTT( wxCommandEvent& event )

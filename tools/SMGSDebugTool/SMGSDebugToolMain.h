@@ -15,6 +15,8 @@
 #include "SMGSDebugToolApp.h"
 #include "MQTTClientThread.h"
 #include "GUIFrame.h"
+#include <wx/msgqueue.h>
+#include "functional"
 
 
 class SMGSDebugToolFrame: public GUIFrame
@@ -42,8 +44,6 @@ class SMGSDebugToolFrame: public GUIFrame
         virtual void OnMQTTPingTimer( wxTimerEvent& event );
 
         //UI更新定时器。
-        bool IsMQTTConnect;
-        bool IsMQTTConnect_Last;
         virtual void OnUpdateUITimer( wxTimerEvent& event );
 
         void OnMQTTConnectStateChange(bool IsConnect);
@@ -64,6 +64,7 @@ class SMGSDebugToolFrame: public GUIFrame
         friend class MQTTClientThread;
 
 
+        wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
 };
 
 #endif // SMGSDebugTOOLMAIN_H
