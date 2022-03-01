@@ -12,7 +12,7 @@ GuiGateWayDetector::GuiGateWayDetector(wxWindow* parent, wxWindowID id):GateWayD
     SMGSDebugToolFrame *Frame=SMGSDebugToolApp_GetMainFrame();
     if(Frame!=NULL)
     {
-        Frame->MQTTOnMessageRegister(this,std::bind(GuiGateWayDetector::OnMQTTMessage,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4,std::placeholders::_5));
+        Frame->MQTTOnMessageRegister(this,std::bind(&GuiGateWayDetector::OnMQTTMessage,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4,std::placeholders::_5));
     }
 }
 
