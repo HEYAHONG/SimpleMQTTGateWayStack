@@ -56,6 +56,42 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
 
     //关联回调函数
     MQTTThread->SetConnectStateCallback(std::bind(&SMGSDebugToolFrame::OnMQTTConnectStateChange,this,std::placeholders::_1));
+    MQTTThread->SetOnMessageCallback(std::bind(&SMGSDebugToolFrame::OnMQTTMessage,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4,std::placeholders::_5));
+}
+
+void SMGSDebugToolFrame::MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage)
+{
+    if(obj==NULL || OnMessage == NULL)
+    {
+        return;
+    }
+
+    MQTTOnMessageUnRegister(obj);
+
+    wxMutexLocker Lock(MQTTOnMessage.Lock);
+
+    MQTTOnMessageCallback_t cb;
+    cb.obj=obj;
+    cb.OnMessage=OnMessage;
+
+    MQTTOnMessage.List.push_back(cb);
+}
+void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
+{
+    if(obj==NULL)
+    {
+        return;
+    }
+
+    wxMutexLocker Lock(MQTTOnMessage.Lock);
+    for(auto it=MQTTOnMessage.List.begin(); it!=MQTTOnMessage.List.end(); it++)
+    {
+        if(it->obj==obj)
+        {
+            MQTTOnMessage.List.erase(it);
+        }
+        break;
+    }
 }
 
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
@@ -141,6 +177,20 @@ void SMGSDebugToolFrame::OnMQTTConnectStateChange(bool IsConnect)
     };
 
     UpdateUIMsgQueue.Post(cb);//将刷新事件加入队列
+
+}
+
+void SMGSDebugToolFrame::OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain)
+{
+    //MQTT消息,调用回调函数
+    wxMutexLocker Lock(MQTTOnMessage.Lock);
+    for(size_t i=0; i<MQTTOnMessage.List.size(); i++)
+    {
+        if(MQTTOnMessage.List[i].OnMessage!=NULL)
+        {
+            MQTTOnMessage.List[i].OnMessage(topic,payload,payloadlen,qos,retain);
+        }
+    }
 
 }
 

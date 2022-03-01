@@ -14,8 +14,17 @@
 
 class SMGSDebugToolApp : public wxApp
 {
-    public:
-        virtual bool OnInit();
+public:
+    virtual bool OnInit();
+    SMGSDebugToolApp();
+    ~SMGSDebugToolApp();
 };
+
+class SMGSDebugToolFrame;
+
+/*
+获取主Frame指针，失败返回NULL
+*/
+SMGSDebugToolFrame * SMGSDebugToolApp_GetMainFrame();
 
 #endif // SMGSDEUBGTOOLAPP_H

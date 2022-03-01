@@ -20,10 +20,28 @@
 
 IMPLEMENT_APP(SMGSDebugToolApp);
 
+static SMGSDebugToolFrame * MainFrame=NULL;
+
 bool SMGSDebugToolApp::OnInit()
 {
     SMGSDebugToolFrame* frame = new SMGSDebugToolFrame(0L);
     frame->Show();
 
+    MainFrame=frame;
+
     return true;
+}
+
+SMGSDebugToolApp::SMGSDebugToolApp()
+{
+
+}
+SMGSDebugToolApp::~SMGSDebugToolApp()
+{
+    MainFrame=NULL;
+}
+
+SMGSDebugToolFrame * SMGSDebugToolApp_GetMainFrame()
+{
+    return MainFrame;
 }
