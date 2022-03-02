@@ -699,7 +699,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 uint8_t *retbuff=free_buff;
                 size_t retbufflen=free_buff_size;
                 SMGS_payload_retcode_t retcode=0;
-                if(devctx->Command(devctx,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
+                if(devctx->Command(devctx,plies,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
                 {
                     if(retbufflen < free_buff_size)
                     {
@@ -757,7 +757,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
         {
             if(devctx->ReadRegister!=NULL)
             {
-                IsReadSuccess=devctx->ReadRegister(devctx,addr,&dat,&flag);
+                IsReadSuccess=devctx->ReadRegister(devctx,plies,addr,&dat,&flag);
             }
         }
 
@@ -863,7 +863,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 {
                     if(devctx->ReadRegister!=NULL)
                     {
-                        IsReadSuccess=devctx->ReadRegister(devctx,addr+i,&dat,&flag);
+                        IsReadSuccess=devctx->ReadRegister(devctx,plies,addr+i,&dat,&flag);
                     }
                 }
 
@@ -942,7 +942,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
         {
             if(devctx->WriteRegister!=NULL)
             {
-                IsWriteSuccess=devctx->WriteRegister(devctx,addr,&dat,&flag);
+                IsWriteSuccess=devctx->WriteRegister(devctx,plies,addr,&dat,&flag);
             }
         }
 
@@ -1062,7 +1062,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 {
                     if(devctx->WriteRegister!=NULL)
                     {
-                        IsWriteSuccess=devctx->WriteRegister(devctx,addr,&dat,&flag);
+                        IsWriteSuccess=devctx->WriteRegister(devctx,plies,addr,&dat,&flag);
                     }
                 }
 
@@ -1130,7 +1130,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
         {
             if(devctx->ReadSensor!=NULL)
             {
-                IsReadSuccess=devctx->ReadSensor(devctx,addr,&dat,&flag);
+                IsReadSuccess=devctx->ReadSensor(devctx,plies,addr,&dat,&flag);
             }
         }
 
@@ -1227,7 +1227,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 {
                     if(devctx->ReadSensor!=NULL)
                     {
-                        IsReadSuccess=devctx->ReadSensor(devctx,addr,&dat,&flag);
+                        IsReadSuccess=devctx->ReadSensor(devctx,plies,addr,&dat,&flag);
                     }
                 }
 
@@ -1487,7 +1487,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 uint8_t *retbuff=free_buff;
                 size_t retbufflen=free_buff_size;
                 SMGS_payload_retcode_t retcode=0;
-                if(ctx->Command(ctx,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
+                if(ctx->Command(ctx,plies,&cmdid,&payload[2],payloadlen-2,retbuff,&retbufflen,&retcode))
                 {
                     if(retbufflen < free_buff_size)
                     {
@@ -1545,7 +1545,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
         {
             if(ctx->ReadRegister!=NULL)
             {
-                IsReadSuccess=ctx->ReadRegister(ctx,addr,&dat,&flag);
+                IsReadSuccess=ctx->ReadRegister(ctx,plies,addr,&dat,&flag);
             }
         }
 
@@ -1651,7 +1651,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 {
                     if(ctx->ReadRegister!=NULL)
                     {
-                        IsReadSuccess=ctx->ReadRegister(ctx,addr+i,&dat,&flag);
+                        IsReadSuccess=ctx->ReadRegister(ctx,plies,addr+i,&dat,&flag);
                     }
                 }
 
@@ -1730,7 +1730,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
         {
             if(ctx->WriteRegister!=NULL)
             {
-                IsWriteSuccess=ctx->WriteRegister(ctx,addr,&dat,&flag);
+                IsWriteSuccess=ctx->WriteRegister(ctx,plies,addr,&dat,&flag);
             }
         }
 
@@ -1850,7 +1850,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 {
                     if(ctx->WriteRegister!=NULL)
                     {
-                        IsWriteSuccess=ctx->WriteRegister(ctx,addr,&dat,&flag);
+                        IsWriteSuccess=ctx->WriteRegister(ctx,plies,addr,&dat,&flag);
                     }
                 }
 
@@ -1918,7 +1918,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
         {
             if(ctx->ReadSensor!=NULL)
             {
-                IsReadSuccess=ctx->ReadSensor(ctx,addr,&dat,&flag);
+                IsReadSuccess=ctx->ReadSensor(ctx,plies,addr,&dat,&flag);
             }
         }
 
@@ -2015,7 +2015,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 {
                     if(ctx->ReadSensor!=NULL)
                     {
-                        IsReadSuccess=ctx->ReadSensor(ctx,addr,&dat,&flag);
+                        IsReadSuccess=ctx->ReadSensor(ctx,plies,addr,&dat,&flag);
                     }
                 }
 

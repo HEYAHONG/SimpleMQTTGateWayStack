@@ -282,6 +282,7 @@ typedef struct __SMGS_device_context_t
     /** \brief 执行特殊命令,可为NULL
      *
      * \param ctx 设备上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param cmdid 命令ID,用户可修改命令ID。
      * \param cmddata 命令数据。
      * \param cmddata_length 命令数据长度。
@@ -291,42 +292,45 @@ typedef struct __SMGS_device_context_t
      * \return 是否执行成功
      *
      */
-    bool (*Command)(struct __SMGS_device_context_t *ctx,SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *ret);
+    bool (*Command)(struct __SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *ret);
 
 
     /** \brief 读寄存器,可为NULL
      *
      * \param ctx 设备上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param addr 寄存器地址。
      * \param dat 数据。
      * \param flag 标志。
      * \return 是否执行成功。
      *
      */
-    bool (*ReadRegister)(struct __SMGS_device_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
+    bool (*ReadRegister)(struct __SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
 
     /** \brief 写寄存器,可为NULL
      *
      * \param ctx 设备上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param addr 寄存器地址。
      * \param dat 数据,用户可修改此数据。
      * \param flag 标志,用户可修改此数据。
      * \return 是否执行成功。
      *
      */
-    bool (*WriteRegister)(struct __SMGS_device_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
+    bool (*WriteRegister)(struct __SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
 
 
     /** \brief 读传感器,可为NULL
      *
      * \param ctx 设备上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param addr 传感器地址。
      * \param dat 数据。
      * \param flag 标志
      * \return 是否执行成功
      *
      */
-    bool (*ReadSensor)(struct __SMGS_device_context_t *ctx,SMGS_payload_sensor_address_t addr,uint64_t *dat,SMGS_payload_sensor_flag_t *flag);
+    bool (*ReadSensor)(struct __SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_sensor_address_t addr,uint64_t *dat,SMGS_payload_sensor_flag_t *flag);
 
 
 
@@ -405,42 +409,45 @@ typedef struct __SMGS_gateway_context_t
      * \return 是否执行成功
      *
      */
-    bool (*Command)(struct __SMGS_gateway_context_t *ctx,SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *ret);
+    bool (*Command)(struct __SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *ret);
 
 
     /** \brief 读寄存器,可为NULL
      *
      * \param ctx 网关上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param addr 寄存器地址。
      * \param dat 数据。
      * \param flag 标志。
      * \return 是否执行成功。
      *
      */
-    bool (*ReadRegister)(struct __SMGS_gateway_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
+    bool (*ReadRegister)(struct __SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
 
     /** \brief 写寄存器,可为NULL
      *
      * \param ctx 网关上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param addr 寄存器地址。
      * \param dat 数据,用户可修改此数据。
      * \param flag 标志,用户可修改此数据。
      * \return 是否执行成功。
      *
      */
-    bool (*WriteRegister)(struct __SMGS_gateway_context_t *ctx,SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
+    bool (*WriteRegister)(struct __SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag);
 
 
     /** \brief 读传感器,可为NULL
      *
      * \param ctx 网关上下文指针。
+     * \param plies 主题分层后的数组,用户不可修改除命令参数以外的内容
      * \param addr 传感器地址。
      * \param dat 数据。
      * \param flag 标志
      * \return 是否执行成功
      *
      */
-    bool (*ReadSensor)(struct __SMGS_gateway_context_t *ctx,SMGS_payload_sensor_address_t addr,uint64_t *dat,SMGS_payload_sensor_flag_t *flag);
+    bool (*ReadSensor)(struct __SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_sensor_address_t addr,uint64_t *dat,SMGS_payload_sensor_flag_t *flag);
 
 
     /*
