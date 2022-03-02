@@ -302,16 +302,27 @@ GateWayDetectorDialog::GateWayDetectorDialog( wxWindow* parent, wxWindowID id, c
 	m_GateWayDetectorUpdatetimer.SetOwner( this, wxID_GateWayDetectorUpdatetimer );
 	m_GateWayDetectorUpdatetimer.Start( 100 );
 
+	m_RightClickMenu = new wxMenu();
+	wxMenuItem* m_MenuItemCopy;
+	m_MenuItemCopy = new wxMenuItem( m_RightClickMenu, wxID_MenuItemCopy, wxString( wxT("复制") ) , wxEmptyString, wxITEM_NORMAL );
+	m_RightClickMenu->Append( m_MenuItemCopy );
+
+	this->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GateWayDetectorDialog::GateWayDetectorDialogOnContextMenu ), NULL, this );
+
 
 	this->Centre( wxBOTH );
 
 	// Connect Events
+	m_list->Connect( wxEVT_COMMAND_LIST_ITEM_RIGHT_CLICK, wxListEventHandler( GateWayDetectorDialog::OnListItemRightClick ), NULL, this );
 	this->Connect( wxID_GateWayDetectorUpdatetimer, wxEVT_TIMER, wxTimerEventHandler( GateWayDetectorDialog::OnGateWayDetectorUpdatetimer ) );
+	m_RightClickMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GateWayDetectorDialog::OnMenuItemCopy ), this, m_MenuItemCopy->GetId());
 }
 
 GateWayDetectorDialog::~GateWayDetectorDialog()
 {
 	// Disconnect Events
+	m_list->Disconnect( wxEVT_COMMAND_LIST_ITEM_RIGHT_CLICK, wxListEventHandler( GateWayDetectorDialog::OnListItemRightClick ), NULL, this );
 	this->Disconnect( wxID_GateWayDetectorUpdatetimer, wxEVT_TIMER, wxTimerEventHandler( GateWayDetectorDialog::OnGateWayDetectorUpdatetimer ) );
 
+	delete m_RightClickMenu;
 }

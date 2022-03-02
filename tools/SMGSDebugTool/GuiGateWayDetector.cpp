@@ -5,6 +5,7 @@
 #include "wx/thread.h"
 #include "wx/arrstr.h"
 #include "libSMGS-Server.h"
+#include <wx/clipbrd.h>
 
 GuiGateWayDetector::GuiGateWayDetector(wxWindow* parent, wxWindowID id):GateWayDetectorDialog(parent,id)
 {
@@ -43,6 +44,23 @@ void GuiGateWayDetector::OnGateWayDetectorUpdatetimer( wxTimerEvent& event )
             m_list->InsertItem(0,topic_plies[SMGS_TOPIC_PLY_SRCADDR]);
         }
     }
+}
+
+void GuiGateWayDetector::OnListItemRightClick( wxListEvent& event )
+{
+    CurrentAddr=event.GetText();
+    //弹出菜单
+    PopupMenu(m_RightClickMenu);
+}
+
+void GuiGateWayDetector::OnMenuItemCopy( wxCommandEvent& event )
+{
+    if (wxTheClipboard->Open())
+    {
+        wxTheClipboard->SetData(new wxTextDataObject(CurrentAddr));
+        wxTheClipboard->Close();
+    }
+    wxLogMessage(_T("%s已复制"),(const char *) CurrentAddr);
 }
 
 GuiGateWayDetector::~GuiGateWayDetector()

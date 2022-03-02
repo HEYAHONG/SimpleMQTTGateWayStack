@@ -179,14 +179,18 @@ class GateWayDetectorDialog : public wxDialog
 	protected:
 		enum
 		{
-			wxID_GateWayDetectorUpdatetimer = 1000
+			wxID_GateWayDetectorUpdatetimer = 1000,
+			wxID_MenuItemCopy
 		};
 
 		wxListCtrl* m_list;
 		wxTimer m_GateWayDetectorUpdatetimer;
+		wxMenu* m_RightClickMenu;
 
 		// Virtual event handlers, override them in your derived class
+		virtual void OnListItemRightClick( wxListEvent& event ) { event.Skip(); }
 		virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event ) { event.Skip(); }
+		virtual void OnMenuItemCopy( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -194,6 +198,11 @@ class GateWayDetectorDialog : public wxDialog
 		GateWayDetectorDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("网关发现"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
 
 		~GateWayDetectorDialog();
+
+		void GateWayDetectorDialogOnContextMenu( wxMouseEvent &event )
+		{
+			this->PopupMenu( m_RightClickMenu, event.GetPosition() );
+		}
 
 };
 

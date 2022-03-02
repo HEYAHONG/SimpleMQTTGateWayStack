@@ -15,9 +15,12 @@ public:
 protected:
 
     virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event );
+    virtual void OnListItemRightClick( wxListEvent& event );
+    virtual void OnMenuItemCopy( wxCommandEvent& event );
 
 private:
     wxMessageQueue<wxArrayString> Msg;
+    wxString CurrentAddr;
 };
 
 #endif // GUIGATEWAYDETECTOR_H
