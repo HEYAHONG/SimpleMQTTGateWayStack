@@ -307,6 +307,10 @@ GateWayDetectorDialog::GateWayDetectorDialog( wxWindow* parent, wxWindowID id, c
 	m_MenuItemCopy = new wxMenuItem( m_RightClickMenu, wxID_MenuItemCopy, wxString( wxT("复制") ) , wxEmptyString, wxITEM_NORMAL );
 	m_RightClickMenu->Append( m_MenuItemCopy );
 
+	wxMenuItem* m_MenuItemAddGateWayToWorkSpace;
+	m_MenuItemAddGateWayToWorkSpace = new wxMenuItem( m_RightClickMenu, wxID_MenuItemAddGateWayToWorkSpace, wxString( wxT("添加至工作区") ) , wxEmptyString, wxITEM_NORMAL );
+	m_RightClickMenu->Append( m_MenuItemAddGateWayToWorkSpace );
+
 	this->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GateWayDetectorDialog::GateWayDetectorDialogOnContextMenu ), NULL, this );
 
 
@@ -316,6 +320,7 @@ GateWayDetectorDialog::GateWayDetectorDialog( wxWindow* parent, wxWindowID id, c
 	m_list->Connect( wxEVT_COMMAND_LIST_ITEM_RIGHT_CLICK, wxListEventHandler( GateWayDetectorDialog::OnListItemRightClick ), NULL, this );
 	this->Connect( wxID_GateWayDetectorUpdatetimer, wxEVT_TIMER, wxTimerEventHandler( GateWayDetectorDialog::OnGateWayDetectorUpdatetimer ) );
 	m_RightClickMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GateWayDetectorDialog::OnMenuItemCopy ), this, m_MenuItemCopy->GetId());
+	m_RightClickMenu->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GateWayDetectorDialog::OnMenuItemAddGateWayToWorkSpace ), this, m_MenuItemAddGateWayToWorkSpace->GetId());
 }
 
 GateWayDetectorDialog::~GateWayDetectorDialog()

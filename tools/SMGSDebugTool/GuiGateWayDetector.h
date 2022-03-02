@@ -17,6 +17,7 @@ protected:
     virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event );
     virtual void OnListItemRightClick( wxListEvent& event );
     virtual void OnMenuItemCopy( wxCommandEvent& event );
+    virtual void OnMenuItemAddGateWayToWorkSpace( wxCommandEvent& event );
 
 private:
     wxMessageQueue<wxArrayString> Msg;

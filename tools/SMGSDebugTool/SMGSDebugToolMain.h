@@ -27,8 +27,12 @@ public:
     SMGSDebugToolFrame(wxFrame *frame);
     ~SMGSDebugToolFrame();
 
+    //MQTT消息回调函数注册与反注册
     void MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage);
     void MQTTOnMessageUnRegister(void *obj);
+
+    //添加网关到工作区,
+    void AddMQTTGateWayToWorkSpace(wxString Addr);
 
 private:
     //菜单退出

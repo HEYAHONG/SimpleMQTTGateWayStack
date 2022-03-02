@@ -180,7 +180,8 @@ class GateWayDetectorDialog : public wxDialog
 		enum
 		{
 			wxID_GateWayDetectorUpdatetimer = 1000,
-			wxID_MenuItemCopy
+			wxID_MenuItemCopy,
+			wxID_MenuItemAddGateWayToWorkSpace
 		};
 
 		wxListCtrl* m_list;
@@ -191,6 +192,7 @@ class GateWayDetectorDialog : public wxDialog
 		virtual void OnListItemRightClick( wxListEvent& event ) { event.Skip(); }
 		virtual void OnGateWayDetectorUpdatetimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnMenuItemCopy( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuItemAddGateWayToWorkSpace( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:

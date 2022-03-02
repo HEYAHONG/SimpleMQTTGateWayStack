@@ -63,6 +63,15 @@ void GuiGateWayDetector::OnMenuItemCopy( wxCommandEvent& event )
     wxLogMessage(_T("%s已复制"),(const char *) CurrentAddr);
 }
 
+void GuiGateWayDetector::OnMenuItemAddGateWayToWorkSpace( wxCommandEvent& event )
+{
+    SMGSDebugToolFrame *Frame=SMGSDebugToolApp_GetMainFrame();
+    if(Frame!=NULL)
+    {
+        Frame->AddMQTTGateWayToWorkSpace(CurrentAddr);
+    }
+}
+
 GuiGateWayDetector::~GuiGateWayDetector()
 {
     //dtor

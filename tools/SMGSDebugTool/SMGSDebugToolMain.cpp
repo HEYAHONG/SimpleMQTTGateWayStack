@@ -95,6 +95,11 @@ void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
     }
 }
 
+ void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
+ {
+     wxLogMessage(_T("%s已添加到工作区"),Addr);
+ }
+
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
 {
 
