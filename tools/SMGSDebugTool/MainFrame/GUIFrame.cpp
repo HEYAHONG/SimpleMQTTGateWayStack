@@ -292,8 +292,8 @@ GateWayDetectorDialog::GateWayDetectorDialog( wxWindow* parent, wxWindowID id, c
 	bSizer5 = new wxBoxSizer( wxVERTICAL );
 
 	bSizer5->SetMinSize( wxSize( 300,500 ) );
-	m_listBox = new wxListBox( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB|wxLB_NEEDED_SB );
-	bSizer5->Add( m_listBox, 1, wxALL|wxEXPAND, 5 );
+	m_list = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_LIST );
+	bSizer5->Add( m_list, 1, wxALL|wxEXPAND, 5 );
 
 
 	this->SetSizer( bSizer5 );

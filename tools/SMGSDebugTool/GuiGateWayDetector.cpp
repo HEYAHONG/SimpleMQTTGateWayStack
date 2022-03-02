@@ -40,7 +40,7 @@ void GuiGateWayDetector::OnGateWayDetectorUpdatetimer( wxTimerEvent& event )
         if(wxString("online")==topic_plies[SMGS_TOPIC_PLY_CMD_PARA_1])
         {
             wxLogMessage(_T("%s已上线"),(const char *)topic_plies[SMGS_TOPIC_PLY_SRCADDR]);
-            m_listBox->Insert(topic_plies[SMGS_TOPIC_PLY_SRCADDR],0);
+            m_list->InsertItem(0,topic_plies[SMGS_TOPIC_PLY_SRCADDR]);
         }
     }
 }

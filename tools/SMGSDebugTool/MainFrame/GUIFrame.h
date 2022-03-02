@@ -33,7 +33,7 @@
 #include <wx/hyperlink.h>
 #include <wx/dialog.h>
 #include <wx/button.h>
-#include <wx/listbox.h>
+#include <wx/listctrl.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -182,7 +182,7 @@ class GateWayDetectorDialog : public wxDialog
 			wxID_GateWayDetectorUpdatetimer = 1000
 		};
 
-		wxListBox* m_listBox;
+		wxListCtrl* m_list;
 		wxTimer m_GateWayDetectorUpdatetimer;
 
 		// Virtual event handlers, override them in your derived class
