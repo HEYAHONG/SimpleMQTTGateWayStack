@@ -12,10 +12,10 @@ void InternalDatabase_Init()
 
     {
         //创建表
-        if((rc= sqlite3_exec(memdb,"CREATE TABLE ProgramInfo(KEY TEXT,VALUE TEXT);",NULL,NULL,NULL))!=SQLITE_OK)
-        {
-            wxLogMessage(_T("初始化内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
-        }
+        wxArrayString Header;
+        Header.Add(_T("KEY"));
+        Header.Add(_T("VALUE"));
+        InternalDatabase_Create_Table(_T("ProgramInfo"),Header);
     }
 }
 
@@ -126,6 +126,88 @@ bool InternalDatabase_Backup(wxString destpath)
     return true;
 }
 
+static int InternalDatebase_Is_Table_Valied_cb(void *para,int ncolumn,char ** columnvalue,char *columnname[])
+{
+    if(para==NULL)
+    {
+        return 0;
+    }
+
+    wxString &ret=(*(wxString *)para);
+
+    int i;
+    for(i = 0; i < ncolumn; i++)
+    {
+        ret=columnvalue[i];
+    }
+    return 0;
+}
+//检查表名是否有效
+bool InternalDatebase_Is_Table_Valied(wxString Table_Name)
+{
+    wxString ret;
+
+    if(memdb==NULL)
+    {
+        return false;
+    }
+
+    int rc=0;
+
+    {
+        //查询信息
+        wxString sql=((wxString)"SELECT NAME FROM SQLITE_MASTER WHERE TYPE=\'table\' AND NAME=\'")+Table_Name+"\';";
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),InternalDatebase_Is_Table_Valied_cb,&ret,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+        }
+    }
+
+    return !ret.empty();
+}
+
+
+
+bool InternalDatabase_Create_Table(wxString Table_Name,wxArrayString Header)
+{
+
+    if(memdb==NULL || Header.size()==0)
+    {
+        return false;
+    }
+
+    if(InternalDatebase_Is_Table_Valied(Table_Name))
+    {
+        return false;
+    }
+
+    int rc=0;
+
+    wxString sql;
+    {
+        sql+=_T("CREATE TABLE ");
+        sql+=Table_Name;
+        sql+=_T("(");
+        sql+=Header[0];
+
+        for(size_t i=1;i<Header.size();i++)
+        {
+            sql+=_T(",");
+            sql+=Header[i];
+        }
+
+        sql+=_T(");");
+    }
+    if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+    {
+        wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+        return false;
+    }
+
+
+    return true;
+}
 
 void InternalDatabase_Deinit()
 {

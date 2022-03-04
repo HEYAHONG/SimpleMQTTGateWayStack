@@ -4,6 +4,7 @@
 #include "sqlite3.h"
 #include "stdbool.h"
 #include "wx/string.h"
+#include "wx/arrstr.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -24,6 +25,16 @@ wxString InternalDatebase_ProgramInfo_Get(wxString key);
 
 //内部数据库反初始化
 void InternalDatabase_Deinit();
+
+//检查表名是否有效
+bool InternalDatebase_Is_Table_Valied(wxString Table_Name);
+
+/*
+创建表.
+由于sqlite3为动态类型(可不声明类型),参数不包含类型
+*/
+bool InternalDatabase_Create_Table(wxString Table_Name,wxArrayString Header);
+
 
 #ifdef __cplusplus
 }
