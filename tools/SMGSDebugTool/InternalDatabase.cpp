@@ -29,20 +29,25 @@ bool InternalDatebase_ProgramInfo_Set(wxString key,wxString value)
 
     int rc=0;
 
+    std::map<wxString,wxString> Data;
+
+    Data["KEY"]=key;
+
 
     {
         //删除之前的数据
-        wxString sql=((wxString)"DELETE FROM ProgramInfo WHERE KEY=\'")+key+"\';";
-        sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL);
+        if(!InternalDatabase_Table_Delete_Data(_T("ProgramInfo"),Data))
+        {
+            return false;
+        }
     }
+
+    Data["VALUE"]=value;
 
     {
         //插入信息
-        wxString sql=((wxString)"INSERT INTO  ProgramInfo VALUES(\'")+key+"\',\'"+value+"\');";
-        //操作表
-        if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+        if(!InternalDatabase_Table_Insert_Data(_T("ProgramInfo"),Data))
         {
-            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
             return false;
         }
     }
@@ -239,7 +244,7 @@ static int InternalDatabase_Table_Get_AllData_cb(void *para,int ncolumn,char ** 
     }
     return 0;
 }
-std::map<wxString,wxArrayString> InternalDatabase_Table_Get_AllData(wxString Table_Name)
+std::map<wxString,wxArrayString> InternalDatabase_Table_Get_AllData(wxString Table_Name,std::map<wxString,wxString> Condition)
 {
     std::map<wxString,wxArrayString> ret;
 
@@ -252,7 +257,20 @@ std::map<wxString,wxArrayString> InternalDatabase_Table_Get_AllData(wxString Tab
 
     {
         //查询信息
-        wxString sql=((wxString)"SELECT * FROM ")+Table_Name+";";
+        wxString sql=((wxString)"SELECT * FROM ")+Table_Name;
+        if(!Condition.empty())
+        {
+            sql+=_T(" WHERE ");
+            for(auto it=Condition.begin(); it!=Condition.end();)
+            {
+                sql+=(it->first+_T("=\'")+it->second+_T("\'"));
+                if((++it)!=Condition.end())
+                {
+                    sql+=_T(" AND ");
+                }
+            }
+        }
+        sql+=_T(";");
         //操作表
         if((rc= sqlite3_exec(memdb,sql.ToAscii(),InternalDatabase_Table_Get_AllData_cb,&ret,NULL))!=SQLITE_OK)
         {
@@ -261,6 +279,103 @@ std::map<wxString,wxArrayString> InternalDatabase_Table_Get_AllData(wxString Tab
     }
 
     return ret;
+}
+
+bool InternalDatabase_Table_Insert_Data(wxString Table_Name,std::map<wxString,wxString> Data)
+{
+    if(!InternalDatabase_Is_Table_Valied(Table_Name) || Data.empty())
+    {
+        return false;
+    }
+
+    {
+        int rc=0;
+        //插入信息
+        wxString sql;
+        {
+            sql+=_T("INSERT INTO ");
+            sql+=Table_Name;
+            sql+=_T(" ( ");
+            for(auto it=Data.begin(); it!=Data.end();)
+            {
+                sql+=it->first;
+                if((++it)!=Data.end())
+                {
+                    sql+=_T(",");
+                }
+            }
+
+            sql+=_T(")");
+
+            sql+=_T(" VALUES(");
+
+            for(auto it=Data.begin(); it!=Data.end();)
+            {
+                sql+=_T("\'");
+                sql+=it->second;
+                sql+=_T("\'");
+                if((++it)!=Data.end())
+                {
+                    sql+=_T(",");
+                }
+            }
+
+            sql+=_T(");");
+
+        }
+
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool InternalDatabase_Table_Delete_Data(wxString Table_Name,std::map<wxString,wxString> Condition)
+{
+    if(!InternalDatabase_Is_Table_Valied(Table_Name))
+    {
+        return false;
+    }
+
+    {
+        int rc=0;
+        //插入信息
+        wxString sql;
+        {
+            sql+=_T("DELETE  FROM ");
+            sql+=Table_Name;
+
+            if(!Condition.empty())
+            {
+                sql+=_T(" WHERE ");
+                for(auto it=Condition.begin(); it!=Condition.end();)
+                {
+                    sql+=(it->first+_T("=\'")+it->second+_T("\'"));
+                    if((++it)!=Condition.end())
+                    {
+                        sql+=_T(" AND ");
+                    }
+                }
+            }
+
+            sql+=_T(";");
+
+        }
+
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void InternalDatabase_Deinit()
