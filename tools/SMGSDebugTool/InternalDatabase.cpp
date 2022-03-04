@@ -126,7 +126,7 @@ bool InternalDatabase_Backup(wxString destpath)
     return true;
 }
 
-static int InternalDatebase_Is_Table_Valied_cb(void *para,int ncolumn,char ** columnvalue,char *columnname[])
+static int InternalDatabase_Is_Table_Valied_cb(void *para,int ncolumn,char ** columnvalue,char *columnname[])
 {
     if(para==NULL)
     {
@@ -142,12 +142,13 @@ static int InternalDatebase_Is_Table_Valied_cb(void *para,int ncolumn,char ** co
     }
     return 0;
 }
+
 //检查表名是否有效
-bool InternalDatebase_Is_Table_Valied(wxString Table_Name)
+bool InternalDatabase_Is_Table_Valied(wxString Table_Name)
 {
     wxString ret;
 
-    if(memdb==NULL)
+    if(memdb==NULL || Table_Name.empty())
     {
         return false;
     }
@@ -158,7 +159,7 @@ bool InternalDatebase_Is_Table_Valied(wxString Table_Name)
         //查询信息
         wxString sql=((wxString)"SELECT NAME FROM SQLITE_MASTER WHERE TYPE=\'table\' AND NAME=\'")+Table_Name+"\';";
         //操作表
-        if((rc= sqlite3_exec(memdb,sql.ToAscii(),InternalDatebase_Is_Table_Valied_cb,&ret,NULL))!=SQLITE_OK)
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),InternalDatabase_Is_Table_Valied_cb,&ret,NULL))!=SQLITE_OK)
         {
             wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
         }
@@ -166,6 +167,7 @@ bool InternalDatebase_Is_Table_Valied(wxString Table_Name)
 
     return !ret.empty();
 }
+
 
 
 
@@ -177,7 +179,7 @@ bool InternalDatabase_Create_Table(wxString Table_Name,wxArrayString Header)
         return false;
     }
 
-    if(InternalDatebase_Is_Table_Valied(Table_Name))
+    if(InternalDatabase_Is_Table_Valied(Table_Name))
     {
         return false;
     }
@@ -191,7 +193,7 @@ bool InternalDatabase_Create_Table(wxString Table_Name,wxArrayString Header)
         sql+=_T("(");
         sql+=Header[0];
 
-        for(size_t i=1;i<Header.size();i++)
+        for(size_t i=1; i<Header.size(); i++)
         {
             sql+=_T(",");
             sql+=Header[i];
@@ -207,6 +209,58 @@ bool InternalDatabase_Create_Table(wxString Table_Name,wxArrayString Header)
 
 
     return true;
+}
+
+
+static int InternalDatabase_Table_Get_AllData_cb(void *para,int ncolumn,char ** columnvalue,char *columnname[])
+{
+    if(para==NULL)
+    {
+        return 0;
+    }
+
+    std::map<wxString,wxArrayString> &ret=(*(std::map<wxString,wxArrayString> *)para);
+
+    int i;
+    for(i = 0; i < ncolumn; i++)
+    {
+        std::map<wxString,wxArrayString>::iterator it=ret.find(wxString(columnname[i]));
+        if(it!=ret.end())
+        {
+            it->second.Add(columnvalue[i]);
+        }
+        else
+        {
+            wxArrayString col;
+            col.Add(columnvalue[i]);
+            ret.insert(std::pair<wxString,wxArrayString>(columnname[i],col));
+        }
+
+    }
+    return 0;
+}
+std::map<wxString,wxArrayString> InternalDatabase_Table_Get_AllData(wxString Table_Name)
+{
+    std::map<wxString,wxArrayString> ret;
+
+    if(!InternalDatabase_Is_Table_Valied(Table_Name))
+    {
+        return ret;
+    }
+
+    int rc=0;
+
+    {
+        //查询信息
+        wxString sql=((wxString)"SELECT * FROM ")+Table_Name+";";
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),InternalDatabase_Table_Get_AllData_cb,&ret,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+        }
+    }
+
+    return ret;
 }
 
 void InternalDatabase_Deinit()
