@@ -161,13 +161,71 @@ static void MQTT_Ping_Thread()
 
 SMGS_device_context_t device_context;
 
-bool SMGS_IsOnline(struct __SMGS_device_context_t *ctx)
+bool  SMGS_Device_IsOnline(SMGS_device_context_t *ctx)
 {
     //默认返回真
     return true;
 }
 
+bool SMGS_Device_Command(SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *ret)
+{
+    bool _ret=false;
+    printf("%s:设备特殊命令(CmdID=%04X)\r\n",TAG,(uint32_t)(*cmdid));
+    return _ret;
+}
+
+bool SMGS_Device_ReadRegister(SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+    printf("%s:设备读取寄存器(Addr=%04X)\r\n",TAG,(uint32_t)addr);
+    return ret;
+}
+
+bool SMGS_Device_WriteRegister(SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+    printf("%s:设备写入寄存器(Addr=%04X,Data=%016llX,Flag=%02X)\r\n",TAG,(uint32_t)addr,(*dat),(uint32_t)(flag->val));
+    return ret;
+}
+
+bool SMGS_Device_ReadSensor(SMGS_device_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_sensor_address_t addr,uint64_t *dat,SMGS_payload_sensor_flag_t *flag)
+{
+    bool ret=false;
+    printf("%s:设备读取传感器(Addr=%04X,Flag=%02X)\r\n",TAG,(uint32_t)addr,(uint32_t)(flag->val));
+    return ret;
+}
+
+
+
 SMGS_gateway_context_t gateway_context;
+
+bool SMGS_GateWay_Command(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_cmdid_t *cmdid,uint8_t *cmddata,size_t cmddata_length,uint8_t *retbuff,size_t *retbuff_length,SMGS_payload_retcode_t *ret)
+{
+    bool _ret=false;
+    printf("%s:网关特殊命令(CmdID=%04X)\r\n",TAG,(uint32_t)(*cmdid));
+    return _ret;
+}
+
+bool SMGS_GateWay_ReadRegister(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+    printf("%s:网关读取寄存器(Addr=%04X)\r\n",TAG,(uint32_t)addr);
+    return ret;
+}
+
+bool SMGS_GateWay_WriteRegister(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_register_address_t addr,uint64_t *dat,SMGS_payload_register_flag_t *flag)
+{
+    bool ret=false;
+    printf("%s:网关写入寄存器(Addr=%04X,Data=%016llX,Flag=%02X)\r\n",TAG,(uint32_t)addr,(*dat),(uint32_t)(flag->val));
+    return ret;
+}
+
+bool SMGS_GateWay_ReadSensor(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],SMGS_payload_sensor_address_t addr,uint64_t *dat,SMGS_payload_sensor_flag_t *flag)
+{
+    bool ret=false;
+    printf("%s:网关读取传感器(Addr=%04X,Flag=%02X)\r\n",TAG,(uint32_t)addr,(uint32_t)(flag->val));
+    return ret;
+}
 
 
 //设备查询函数
@@ -241,7 +299,11 @@ int main(int argc,char *argv[])
         device_context.DeviceName=TAG;
         device_context.DevicePosNumber=1;
         device_context.DeviceSerialNumber=GateWaySerialNumber.c_str();//默认序列号同网关
-        device_context.IsOnline=SMGS_IsOnline;
+        device_context.IsOnline=SMGS_Device_IsOnline;
+        device_context.Command=SMGS_Device_Command;
+        device_context.ReadRegister=SMGS_Device_ReadRegister;
+        device_context.WriteRegister=SMGS_Device_WriteRegister;
+        device_context.ReadSensor=SMGS_Device_ReadSensor;
 
     }
 
@@ -252,6 +314,10 @@ int main(int argc,char *argv[])
 
         //填写网关上下文
         gateway_context.GateWayName=TAG;
+        gateway_context.Command=SMGS_GateWay_Command;
+        gateway_context.ReadRegister=SMGS_GateWay_ReadRegister;
+        gateway_context.WriteRegister=SMGS_GateWay_WriteRegister;
+        gateway_context.ReadSensor=SMGS_GateWay_ReadSensor;
         gateway_context.Device_Next=SMGS_Device_Next;
     }
 
