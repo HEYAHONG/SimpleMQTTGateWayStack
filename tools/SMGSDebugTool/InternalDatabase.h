@@ -45,6 +45,11 @@ bool InternalDatebase_ProgramInfo_Set(wxString key,wxString value);
 wxString InternalDatebase_ProgramInfo_Get(wxString key);
 
 //内部数据库反初始化
+/** \brief 数据库反初始化
+ *
+ * \return
+ *
+ */
 void InternalDatabase_Deinit();
 
 
@@ -110,6 +115,18 @@ bool InternalDatabase_Table_Insert_Data(wxString Table_Name,std::map<wxString,wx
  */
 bool InternalDatabase_Table_Delete_Data(wxString Table_Name,std::map<wxString,wxString> Condition);
 
+/*
+更新数据。
+*/
+/** \brief 更新表数据
+ *
+ * \param Table_Name 表名
+ * \param Data 数据
+ * \param Condition 条件
+ * \return 是否成功
+ *
+ */
+bool InternalDatabase_Table_Update_Data(wxString Table_Name,std::map<wxString,wxString> Data,std::map<wxString,wxString> Condition=std::map<wxString,wxString>());
 
 #ifdef __cplusplus
 }

@@ -378,6 +378,65 @@ bool InternalDatabase_Table_Delete_Data(wxString Table_Name,std::map<wxString,wx
     return true;
 }
 
+
+bool InternalDatabase_Table_Update_Data(wxString Table_Name,std::map<wxString,wxString> Data,std::map<wxString,wxString> Condition)
+{
+    if(!InternalDatabase_Is_Table_Valied(Table_Name) || Data.empty())
+    {
+        return false;
+    }
+
+    {
+        int rc=0;
+        //更新信息
+        wxString sql;
+        {
+            sql+=_T("UPDATE ");
+            sql+=Table_Name;
+
+            sql+=_T(" SET ");
+
+            for(auto it=Data.begin(); it!=Data.end();)
+            {
+                sql+=it->first;
+                sql+=_T("=");
+                sql+=_T("\'");
+                sql+=it->second;
+                sql+=_T("\'");
+                if((++it)!=Data.end())
+                {
+                    sql+=_T(",");
+                }
+            }
+
+            if(!Condition.empty())
+            {
+                sql+=_T(" WHERE ");
+                for(auto it=Condition.begin(); it!=Condition.end();)
+                {
+                    sql+=(it->first+_T("=\'")+it->second+_T("\'"));
+                    if((++it)!=Condition.end())
+                    {
+                        sql+=_T(" AND ");
+                    }
+                }
+            }
+
+            sql+=_T(";");
+
+        }
+
+        //操作表
+        if((rc= sqlite3_exec(memdb,sql.ToAscii(),NULL,NULL,NULL))!=SQLITE_OK)
+        {
+            wxLogMessage(_T("操作内部数据库出错(%d:%s)!"),rc,sqlite3_errstr(rc));
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void InternalDatabase_Deinit()
 {
     if(memdb!=NULL)
