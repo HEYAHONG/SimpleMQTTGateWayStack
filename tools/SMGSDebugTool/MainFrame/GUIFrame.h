@@ -53,6 +53,7 @@ class GUIFrame : public wxFrame
 			ID_Menu_MQTT_Start,
 			ID_Menu_MQTT_Stop,
 			ID_Menu_GateWayDetector,
+			ID_Menu_Add_GateWay,
 			ID_Menu_About,
 			wxID_InitTimer,
 			wxID_MQTTPingTimer,
@@ -78,6 +79,7 @@ class GUIFrame : public wxFrame
 		virtual void OnMenuMQTTStart( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTStop( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuGateWayDetector( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuAddGateWay( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }

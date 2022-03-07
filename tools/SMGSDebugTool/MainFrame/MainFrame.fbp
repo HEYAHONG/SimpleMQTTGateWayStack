@@ -29,7 +29,7 @@
         <property name="use_array_enum">0</property>
         <property name="use_enum">1</property>
         <property name="use_microsoft_bom">0</property>
-        <object class="Frame" expanded="0">
+        <object class="Frame" expanded="1">
             <property name="aui_managed">1</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -80,7 +80,7 @@
                 <property name="window_name"></property>
                 <property name="window_style"></property>
             </object>
-            <object class="wxMenuBar" expanded="0">
+            <object class="wxMenuBar" expanded="1">
                 <property name="bg"></property>
                 <property name="context_help"></property>
                 <property name="context_menu">1</property>
@@ -189,7 +189,7 @@
                         <event name="OnMenuSelection">OnMenuMQTTStop</event>
                     </object>
                 </object>
-                <object class="wxMenu" expanded="0">
+                <object class="wxMenu" expanded="1">
                     <property name="label">网关</property>
                     <property name="name">Menu_GateWay</property>
                     <property name="permission">protected</property>
@@ -201,11 +201,25 @@
                         <property name="id">ID_Menu_GateWayDetector</property>
                         <property name="kind">wxITEM_NORMAL</property>
                         <property name="label">网关发现</property>
-                        <property name="name">GateWayDetector</property>
+                        <property name="name">Menu_GateWayDetector</property>
                         <property name="permission">none</property>
                         <property name="shortcut">Ctrl+F</property>
                         <property name="unchecked_bitmap"></property>
                         <event name="OnMenuSelection">OnMenuGateWayDetector</event>
+                    </object>
+                    <object class="wxMenuItem" expanded="1">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help">输入网关地址（序列号）添加网关</property>
+                        <property name="id">ID_Menu_Add_GateWay</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">手动添加网关</property>
+                        <property name="name">Menu_Add_GateWay</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut"></property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">OnMenuAddGateWay</event>
                     </object>
                 </object>
                 <object class="wxMenu" expanded="0">
@@ -1410,7 +1424,7 @@
                 </object>
             </object>
         </object>
-        <object class="Dialog" expanded="1">
+        <object class="Dialog" expanded="0">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -1437,7 +1451,7 @@
             <property name="window_extra_style"></property>
             <property name="window_name"></property>
             <property name="window_style"></property>
-            <object class="wxBoxSizer" expanded="1">
+            <object class="wxBoxSizer" expanded="0">
                 <property name="minimum_size">300,500</property>
                 <property name="name">bSizer5</property>
                 <property name="orient">wxVERTICAL</property>
@@ -1515,11 +1529,11 @@
                 <property name="permission">protected</property>
                 <event name="OnTimer">OnGateWayDetectorUpdatetimer</event>
             </object>
-            <object class="wxMenu" expanded="1">
+            <object class="wxMenu" expanded="0">
                 <property name="label">右键菜单</property>
                 <property name="name">m_RightClickMenu</property>
                 <property name="permission">protected</property>
-                <object class="wxMenuItem" expanded="1">
+                <object class="wxMenuItem" expanded="0">
                     <property name="bitmap"></property>
                     <property name="checked">0</property>
                     <property name="enabled">1</property>
@@ -1533,7 +1547,7 @@
                     <property name="unchecked_bitmap"></property>
                     <event name="OnMenuSelection">OnMenuItemCopy</event>
                 </object>
-                <object class="wxMenuItem" expanded="1">
+                <object class="wxMenuItem" expanded="0">
                     <property name="bitmap"></property>
                     <property name="checked">0</property>
                     <property name="enabled">1</property>

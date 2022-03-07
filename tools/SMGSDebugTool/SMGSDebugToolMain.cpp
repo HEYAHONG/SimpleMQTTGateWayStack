@@ -18,6 +18,7 @@
 #include <wx/log.h>
 #include <wx/datetime.h>
 #include <wx/filedlg.h>
+#include <wx/textdlg.h>
 #include "Res.h"
 #include "GuiMainPage.h"
 #include "GuiMQTTDialog.h"
@@ -25,6 +26,7 @@
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
 #include "GuiGateWayDetector.h"
+#include "libSMGS-Server.h"
 
 class SMGSLogFormatter : public wxLogFormatter
 {
@@ -303,6 +305,27 @@ void SMGSDebugToolFrame::OnMenuGateWayDetector( wxCommandEvent& event )
     GuiGateWayDetector dlg(this);
     dlg.SetIcon(logo_xpm);
     dlg.ShowModal();
+}
+
+void SMGSDebugToolFrame::OnMenuAddGateWay( wxCommandEvent& event )
+{
+    wxTextEntryDialog dlg(this,_T("输入网关地址(序列号):"));
+    dlg.SetTitle(_T("输入"));
+    dlg.SetIcon(logo_xpm);
+    dlg.FindWindow(wxID_OK)->SetLabel(_T("确定"));
+    dlg.FindWindow(wxID_CANCEL)->SetLabel(_T("取消"));
+    if(dlg.ShowModal()==wxID_OK)
+    {
+        wxString addr=dlg.GetValue();
+        if(addr.length()<CONFIG_SMGS_MIN_GATEWAY_SERIALNUMBER_LENGTH)
+        {
+            wxLogMessage(_T("网关地址(序列号) %s 过短！"),(const char *)addr);
+        }
+        else
+        {
+            AddMQTTGateWayToWorkSpace(addr);
+        }
+    }
 }
 
 void SMGSDebugToolFrame::OnLogPanelSize( wxSizeEvent& event )

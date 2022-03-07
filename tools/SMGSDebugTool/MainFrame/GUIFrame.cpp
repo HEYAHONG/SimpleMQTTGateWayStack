@@ -48,9 +48,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_menubar->Append( Menu_Net, wxT("网络") );
 
 	Menu_GateWay = new wxMenu();
-	wxMenuItem* GateWayDetector;
-	GateWayDetector = new wxMenuItem( Menu_GateWay, ID_Menu_GateWayDetector, wxString( wxT("网关发现") ) + wxT('\t') + wxT("Ctrl+F"), wxT("打开网关发现窗口监测网关"), wxITEM_NORMAL );
-	Menu_GateWay->Append( GateWayDetector );
+	wxMenuItem* Menu_GateWayDetector;
+	Menu_GateWayDetector = new wxMenuItem( Menu_GateWay, ID_Menu_GateWayDetector, wxString( wxT("网关发现") ) + wxT('\t') + wxT("Ctrl+F"), wxT("打开网关发现窗口监测网关"), wxITEM_NORMAL );
+	Menu_GateWay->Append( Menu_GateWayDetector );
+
+	wxMenuItem* Menu_Add_GateWay;
+	Menu_Add_GateWay = new wxMenuItem( Menu_GateWay, ID_Menu_Add_GateWay, wxString( wxT("手动添加网关") ) , wxT("输入网关地址（序列号）添加网关"), wxITEM_NORMAL );
+	Menu_GateWay->Append( Menu_Add_GateWay );
 
 	m_menubar->Append( Menu_GateWay, wxT("网关") );
 
@@ -116,7 +120,8 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTT ), this, Menu_Net_MQTT->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStart ), this, Menu_Net_MQTT_Start->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStop ), this, Menu_Net_MQTT_Stop->GetId());
-	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuGateWayDetector ), this, GateWayDetector->GetId());
+	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuGateWayDetector ), this, Menu_GateWayDetector->GetId());
+	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuAddGateWay ), this, Menu_Add_GateWay->GetId());
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Connect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
