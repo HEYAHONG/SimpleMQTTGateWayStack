@@ -94,6 +94,8 @@ private:
 
 
     static wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
+
+    wxImageList * m_workspaceimagelist;
 };
 
 #endif // SMGSDebugTOOLMAIN_H

@@ -6,6 +6,8 @@
 #include "wx/arrstr.h"
 #include "libSMGS-Server.h"
 #include <wx/clipbrd.h>
+#include <res.h>
+#include <wx/imaglist.h>
 
 GuiGateWayDetector::GuiGateWayDetector(wxWindow* parent, wxWindowID id):GateWayDetectorDialog(parent,id)
 {
@@ -15,6 +17,13 @@ GuiGateWayDetector::GuiGateWayDetector(wxWindow* parent, wxWindowID id):GateWayD
     {
         Frame->MQTTOnMessageRegister(this,std::bind(&GuiGateWayDetector::OnMQTTMessage,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4,std::placeholders::_5));
     }
+
+    imagelist=new wxImageList(30,30,true,1);
+    {
+        wxImage icon(GateWay_xpm);
+        imagelist->Add(icon.Scale(30,30));
+    }
+    m_list->SetImageList(imagelist,wxIMAGE_LIST_SMALL);
 }
 
 void GuiGateWayDetector::OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain)
@@ -41,7 +50,7 @@ void GuiGateWayDetector::OnGateWayDetectorUpdatetimer( wxTimerEvent& event )
         if(wxString("online")==topic_plies[SMGS_TOPIC_PLY_CMD_PARA_1])
         {
             wxLogMessage(_T("%s已上线"),(const char *)topic_plies[SMGS_TOPIC_PLY_SRCADDR]);
-            m_list->InsertItem(0,topic_plies[SMGS_TOPIC_PLY_SRCADDR]);
+            m_list->InsertItem(0,topic_plies[SMGS_TOPIC_PLY_SRCADDR],0);
         }
     }
 }

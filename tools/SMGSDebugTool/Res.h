@@ -8,6 +8,9 @@ extern "C"
 
 extern const char *logo_xpm[];//Logo图片
 
+extern const char *GateWay_xpm[];
+extern const char *Device_xpm[];
+
 #ifndef __cplusplus
 }
 #endif // __cplusplus

@@ -1,6 +1,8 @@
 #include "Res.h"
 
 #include "logo.xpm"
+#include "GateWay.xpm"
+#include "Device.xpm"
 
 #include "SMGSDebugToolApp.h"
 

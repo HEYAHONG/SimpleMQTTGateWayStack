@@ -22,6 +22,7 @@ protected:
 private:
     wxMessageQueue<wxArrayString> Msg;
     wxString CurrentAddr;
+     wxImageList *imagelist;
 };
 
 #endif // GUIGATEWAYDETECTOR_H

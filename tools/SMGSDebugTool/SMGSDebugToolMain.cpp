@@ -50,6 +50,19 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
     SetTitle(_T("SMGSDebugTool"));
 
 
+    //设置工作区图标
+    m_workspaceimagelist= new wxImageList(30,30,true,2);
+    {
+        wxImage icon(GateWay_xpm);
+        m_workspaceimagelist->Add(icon.Scale(30,30));
+    }
+    {
+        wxImage icon(Device_xpm);
+        m_workspaceimagelist->Add(icon.Scale(30,30));
+    }
+
+    m_maintree->SetImageList(m_workspaceimagelist);
+    m_maintree->AddRoot(_T("网关"));
 
     //创建MQTTThread
     MQTTThread=new MQTTClientThread();
@@ -97,7 +110,44 @@ void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
 
  void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
  {
-     wxLogMessage(_T("%s已添加到工作区"),Addr);
+     if(!InternalDatabase_Is_Table_Valied(_T("WorkSpaceGateWayList")))
+     {
+        wxArrayString header;
+        header.Add(_T("Addr"));
+        header.Add(_T("IsOpen"));
+        InternalDatabase_Create_Table(_T("WorkSpaceGateWayList"),header);
+     }
+
+     {
+         //检查是否已添加
+         std::map<wxString,wxString> con;
+         con[_T("Addr")]=Addr;
+         std::map<wxString,wxArrayString> Dat=InternalDatabase_Table_Get_AllData(_T("WorkSpaceGateWayList"),con);
+         if(!Dat.empty() && !Dat[_T("Addr")].empty())
+         {
+             wxLogMessage(_T("%s已添加到工作区,无需重复添加!"),Addr);
+             return;
+         }
+     }
+
+     {
+         std::map<wxString,wxString> dat;
+         dat[_T("Addr")]=Addr;
+         dat[_T("IsOpen")]=_T("0");
+         InternalDatabase_Table_Insert_Data(_T("WorkSpaceGateWayList"),dat);
+     }
+
+     {
+         //添加至工作区
+         wxTreeCtrl *m_tree=m_maintree;
+         auto cb=[Addr,m_tree]()
+         {
+             m_tree->InsertItem(m_tree->GetRootItem(),0,Addr,0);
+         };
+         UpdateUIMsgQueue.Post(cb);
+     }
+
+     wxLogMessage(_T("%s已添加到工作区。"),Addr);
  }
 
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
@@ -288,6 +338,8 @@ SMGSDebugToolFrame::~SMGSDebugToolFrame()
     MQTTThread->MQTT_StopConnect();
     MQTTThread->MQTT_ForceCloseConnect();
     MQTTThread->Delete();
+
+    delete m_workspaceimagelist;
 
     //反初始化内部数据库
     InternalDatabase_Deinit();
