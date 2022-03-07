@@ -138,6 +138,12 @@ void MQTTClientThread::MQTT_StopConnect()
     IsPendingStart=false;
 }
 
+void MQTTClientThread::MQTT_ForceCloseConnect()
+{
+    if(MQTT_IsConnected())
+        mqttserver.disconnect(&mqttserver);
+}
+
 void MQTTClientThread::SetConnectStateCallback(std::function<void(bool)> cb)
 {
     if(cb!=NULL)

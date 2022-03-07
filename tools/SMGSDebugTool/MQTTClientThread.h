@@ -41,6 +41,11 @@ public:
 
 
     /*
+    强制关闭本次连接，在需要删除线程时使用
+    */
+    void MQTT_ForceCloseConnect();
+
+    /*
     设定连接状态变化的回调。(注意:连接断开后可能多次调用断开连接的回调)
     */
     void SetConnectStateCallback(std::function<void(bool)> cb);

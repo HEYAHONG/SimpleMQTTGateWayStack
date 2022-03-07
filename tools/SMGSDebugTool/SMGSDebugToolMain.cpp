@@ -286,7 +286,7 @@ SMGSDebugToolFrame::~SMGSDebugToolFrame()
     wxLog::SetActiveTarget(NULL);
 
     MQTTThread->MQTT_StopConnect();
-    MQTTThread->MQTT_Ping();
+    MQTTThread->MQTT_ForceCloseConnect();
     MQTTThread->Delete();
 
     //反初始化内部数据库
