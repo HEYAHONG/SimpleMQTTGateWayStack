@@ -391,6 +391,9 @@ void SMGSDebugToolFrame::OnMaintreeItemRightClick( wxTreeEvent& event )
 
 SMGSDebugToolFrame::~SMGSDebugToolFrame()
 {
+    //清空打开的窗口
+    m_notebook_workspace->DeleteAllPages();
+
     //关闭Log
     wxLog::SetActiveTarget(NULL);
 
