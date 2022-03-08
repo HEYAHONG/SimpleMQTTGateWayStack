@@ -125,6 +125,8 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Connect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
+	m_maintree->Connect( wxEVT_COMMAND_TREE_ITEM_ACTIVATED, wxTreeEventHandler( GUIFrame::OnMaintreeItemActivated ), NULL, this );
+	m_maintree->Connect( wxEVT_COMMAND_TREE_ITEM_RIGHT_CLICK, wxTreeEventHandler( GUIFrame::OnMaintreeItemRightClick ), NULL, this );
 	this->Connect( wxID_MQTTPingTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnMQTTPingTimer ) );
 	this->Connect( wxID_UpdateUItimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnUpdateUITimer ) );
 }
@@ -134,6 +136,8 @@ GUIFrame::~GUIFrame()
 	// Disconnect Events
 	m_panel_log->Disconnect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Disconnect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );
+	m_maintree->Disconnect( wxEVT_COMMAND_TREE_ITEM_ACTIVATED, wxTreeEventHandler( GUIFrame::OnMaintreeItemActivated ), NULL, this );
+	m_maintree->Disconnect( wxEVT_COMMAND_TREE_ITEM_RIGHT_CLICK, wxTreeEventHandler( GUIFrame::OnMaintreeItemRightClick ), NULL, this );
 	this->Disconnect( wxID_MQTTPingTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnMQTTPingTimer ) );
 	this->Disconnect( wxID_UpdateUItimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnUpdateUITimer ) );
 
@@ -335,4 +339,23 @@ GateWayDetectorDialog::~GateWayDetectorDialog()
 	this->Disconnect( wxID_GateWayDetectorUpdatetimer, wxEVT_TIMER, wxTimerEventHandler( GateWayDetectorDialog::OnGateWayDetectorUpdatetimer ) );
 
 	delete m_RightClickMenu;
+}
+
+GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer( wxVERTICAL );
+
+	m_auinotebook = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_BOTTOM|wxAUI_NB_DEFAULT_STYLE );
+
+	bSizer6->Add( m_auinotebook, 1, wxEXPAND|wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	this->SetSizer( bSizer6 );
+	this->Layout();
+	bSizer6->Fit( this );
+}
+
+GateWayPage::~GateWayPage()
+{
 }

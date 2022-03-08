@@ -98,6 +98,9 @@ private:
     static wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
 
     wxImageList * m_workspaceimagelist;
+
+    virtual void OnMaintreeItemActivated( wxTreeEvent& event ) ;
+    virtual void OnMaintreeItemRightClick( wxTreeEvent& event ) ;
 };
 
 #endif // SMGSDebugTOOLMAIN_H

@@ -22,6 +22,7 @@
 #include "Res.h"
 #include "GuiMainPage.h"
 #include "GuiMQTTDialog.h"
+#include "GuiGateWayPage.h"
 
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
@@ -110,47 +111,47 @@ void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
     }
 }
 
- void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
- {
-     if(!InternalDatabase_Is_Table_Valied(_T("WorkSpaceGateWayList")))
-     {
+void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
+{
+    if(!InternalDatabase_Is_Table_Valied(_T("WorkSpaceGateWayList")))
+    {
         wxArrayString header;
         header.Add(_T("Addr"));
         header.Add(_T("IsOpen"));
         InternalDatabase_Create_Table(_T("WorkSpaceGateWayList"),header);
-     }
+    }
 
-     {
-         //检查是否已添加
-         std::map<wxString,wxString> con;
-         con[_T("Addr")]=Addr;
-         std::map<wxString,wxArrayString> Dat=InternalDatabase_Table_Get_AllData(_T("WorkSpaceGateWayList"),con);
-         if(!Dat.empty() && !Dat[_T("Addr")].empty())
-         {
-             wxLogMessage(_T("%s已添加到工作区,无需重复添加!"),Addr);
-             return;
-         }
-     }
+    {
+        //检查是否已添加
+        std::map<wxString,wxString> con;
+        con[_T("Addr")]=Addr;
+        std::map<wxString,wxArrayString> Dat=InternalDatabase_Table_Get_AllData(_T("WorkSpaceGateWayList"),con);
+        if(!Dat.empty() && !Dat[_T("Addr")].empty())
+        {
+            wxLogMessage(_T("%s已添加到工作区,无需重复添加!"),Addr);
+            return;
+        }
+    }
 
-     {
-         std::map<wxString,wxString> dat;
-         dat[_T("Addr")]=Addr;
-         dat[_T("IsOpen")]=_T("0");
-         InternalDatabase_Table_Insert_Data(_T("WorkSpaceGateWayList"),dat);
-     }
+    {
+        std::map<wxString,wxString> dat;
+        dat[_T("Addr")]=Addr;
+        dat[_T("IsOpen")]=_T("0");
+        InternalDatabase_Table_Insert_Data(_T("WorkSpaceGateWayList"),dat);
+    }
 
-     {
-         //添加至工作区
-         wxTreeCtrl *m_tree=m_maintree;
-         auto cb=[Addr,m_tree]()
-         {
-             m_tree->InsertItem(m_tree->GetRootItem(),0,Addr,0);
-         };
-         UpdateUIMsgQueue.Post(cb);
-     }
+    {
+        //添加至工作区
+        wxTreeCtrl *m_tree=m_maintree;
+        auto cb=[Addr,m_tree]()
+        {
+            m_tree->InsertItem(m_tree->GetRootItem(),0,Addr,0);
+        };
+        UpdateUIMsgQueue.Post(cb);
+    }
 
-     wxLogMessage(_T("%s已添加到工作区。"),Addr);
- }
+    wxLogMessage(_T("%s已添加到工作区。"),Addr);
+}
 
 void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
 {
@@ -351,6 +352,41 @@ void SMGSDebugToolFrame::OnAbout(wxCommandEvent &event)
     dlg.SetTitle(_T("关于SMGSDebugTool"));
     dlg.SetIcon(logo_xpm);
     dlg.ShowModal();
+}
+
+void SMGSDebugToolFrame::OnMaintreeItemActivated( wxTreeEvent& event )
+{
+    //工作区中网关被选中
+
+    wxString Addr=m_maintree->GetItemText(event.GetItem());
+
+    {
+        std::map<wxString,wxString> Con;
+        Con[_T("Addr")]=Addr;
+        std::map<wxString,wxArrayString> dat=InternalDatabase_Table_Get_AllData(_T("WorkSpaceGateWayList"),Con);
+        if(dat.empty() || dat[_T("Addr")].empty())
+        {
+            wxLogMessage(_T("%s 未在工作区!"),(const char *)Addr);
+            return;
+        }
+        else
+        {
+            if(dat[_T("IsOpen")][0] != wxString(_T("0")))
+            {
+                wxLogMessage(_T("%s 已打开!"),(const char *)Addr);
+                return;
+            }
+        }
+    }
+
+    GuiGateWayPage *page=new GuiGateWayPage(Addr,this);
+    m_notebook_workspace->InsertPage(0,page,Addr,true);
+
+}
+
+void SMGSDebugToolFrame::OnMaintreeItemRightClick( wxTreeEvent& event )
+{
+
 }
 
 SMGSDebugToolFrame::~SMGSDebugToolFrame()

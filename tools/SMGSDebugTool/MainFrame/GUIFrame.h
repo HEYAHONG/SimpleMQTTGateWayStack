@@ -83,6 +83,8 @@ class GUIFrame : public wxFrame
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }
+		virtual void OnMaintreeItemActivated( wxTreeEvent& event ) { event.Skip(); }
+		virtual void OnMaintreeItemRightClick( wxTreeEvent& event ) { event.Skip(); }
 		virtual void OnMQTTPingTimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnUpdateUITimer( wxTimerEvent& event ) { event.Skip(); }
 
@@ -207,6 +209,24 @@ class GateWayDetectorDialog : public wxDialog
 		{
 			this->PopupMenu( m_RightClickMenu, event.GetPosition() );
 		}
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class GateWayPage
+///////////////////////////////////////////////////////////////////////////////
+class GateWayPage : public wxPanel
+{
+	private:
+
+	protected:
+		wxAuiNotebook* m_auinotebook;
+
+	public:
+
+		GateWayPage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~GateWayPage();
 
 };
 
