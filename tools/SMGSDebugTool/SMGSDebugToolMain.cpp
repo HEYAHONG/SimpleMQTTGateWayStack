@@ -110,6 +110,34 @@ void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
     }
 }
 
+bool SMGSDebugToolFrame::MQTTPublishMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain)
+{
+    bool ret=MQTTThread->MQTT_Publish(topic,payload,payloadlen,qos,retain);
+
+    if(ret)
+    {
+        //将发布的消息也存入MQTTMessage表
+        std::map<wxString,wxString> Dat;
+        Dat[_T("Topic")]=topic;
+        Dat[_T("Payload")]="";
+        Dat[_T("Qos")]=std::to_string(qos);
+        Dat[_T("Retain")]=std::to_string(retain);
+        {
+            wxString &PayloadStr=Dat[_T("Payload")];
+            for(size_t i=0; i<payloadlen; i++)
+            {
+                char buff[5]= {0};
+                sprintf(buff,"%02X",(((uint8_t *)payload)[i]));
+                PayloadStr+=buff;
+            }
+        }
+
+        InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolMQTTMessage),Dat);
+    }
+
+    return ret;
+}
+
 void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
 {
     if(!InternalDatabase_Is_Table_Valied(_T(SMGSDebugToolWorkSpaceGateWayList)))

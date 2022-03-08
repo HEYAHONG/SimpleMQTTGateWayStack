@@ -38,6 +38,11 @@ public:
     void MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage);
     void MQTTOnMessageUnRegister(void *obj);
 
+    /*
+    发布MQTT消息
+    */
+    bool MQTTPublishMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain);
+
     //添加网关到工作区,
     void AddMQTTGateWayToWorkSpace(wxString Addr);
 
