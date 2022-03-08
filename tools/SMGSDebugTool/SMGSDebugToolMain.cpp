@@ -52,7 +52,6 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
     //设置标题
     SetTitle(_T("SMGSDebugTool"));
 
-
     //设置工作区图标
     m_workspaceimagelist= new wxImageList(30,30,true,2);
     {
@@ -113,19 +112,19 @@ void SMGSDebugToolFrame::MQTTOnMessageUnRegister(void *obj)
 
 void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
 {
-    if(!InternalDatabase_Is_Table_Valied(_T("WorkSpaceGateWayList")))
+    if(!InternalDatabase_Is_Table_Valied(_T(SMGSDebugToolWorkSpaceGateWayList)))
     {
         wxArrayString header;
         header.Add(_T("Addr"));
         header.Add(_T("IsOpen"));
-        InternalDatabase_Create_Table(_T("WorkSpaceGateWayList"),header);
+        InternalDatabase_Create_Table(_T(SMGSDebugToolWorkSpaceGateWayList),header);
     }
 
     {
         //检查是否已添加
         std::map<wxString,wxString> con;
         con[_T("Addr")]=Addr;
-        std::map<wxString,wxArrayString> Dat=InternalDatabase_Table_Get_AllData(_T("WorkSpaceGateWayList"),con);
+        std::map<wxString,wxArrayString> Dat=InternalDatabase_Table_Get_AllData(_T(SMGSDebugToolWorkSpaceGateWayList),con);
         if(!Dat.empty() && !Dat[_T("Addr")].empty())
         {
             wxLogMessage(_T("%s已添加到工作区,无需重复添加!"),Addr);
@@ -137,7 +136,7 @@ void SMGSDebugToolFrame::AddMQTTGateWayToWorkSpace(wxString Addr)
         std::map<wxString,wxString> dat;
         dat[_T("Addr")]=Addr;
         dat[_T("IsOpen")]=_T("0");
-        InternalDatabase_Table_Insert_Data(_T("WorkSpaceGateWayList"),dat);
+        InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolWorkSpaceGateWayList),dat);
     }
 
     {
@@ -175,6 +174,21 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
     InternalDatebase_ProgramInfo_Set(_T("Name"),_T("SMGSDebugTool"));
     InternalDatebase_ProgramInfo_Set(_T("Server"),_T("mqtt.hyhsystem.cn"));
     InternalDatebase_ProgramInfo_Set(_T("Port"),_T("1883"));
+
+    {
+        //创建MQTT消息数据库
+        wxString Table_Name=_T(SMGSDebugToolMQTTMessage);
+        if(!InternalDatabase_Is_Table_Valied(Table_Name))
+        {
+            //创建表
+            wxArrayString header;
+            header.Add(_T("Topic"));
+            header.Add(_T("Payload"));
+            header.Add(_T("Qos"));
+            header.Add(_T("Retain"));
+            InternalDatabase_Create_Table(Table_Name,header);
+        }
+    }
 
     {
         //打开首页
@@ -249,6 +263,29 @@ void SMGSDebugToolFrame::OnMQTTMessage(wxString topic,void *payload,size_t paylo
         {
             MQTTOnMessage.List[i].OnMessage(topic,payload,payloadlen,qos,retain);
         }
+    }
+
+    //保存MQTT消息到数据库（本工具不能长时间运行）
+
+
+
+    {
+        std::map<wxString,wxString> Dat;
+        Dat[_T("Topic")]=topic;
+        Dat[_T("Payload")]="";
+        Dat[_T("Qos")]=std::to_string(qos);
+        Dat[_T("Retain")]=std::to_string(retain);
+        {
+            wxString &PayloadStr=Dat[_T("Payload")];
+            for(size_t i=0; i<payloadlen; i++)
+            {
+                char buff[5]= {0};
+                sprintf(buff,"%02X",(((uint8_t *)payload)[i]));
+                PayloadStr+=buff;
+            }
+        }
+
+        InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolMQTTMessage),Dat);
     }
 
 }
@@ -363,7 +400,7 @@ void SMGSDebugToolFrame::OnMaintreeItemActivated( wxTreeEvent& event )
     {
         std::map<wxString,wxString> Con;
         Con[_T("Addr")]=Addr;
-        std::map<wxString,wxArrayString> dat=InternalDatabase_Table_Get_AllData(_T("WorkSpaceGateWayList"),Con);
+        std::map<wxString,wxArrayString> dat=InternalDatabase_Table_Get_AllData(_T(SMGSDebugToolWorkSpaceGateWayList),Con);
         if(dat.empty() || dat[_T("Addr")].empty())
         {
             wxLogMessage(_T("%s 未在工作区!"),(const char *)Addr);

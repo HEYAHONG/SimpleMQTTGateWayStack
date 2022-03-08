@@ -10,6 +10,13 @@
 #ifndef SMGSDebugTOOLMAIN_H
 #define SMGSDebugTOOLMAIN_H
 
+/*
+常用数据库名
+*/
+
+#define SMGSDebugToolWorkSpaceGateWayList "WorkSpaceGateWayList" /**< 工作区网关列表 */
+
+#define SMGSDebugToolMQTTMessage "MQTTMessage" /**< MQTT消息表 */
 
 
 #include "SMGSDebugToolApp.h"
