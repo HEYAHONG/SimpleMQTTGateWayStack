@@ -343,19 +343,23 @@ GateWayDetectorDialog::~GateWayDetectorDialog()
 
 GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
-	wxBoxSizer* bSizer6;
-	bSizer6 = new wxBoxSizer( wxVERTICAL );
+	this->SetMinSize( wxSize( 600,500 ) );
+	m_mgr.SetManagedWindow(this);
+	m_mgr.SetFlags(wxAUI_MGR_DEFAULT);
 
-	m_auinotebook = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_BOTTOM|wxAUI_NB_DEFAULT_STYLE );
+	m_auinotebook_gateway_workspace = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_DEFAULT_STYLE );
+	m_mgr.AddPane( m_auinotebook_gateway_workspace, wxAuiPaneInfo() .Left() .CaptionVisible( false ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).CentrePane() );
 
-	bSizer6->Add( m_auinotebook, 1, wxEXPAND|wxALL|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+	m_operatepanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_mgr.AddPane( m_operatepanel, wxAuiPaneInfo() .Top() .CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).LeftDockable( false ).RightDockable( false ).MinSize( wxSize( 600,100 ) ) );
 
 
-	this->SetSizer( bSizer6 );
-	this->Layout();
-	bSizer6->Fit( this );
+	m_mgr.Update();
 }
 
 GateWayPage::~GateWayPage()
 {
+	m_mgr.UnInit();
+
 }

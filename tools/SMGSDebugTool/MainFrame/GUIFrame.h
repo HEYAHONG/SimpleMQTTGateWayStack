@@ -220,11 +220,13 @@ class GateWayPage : public wxPanel
 	private:
 
 	protected:
-		wxAuiNotebook* m_auinotebook;
+		wxAuiNotebook* m_auinotebook_gateway_workspace;
+		wxPanel* m_operatepanel;
 
 	public:
 
 		GateWayPage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+		wxAuiManager m_mgr;
 
 		~GateWayPage();
 
