@@ -9,6 +9,7 @@
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/cshelp.h>
 #include <wx/statusbr.h>
 #include <wx/gdicmn.h>
 #include <wx/font.h>
@@ -38,6 +39,22 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
+#define ID_Save 1000
+#define ID_Menu_File_Exit 1001
+#define ID_Menu_MQTT 1002
+#define ID_Menu_MQTT_Start 1003
+#define ID_Menu_MQTT_Stop 1004
+#define ID_Menu_MQTTMessage 1005
+#define ID_Menu_GateWayDetector 1006
+#define ID_Menu_Add_GateWay 1007
+#define ID_Menu_About 1008
+#define wxID_InitTimer 1009
+#define wxID_MQTTPingTimer 1010
+#define wxID_UpdateUItimer 1011
+#define wxID_GateWayDetectorUpdatetimer 1012
+#define wxID_MenuItemCopy 1013
+#define wxID_MenuItemAddGateWayToWorkSpace 1014
+
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrame
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,22 +63,6 @@ class GUIFrame : public wxFrame
 	private:
 
 	protected:
-		enum
-		{
-			ID_Save = 1000,
-			ID_Menu_File_Exit,
-			ID_Menu_MQTT,
-			ID_Menu_MQTT_Start,
-			ID_Menu_MQTT_Stop,
-			ID_Menu_MQTTMessage,
-			ID_Menu_GateWayDetector,
-			ID_Menu_Add_GateWay,
-			ID_Menu_About,
-			wxID_InitTimer,
-			wxID_MQTTPingTimer,
-			wxID_UpdateUItimer
-		};
-
 		wxStatusBar* m_statusBar;
 		wxMenuBar* m_menubar;
 		wxMenu* Menu_File;
@@ -184,13 +185,6 @@ class GateWayDetectorDialog : public wxDialog
 	private:
 
 	protected:
-		enum
-		{
-			wxID_GateWayDetectorUpdatetimer = 1000,
-			wxID_MenuItemCopy,
-			wxID_MenuItemAddGateWayToWorkSpace
-		};
-
 		wxListCtrl* m_list;
 		wxTimer m_GateWayDetectorUpdatetimer;
 		wxMenu* m_RightClickMenu;
