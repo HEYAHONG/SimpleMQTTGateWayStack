@@ -163,7 +163,7 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
             msg+=wxString(_T("命令: "))+plies[SMGS_TOPIC_PLY_CMD]+_T("\r\n");
             msg+=wxString(_T("命令参数1: "))+plies[SMGS_TOPIC_PLY_CMD_PARA_1]+_T("\r\n");
             msg+=wxString(_T("命令参数2: "))+plies[SMGS_TOPIC_PLY_CMD_PARA_2]+_T("\r\n");
-            msg+=wxString(_T("命令参数2: "))+plies[SMGS_TOPIC_PLY_CMD_PARA_3]+_T("\r\n");
+            msg+=wxString(_T("命令参数3: "))+plies[SMGS_TOPIC_PLY_CMD_PARA_3]+_T("\r\n");
 
         }
 
