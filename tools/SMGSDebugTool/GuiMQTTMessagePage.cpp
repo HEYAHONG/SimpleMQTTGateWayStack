@@ -14,16 +14,40 @@ GuiMQTTMessagePage::GuiMQTTMessagePage(wxWindow* parent, wxWindowID id, const wx
         Frame->MQTTOnMessageRegister(this,std::bind(&GuiMQTTMessagePage::OnMQTTMessage,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4,std::placeholders::_5,0),true);
     }
 
-    m_MQTTMessagedataViewList->AppendTextColumn(_T("Topic"));
-    m_MQTTMessagedataViewList->AppendTextColumn(_T("Payload"));
-    m_MQTTMessagedataViewList->AppendTextColumn(_T("Qos"));
-    m_MQTTMessagedataViewList->AppendTextColumn(_T("Retain"));
-    m_MQTTMessagedataViewList->AppendTextColumn(_T("TimeStamp"));
+    {
+        wxDataViewColumn *col=m_MQTTMessagedataViewList->AppendTextColumn(_T("Topic"));
+        col->SetWidth(512);
+    }
+
+    {
+        wxDataViewColumn *col=m_MQTTMessagedataViewList->AppendTextColumn(_T("Payload"));
+        col->SetWidth(512);
+    }
+
+    {
+        wxDataViewColumn *col=m_MQTTMessagedataViewList->AppendTextColumn(_T("Qos"));
+        col->SetWidth(80);
+    }
+
+    {
+        wxDataViewColumn *col=m_MQTTMessagedataViewList->AppendTextColumn(_T("Retain"));
+        col->SetWidth(80);
+    }
+
+    {
+        wxDataViewColumn *col=m_MQTTMessagedataViewList->AppendTextColumn(_T("TimeStamp"));
+        col->SetWidth(128);
+    }
+
+
+
+
+
 
 
     {
         std::map<wxString,wxArrayString> dat=InternalDatabase_Table_Get_AllData(SMGSDebugToolMQTTMessage);
-        for(size_t i=0;i<dat[_T("Topic")].size();i++)
+        for(size_t i=0; i<dat[_T("Topic")].size(); i++)
         {
             wxString Topic=dat[_T("Topic")][i];
             auto Payload=wxBase64Decode(dat[_T("Payload")][i]);
@@ -71,9 +95,9 @@ void GuiMQTTMessagePage::OnMQTTMessage(wxString topic,void *payload,size_t paylo
         wxString PayStr;
 
         uint8_t *p=(uint8_t *)payload;
-        for(size_t i=0;i<payloadlen;i++)
+        for(size_t i=0; i<payloadlen; i++)
         {
-            char buff[5]={0};
+            char buff[5]= {0};
             sprintf(buff,"%02X ",p[i]);
             PayStr+=buff;
         }
