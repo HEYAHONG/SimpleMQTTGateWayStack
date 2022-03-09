@@ -24,6 +24,7 @@
 #include "GuiMainPage.h"
 #include "GuiMQTTDialog.h"
 #include "GuiGateWayPage.h"
+#include "GuiMQTTMessagePage.h"
 
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
@@ -137,6 +138,7 @@ bool SMGSDebugToolFrame::MQTTPublishMessage(wxString topic,void *payload,size_t 
         Dat[_T("PayloadLen")]=std::to_string(payloadlen);
         Dat[_T("Qos")]=std::to_string(qos);
         Dat[_T("Retain")]=std::to_string(retain);
+        Dat[_T("TimeStamp")]=std::to_string(wxDateTime::GetTimeNow());
         InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolMQTTMessage),Dat);
     }
 
@@ -220,6 +222,7 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
             header.Add(_T("PayloadLen"));
             header.Add(_T("Qos"));
             header.Add(_T("Retain"));
+            header.Add(_T("TimeStamp"));
             InternalDatabase_Create_Table(Table_Name,header);
         }
     }
@@ -312,6 +315,7 @@ void SMGSDebugToolFrame::OnMQTTMessage(wxString topic,void *payload,size_t paylo
         Dat[_T("PayloadLen")]=std::to_string(payloadlen);
         Dat[_T("Qos")]=std::to_string(qos);
         Dat[_T("Retain")]=std::to_string(retain);
+        Dat[_T("TimeStamp")]=std::to_string(wxDateTime::GetTimeNow());
         InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolMQTTMessage),Dat);
     }
 
@@ -341,6 +345,12 @@ void SMGSDebugToolFrame::OnMenuMQTTStop( wxCommandEvent& event )
 {
     MQTTThread->MQTT_StopConnect();
     MQTTThread->MQTT_Ping();
+}
+
+void SMGSDebugToolFrame::OnMenuMQTTMessage( wxCommandEvent& event )
+{
+    GuiMQTTMessagePage *page=new GuiMQTTMessagePage(this);
+    m_notebook_workspace->InsertPage(0,page,_T("MQTT消息"),true);
 }
 
 void SMGSDebugToolFrame::OnMenuFileExit( wxCommandEvent& event )

@@ -34,6 +34,7 @@
 #include <wx/dialog.h>
 #include <wx/button.h>
 #include <wx/listctrl.h>
+#include <wx/dataview.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -52,6 +53,7 @@ class GUIFrame : public wxFrame
 			ID_Menu_MQTT,
 			ID_Menu_MQTT_Start,
 			ID_Menu_MQTT_Stop,
+			ID_Menu_MQTTMessage,
 			ID_Menu_GateWayDetector,
 			ID_Menu_Add_GateWay,
 			ID_Menu_About,
@@ -78,6 +80,7 @@ class GUIFrame : public wxFrame
 		virtual void OnMenuMQTT( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTStart( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTStop( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuMQTTMessage( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuGateWayDetector( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuAddGateWay( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
@@ -229,6 +232,24 @@ class GateWayPage : public wxPanel
 		wxAuiManager m_mgr;
 
 		~GateWayPage();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class MQTTMessagePage
+///////////////////////////////////////////////////////////////////////////////
+class MQTTMessagePage : public wxPanel
+{
+	private:
+
+	protected:
+		wxDataViewListCtrl* m_MQTTMessagedataViewList;
+
+	public:
+
+		MQTTMessagePage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~MQTTMessagePage();
 
 };
 

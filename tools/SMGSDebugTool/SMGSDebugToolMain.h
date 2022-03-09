@@ -94,6 +94,7 @@ private:
     virtual void OnMenuMQTT( wxCommandEvent& event );
     virtual void OnMenuMQTTStart( wxCommandEvent& event );
     virtual void OnMenuMQTTStop( wxCommandEvent& event );
+    virtual void OnMenuMQTTMessage( wxCommandEvent& event );
 
     virtual void OnMenuGateWayDetector( wxCommandEvent& event );
 

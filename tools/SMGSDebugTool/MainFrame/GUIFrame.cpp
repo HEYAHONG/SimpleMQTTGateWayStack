@@ -45,6 +45,12 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net_MQTT_Stop = new wxMenuItem( Menu_Net, ID_Menu_MQTT_Stop, wxString( wxT("MQTT停止") ) , wxT("停止MQTT连接"), wxITEM_NORMAL );
 	Menu_Net->Append( Menu_Net_MQTT_Stop );
 
+	Menu_Net->AppendSeparator();
+
+	wxMenuItem* Menu_Net_MQTTMessage;
+	Menu_Net_MQTTMessage = new wxMenuItem( Menu_Net, ID_Menu_MQTTMessage, wxString( wxT("MQTT消息") ) , wxT("打开MQTT消息窗口"), wxITEM_NORMAL );
+	Menu_Net->Append( Menu_Net_MQTTMessage );
+
 	m_menubar->Append( Menu_Net, wxT("网络") );
 
 	Menu_GateWay = new wxMenu();
@@ -120,6 +126,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTT ), this, Menu_Net_MQTT->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStart ), this, Menu_Net_MQTT_Start->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStop ), this, Menu_Net_MQTT_Stop->GetId());
+	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTMessage ), this, Menu_Net_MQTTMessage->GetId());
 	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuGateWayDetector ), this, Menu_GateWayDetector->GetId());
 	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuAddGateWay ), this, Menu_Add_GateWay->GetId());
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
@@ -362,4 +369,24 @@ GateWayPage::~GateWayPage()
 {
 	m_mgr.UnInit();
 
+}
+
+MQTTMessagePage::MQTTMessagePage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	this->SetMinSize( wxSize( 600,500 ) );
+
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer( wxVERTICAL );
+
+	m_MQTTMessagedataViewList = new wxDataViewListCtrl( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxDV_HORIZ_RULES|wxDV_SINGLE|wxDV_VARIABLE_LINE_HEIGHT|wxDV_VERT_RULES );
+	bSizer6->Add( m_MQTTMessagedataViewList, 1, wxALL|wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer6 );
+	this->Layout();
+	bSizer6->Fit( this );
+}
+
+MQTTMessagePage::~MQTTMessagePage()
+{
 }
