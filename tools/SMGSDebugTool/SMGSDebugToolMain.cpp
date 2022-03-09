@@ -19,6 +19,7 @@
 #include <wx/datetime.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
+#include <wx/base64.h>
 #include "Res.h"
 #include "GuiMainPage.h"
 #include "GuiMQTTDialog.h"
@@ -119,19 +120,10 @@ bool SMGSDebugToolFrame::MQTTPublishMessage(wxString topic,void *payload,size_t 
         //将发布的消息也存入MQTTMessage表
         std::map<wxString,wxString> Dat;
         Dat[_T("Topic")]=topic;
-        Dat[_T("Payload")]="";
+        Dat[_T("Payload")]=wxBase64Encode(payload,payloadlen);
+        Dat[_T("PayloadLen")]=std::to_string(payloadlen);
         Dat[_T("Qos")]=std::to_string(qos);
         Dat[_T("Retain")]=std::to_string(retain);
-        {
-            wxString &PayloadStr=Dat[_T("Payload")];
-            for(size_t i=0; i<payloadlen; i++)
-            {
-                char buff[5]= {0};
-                sprintf(buff,"%02X",(((uint8_t *)payload)[i]));
-                PayloadStr+=buff;
-            }
-        }
-
         InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolMQTTMessage),Dat);
     }
 
@@ -212,6 +204,7 @@ void SMGSDebugToolFrame::OnInitTimer( wxTimerEvent& event )
             wxArrayString header;
             header.Add(_T("Topic"));
             header.Add(_T("Payload"));
+            header.Add(_T("PayloadLen"));
             header.Add(_T("Qos"));
             header.Add(_T("Retain"));
             InternalDatabase_Create_Table(Table_Name,header);
@@ -300,19 +293,10 @@ void SMGSDebugToolFrame::OnMQTTMessage(wxString topic,void *payload,size_t paylo
     {
         std::map<wxString,wxString> Dat;
         Dat[_T("Topic")]=topic;
-        Dat[_T("Payload")]="";
+        Dat[_T("Payload")]=wxBase64Encode(payload,payloadlen);
+        Dat[_T("PayloadLen")]=std::to_string(payloadlen);
         Dat[_T("Qos")]=std::to_string(qos);
         Dat[_T("Retain")]=std::to_string(retain);
-        {
-            wxString &PayloadStr=Dat[_T("Payload")];
-            for(size_t i=0; i<payloadlen; i++)
-            {
-                char buff[5]= {0};
-                sprintf(buff,"%02X",(((uint8_t *)payload)[i]));
-                PayloadStr+=buff;
-            }
-        }
-
         InternalDatabase_Table_Insert_Data(_T(SMGSDebugToolMQTTMessage),Dat);
     }
 
