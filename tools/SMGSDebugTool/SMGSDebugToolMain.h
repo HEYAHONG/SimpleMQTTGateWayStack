@@ -35,7 +35,7 @@ public:
     ~SMGSDebugToolFrame();
 
     //MQTT消息回调函数注册与反注册
-    void MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage);
+    void MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage,bool ProcessSend=false);
     void MQTTOnMessageUnRegister(void *obj);
 
     /*
@@ -76,6 +76,7 @@ private:
 
     typedef struct
     {
+        bool ProcessSend;//处理发送的消息
         void * obj;//关联的对象的指针,每个对象只能关联一个回调函数
         std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage;
     }

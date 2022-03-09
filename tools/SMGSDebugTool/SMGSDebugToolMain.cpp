@@ -76,7 +76,7 @@ SMGSDebugToolFrame::SMGSDebugToolFrame(wxFrame *frame)
     MQTTThread->SetOnMessageCallback(std::bind(&SMGSDebugToolFrame::OnMQTTMessage,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3,std::placeholders::_4,std::placeholders::_5));
 }
 
-void SMGSDebugToolFrame::MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage)
+void SMGSDebugToolFrame::MQTTOnMessageRegister(void *obj,std::function<void(wxString,void *,size_t,uint8_t,int)> OnMessage,bool ProcessSend)
 {
     if(obj==NULL || OnMessage == NULL)
     {
@@ -90,6 +90,7 @@ void SMGSDebugToolFrame::MQTTOnMessageRegister(void *obj,std::function<void(wxSt
     MQTTOnMessageCallback_t cb;
     cb.obj=obj;
     cb.OnMessage=OnMessage;
+    cb.ProcessSend=ProcessSend;
 
     MQTTOnMessage.List.push_back(cb);
 }
@@ -117,6 +118,18 @@ bool SMGSDebugToolFrame::MQTTPublishMessage(wxString topic,void *payload,size_t 
 
     if(ret)
     {
+        {
+            //调用回调函数
+            wxMutexLocker Lock(MQTTOnMessage.Lock);
+            for(size_t i=0; i<MQTTOnMessage.List.size(); i++)
+            {
+                if(MQTTOnMessage.List[i].OnMessage!=NULL && MQTTOnMessage.List[i].ProcessSend == true )
+                {
+                    MQTTOnMessage.List[i].OnMessage(topic,payload,payloadlen,qos,retain);
+                }
+            }
+        }
+
         //将发布的消息也存入MQTTMessage表
         std::map<wxString,wxString> Dat;
         Dat[_T("Topic")]=topic;
@@ -276,13 +289,15 @@ void SMGSDebugToolFrame::OnMQTTConnectStateChange(bool IsConnect)
 
 void SMGSDebugToolFrame::OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain)
 {
-    //MQTT消息,调用回调函数
-    wxMutexLocker Lock(MQTTOnMessage.Lock);
-    for(size_t i=0; i<MQTTOnMessage.List.size(); i++)
     {
-        if(MQTTOnMessage.List[i].OnMessage!=NULL)
+        //MQTT消息,调用回调函数
+        wxMutexLocker Lock(MQTTOnMessage.Lock);
+        for(size_t i=0; i<MQTTOnMessage.List.size(); i++)
         {
-            MQTTOnMessage.List[i].OnMessage(topic,payload,payloadlen,qos,retain);
+            if(MQTTOnMessage.List[i].OnMessage!=NULL)
+            {
+                MQTTOnMessage.List[i].OnMessage(topic,payload,payloadlen,qos,retain);
+            }
         }
     }
 
