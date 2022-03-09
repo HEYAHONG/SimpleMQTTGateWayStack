@@ -120,8 +120,9 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
     wxDataViewItem item=event.GetItem();
     int row=data->GetRow(item);
     int col=event.GetColumn();
-    if(row < 0 || col < 0)
+    if(row < 0 || (col < 0 && row < 0))//在Linux下col可能为-1
     {
+        wxLogMessage(_T("内部错误,行=%d,列=%d"),row,col);
         return;
     }
 
