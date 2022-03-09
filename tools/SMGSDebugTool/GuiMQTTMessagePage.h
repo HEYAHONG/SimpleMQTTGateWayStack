@@ -15,6 +15,8 @@ class GuiMQTTMessagePage:public MQTTMessagePage
 
     protected:
 
+        virtual void OnMQTTMessageItemActivated( wxDataViewEvent& event );
+
 
     private:
 };

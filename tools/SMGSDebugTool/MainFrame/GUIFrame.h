@@ -239,6 +239,10 @@ class MQTTMessagePage : public wxPanel
 	protected:
 		wxDataViewListCtrl* m_MQTTMessagedataViewList;
 
+		// Virtual event handlers, override them in your derived class
+		virtual void OnMQTTMessageItemActivated( wxDataViewEvent& event ) { event.Skip(); }
+
+
 	public:
 
 		MQTTMessagePage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );

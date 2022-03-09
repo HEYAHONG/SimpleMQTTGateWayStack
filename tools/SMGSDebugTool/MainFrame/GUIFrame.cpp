@@ -402,8 +402,14 @@ MQTTMessagePage::MQTTMessagePage( wxWindow* parent, wxWindowID id, const wxPoint
 	this->SetSizer( bSizer6 );
 	this->Layout();
 	bSizer6->Fit( this );
+
+	// Connect Events
+	m_MQTTMessagedataViewList->Connect( wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED, wxDataViewEventHandler( MQTTMessagePage::OnMQTTMessageItemActivated ), NULL, this );
 }
 
 MQTTMessagePage::~MQTTMessagePage()
 {
+	// Disconnect Events
+	m_MQTTMessagedataViewList->Disconnect( wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED, wxDataViewEventHandler( MQTTMessagePage::OnMQTTMessageItemActivated ), NULL, this );
+
 }
