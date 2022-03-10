@@ -37,7 +37,7 @@
 
   ```bash
   #安装相应工具及库
-  pacman -S mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-make mingw-w64-i686-gcc mingw-w64-i686-wxWidgets mingw-w64-i686-sqlite3
+  pacman -S mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-make mingw-w64-i686-toolchain mingw-w64-i686-wxWidgets mingw-w64-i686-sqlite3
   #创建目录
   mkdir build
   #进入刚才的目录并使用CMake生成工程
