@@ -6,7 +6,7 @@
 #include "wx/arrstr.h"
 #include "libSMGS-Server.h"
 #include <wx/clipbrd.h>
-#include <res.h>
+#include <Res.h>
 #include <wx/imaglist.h>
 
 GuiGateWayDetector::GuiGateWayDetector(wxWindow* parent, wxWindowID id):GateWayDetectorDialog(parent,id)
