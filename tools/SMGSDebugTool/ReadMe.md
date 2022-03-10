@@ -21,7 +21,7 @@
 
   ```bash
   #安装相应工具及库
-  sudo apt-get install build-essential make cmake libsqlite3-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev
+  sudo apt-get install build-essential make cmake pkg-config libsqlite3-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev
   #创建目录
   mkdir build
   #进入刚才的目录并使用CMake生成工程
@@ -37,7 +37,7 @@
 
   ```bash
   #安装相应工具及库
-  pacman -S mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-make mingw-w64-i686-toolchain mingw-w64-i686-wxWidgets mingw-w64-i686-sqlite3
+  pacman -S mingw-w64-i686-cmake mingw-w64-i686-ninja mingw-w64-i686-make mingw-w64-i686-pkgconf mingw-w64-i686-toolchain mingw-w64-i686-wxWidgets mingw-w64-i686-sqlite3
   #创建目录
   mkdir build
   #进入刚才的目录并使用CMake生成工程

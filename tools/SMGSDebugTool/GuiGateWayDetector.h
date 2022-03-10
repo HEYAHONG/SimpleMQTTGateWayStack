@@ -1,7 +1,7 @@
 #ifndef GUIGATEWAYDETECTOR_H
 #define GUIGATEWAYDETECTOR_H
 
-#include "GuiFrame.h"
+#include "GUIFrame.h"
 #include "wx/msgqueue.h"
 #include "wx/arrstr.h"
 

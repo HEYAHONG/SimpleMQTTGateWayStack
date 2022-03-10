@@ -1,7 +1,7 @@
 #ifndef GUIGATEWAYPAGE_H
 #define GUIGATEWAYPAGE_H
 
-#include "GuiFrame.h"
+#include "GUIFrame.h"
 
 class GuiGateWayPage:public GateWayPage
 {

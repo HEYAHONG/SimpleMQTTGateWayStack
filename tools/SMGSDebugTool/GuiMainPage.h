@@ -1,7 +1,7 @@
 #ifndef GUIMAINPAGE_H
 #define GUIMAINPAGE_H
 
-#include "GuiFrame.h"
+#include "GUIFrame.h"
 #include <wx/webview.h>
 
 class GuiMainPage: public MainPage

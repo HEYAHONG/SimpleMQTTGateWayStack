@@ -1,7 +1,7 @@
 #ifndef GUIMQTTMESSAGEPAGE_H
 #define GUIMQTTMESSAGEPAGE_H
 
-#include "GuiFrame.h"
+#include "GUIFrame.h"
 #include <wx/datetime.h>
 
 class GuiMQTTMessagePage:public MQTTMessagePage

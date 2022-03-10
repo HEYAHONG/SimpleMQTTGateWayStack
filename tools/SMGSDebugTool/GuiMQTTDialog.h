@@ -1,7 +1,7 @@
 #ifndef GUIMQTTDIALOG_H
 #define GUIMQTTDIALOG_H
 
-#include "GuiFrame.h"
+#include "GUIFrame.h"
 
 class GuiMQTTDialog: public MQTTDialog
 {
