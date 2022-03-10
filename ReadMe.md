@@ -60,3 +60,9 @@ SimpleMQTTGateWayStack是一个基于MQTT的网关的自定义协议代码，并
 
 - Linux
 - MSYS2
+
+# 工具
+
+目录 [tool/s](tool/s)
+
+包含部分用于在开发阶段调试硬件的工具。
