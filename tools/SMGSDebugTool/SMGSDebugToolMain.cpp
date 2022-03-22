@@ -29,6 +29,7 @@
 #include "SMGSDebugToolMain.h"
 #include "InternalDatabase.h"
 #include "GuiGateWayDetector.h"
+#include "GuiSendMQTTRawMessageDialog.h"
 #include "libSMGS-Server.h"
 
 class SMGSLogFormatter : public wxLogFormatter
@@ -351,6 +352,12 @@ void SMGSDebugToolFrame::OnMenuMQTTMessage( wxCommandEvent& event )
 {
     GuiMQTTMessagePage *page=new GuiMQTTMessagePage(this);
     m_notebook_workspace->InsertPage(0,page,_T("MQTT消息"),true);
+}
+
+void SMGSDebugToolFrame::OnMenuSendMQTTRawMessage( wxCommandEvent& event )
+{
+    GuiSendMQTTRawMessageDialog dlg(this);
+    dlg.ShowModal();
 }
 
 void SMGSDebugToolFrame::OnMenuFileExit( wxCommandEvent& event )

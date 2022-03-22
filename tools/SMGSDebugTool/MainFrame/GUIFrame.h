@@ -36,6 +36,8 @@
 #include <wx/button.h>
 #include <wx/listctrl.h>
 #include <wx/dataview.h>
+#include <wx/checkbox.h>
+#include <wx/radiobox.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -45,16 +47,17 @@
 #define ID_Menu_MQTT_Start 1003
 #define ID_Menu_MQTT_Stop 1004
 #define ID_Menu_MQTTMessage 1005
-#define ID_Menu_GateWayDetector 1006
-#define ID_Menu_Add_GateWay 1007
-#define ID_Menu_About 1008
-#define wxID_InitTimer 1009
-#define wxID_MQTTPingTimer 1010
-#define wxID_UpdateUItimer 1011
-#define wxID_GateWayDetectorUpdatetimer 1012
-#define wxID_MenuItemCopy 1013
-#define wxID_MenuItemAddGateWayToWorkSpace 1014
-#define wxID_InitMQTTMessagePage 1015
+#define ID_Menu_SendMQTTRawMessage 1006
+#define ID_Menu_GateWayDetector 1007
+#define ID_Menu_Add_GateWay 1008
+#define ID_Menu_About 1009
+#define wxID_InitTimer 1010
+#define wxID_MQTTPingTimer 1011
+#define wxID_UpdateUItimer 1012
+#define wxID_GateWayDetectorUpdatetimer 1013
+#define wxID_MenuItemCopy 1014
+#define wxID_MenuItemAddGateWayToWorkSpace 1015
+#define wxID_InitMQTTMessagePage 1016
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrame
@@ -83,6 +86,7 @@ class GUIFrame : public wxFrame
 		virtual void OnMenuMQTTStart( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTStop( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuMQTTMessage( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuSendMQTTRawMessage( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuGateWayDetector( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuAddGateWay( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
@@ -269,6 +273,40 @@ class MQTTMessageDataDetail : public wxDialog
 		MQTTMessageDataDetail( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
 
 		~MQTTMessageDataDetail();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class SendMQTTRawMessageDialog
+///////////////////////////////////////////////////////////////////////////////
+class SendMQTTRawMessageDialog : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText5;
+		wxStaticText* m_staticText6;
+		wxCheckBox* m_checkBox_IsHex;
+		wxStaticText* m_staticText7;
+		wxStaticText* m_staticText8;
+		wxStaticText* m_staticText9;
+		wxButton* m_button_Send;
+		wxButton* m_button_Exit;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnButtonSendClick( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnButtonExitClick( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+		wxTextCtrl* m_textCtrl_topic;
+		wxTextCtrl* m_textCtrl_payload;
+		wxRadioBox* m_radioBox_Qos;
+		wxCheckBox* m_checkBox_Retain;
+
+		SendMQTTRawMessageDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("发送MQTT消息"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+
+		~SendMQTTRawMessageDialog();
 
 };
 

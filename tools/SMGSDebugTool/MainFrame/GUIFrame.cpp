@@ -68,6 +68,10 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net_MQTTMessage = new wxMenuItem( Menu_Net, ID_Menu_MQTTMessage, wxString( wxT("MQTT消息") ) , wxT("打开MQTT消息窗口"), wxITEM_NORMAL );
 	Menu_Net->Append( Menu_Net_MQTTMessage );
 
+	wxMenuItem* Menu_Net_SendMQTTRawMessage;
+	Menu_Net_SendMQTTRawMessage = new wxMenuItem( Menu_Net, ID_Menu_SendMQTTRawMessage, wxString( wxT("发送MQTT消息") ) , wxT("发送MQTT消息"), wxITEM_NORMAL );
+	Menu_Net->Append( Menu_Net_SendMQTTRawMessage );
+
 	m_menubar->Append( Menu_Net, wxT("网络") );
 
 	Menu_GateWay = new wxMenu();
@@ -144,6 +148,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStart ), this, Menu_Net_MQTT_Start->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTStop ), this, Menu_Net_MQTT_Stop->GetId());
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMQTTMessage ), this, Menu_Net_MQTTMessage->GetId());
+	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuSendMQTTRawMessage ), this, Menu_Net_SendMQTTRawMessage->GetId());
 	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuGateWayDetector ), this, Menu_GateWayDetector->GetId());
 	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuAddGateWay ), this, Menu_Add_GateWay->GetId());
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
@@ -440,4 +445,92 @@ MQTTMessageDataDetail::MQTTMessageDataDetail( wxWindow* parent, wxWindowID id, c
 
 MQTTMessageDataDetail::~MQTTMessageDataDetail()
 {
+}
+
+SendMQTTRawMessageDialog::SendMQTTRawMessageDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxFlexGridSizer* fgSizer4;
+	fgSizer4 = new wxFlexGridSizer( 0, 2, 0, 0 );
+	fgSizer4->SetFlexibleDirection( wxBOTH );
+	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+
+	fgSizer4->SetMinSize( wxSize( 400,300 ) );
+	m_staticText5 = new wxStaticText( this, wxID_ANY, wxT("主题:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText5->Wrap( -1 );
+	fgSizer4->Add( m_staticText5, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
+
+	m_textCtrl_topic = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_textCtrl_topic->SetMinSize( wxSize( 400,-1 ) );
+
+	fgSizer4->Add( m_textCtrl_topic, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_staticText6 = new wxStaticText( this, wxID_ANY, wxT("消息类型:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText6->Wrap( -1 );
+	fgSizer4->Add( m_staticText6, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
+
+	m_checkBox_IsHex = new wxCheckBox( this, wxID_ANY, wxT("Hex格式"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_checkBox_IsHex->SetValue(true);
+	fgSizer4->Add( m_checkBox_IsHex, 0, wxALL, 5 );
+
+	m_staticText7 = new wxStaticText( this, wxID_ANY, wxT("消息:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7->Wrap( -1 );
+	fgSizer4->Add( m_staticText7, 0, wxALL|wxALIGN_RIGHT, 5 );
+
+	m_textCtrl_payload = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
+	m_textCtrl_payload->SetMinSize( wxSize( 400,200 ) );
+
+	fgSizer4->Add( m_textCtrl_payload, 0, wxALL, 5 );
+
+	m_staticText8 = new wxStaticText( this, wxID_ANY, wxT("服务质量:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8->Wrap( -1 );
+	fgSizer4->Add( m_staticText8, 0, wxALL|wxALIGN_CENTER_VERTICAL|wxALIGN_RIGHT, 5 );
+
+	wxString m_radioBox_QosChoices[] = { wxT("QOS0"), wxT("QOS1"), wxT("QOS2") };
+	int m_radioBox_QosNChoices = sizeof( m_radioBox_QosChoices ) / sizeof( wxString );
+	m_radioBox_Qos = new wxRadioBox( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, m_radioBox_QosNChoices, m_radioBox_QosChoices, 1, wxRA_SPECIFY_ROWS );
+	m_radioBox_Qos->SetSelection( 0 );
+	fgSizer4->Add( m_radioBox_Qos, 0, wxALL, 5 );
+
+	m_staticText9 = new wxStaticText( this, wxID_ANY, wxT("保留消息："), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText9->Wrap( -1 );
+	fgSizer4->Add( m_staticText9, 0, wxALL, 5 );
+
+	m_checkBox_Retain = new wxCheckBox( this, wxID_ANY, wxT("Retain"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer4->Add( m_checkBox_Retain, 0, wxALL, 5 );
+
+
+	fgSizer4->Add( 0, 0, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer8;
+	bSizer8 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_button_Send = new wxButton( this, wxID_ANY, wxT("发送"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( m_button_Send, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_button_Exit = new wxButton( this, wxID_ANY, wxT("退出"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( m_button_Exit, 1, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	fgSizer4->Add( bSizer8, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	this->SetSizer( fgSizer4 );
+	this->Layout();
+	fgSizer4->Fit( this );
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_button_Send->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( SendMQTTRawMessageDialog::OnButtonSendClick ), NULL, this );
+	m_button_Exit->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( SendMQTTRawMessageDialog::OnButtonExitClick ), NULL, this );
+}
+
+SendMQTTRawMessageDialog::~SendMQTTRawMessageDialog()
+{
+	// Disconnect Events
+	m_button_Send->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( SendMQTTRawMessageDialog::OnButtonSendClick ), NULL, this );
+	m_button_Exit->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( SendMQTTRawMessageDialog::OnButtonExitClick ), NULL, this );
+
 }
