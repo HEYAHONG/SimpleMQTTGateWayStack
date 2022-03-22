@@ -9,7 +9,11 @@ class GuiGateWayPage:public GateWayPage
         GuiGateWayPage(wxString Addr,wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString);
         virtual ~GuiGateWayPage();
 
+
+
     protected:
+
+        void AddMQTTMessagePage();
 
     private:
         wxString GateWayAddr;

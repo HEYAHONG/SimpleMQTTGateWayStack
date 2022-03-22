@@ -13,12 +13,16 @@ class GuiMQTTMessagePage:public MQTTMessagePage
 
         void OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain,time_t timestamp);
 
+        void SetAddr(wxString _Addr);//设置地址,当此值不为空时,将筛选地址为_Addr的消息
+
     protected:
 
         virtual void OnMQTTMessageItemActivated( wxDataViewEvent& event );
+        virtual void OnInitMQTTMessagePagetimer( wxTimerEvent& event );
 
 
     private:
+        wxString Addr;
 };
 
 #endif // GUIMQTTMESSAGEPAGE_H

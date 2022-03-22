@@ -402,14 +402,19 @@ MQTTMessagePage::MQTTMessagePage( wxWindow* parent, wxWindowID id, const wxPoint
 	this->SetSizer( bSizer6 );
 	this->Layout();
 	bSizer6->Fit( this );
+	m_InitMQTTMessagePagetimer.SetOwner( this, wxID_InitMQTTMessagePage );
+	m_InitMQTTMessagePagetimer.Start( 250, true );
+
 
 	// Connect Events
 	m_MQTTMessagedataViewList->Connect( wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED, wxDataViewEventHandler( MQTTMessagePage::OnMQTTMessageItemActivated ), NULL, this );
+	this->Connect( wxID_InitMQTTMessagePage, wxEVT_TIMER, wxTimerEventHandler( MQTTMessagePage::OnInitMQTTMessagePagetimer ) );
 }
 
 MQTTMessagePage::~MQTTMessagePage()
 {
 	// Disconnect Events
 	m_MQTTMessagedataViewList->Disconnect( wxEVT_COMMAND_DATAVIEW_ITEM_ACTIVATED, wxDataViewEventHandler( MQTTMessagePage::OnMQTTMessageItemActivated ), NULL, this );
+	this->Disconnect( wxID_InitMQTTMessagePage, wxEVT_TIMER, wxTimerEventHandler( MQTTMessagePage::OnInitMQTTMessagePagetimer ) );
 
 }

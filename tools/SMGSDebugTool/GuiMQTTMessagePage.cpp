@@ -42,44 +42,6 @@ GuiMQTTMessagePage::GuiMQTTMessagePage(wxWindow* parent, wxWindowID id, const wx
     }
 
 
-
-
-
-
-
-    {
-        std::map<wxString,wxArrayString> dat=InternalDatabase_Table_Get_AllData(SMGSDebugToolMQTTMessage);
-        for(size_t i=0; i<dat[_T("Topic")].size(); i++)
-        {
-            wxString Topic=dat[_T("Topic")][i];
-            auto Payload=wxBase64Decode(dat[_T("Payload")][i]);
-            long payloadlen=0;
-            {
-                wxString PayloadLenStr=dat[_T("PayloadLen")][i];
-                PayloadLenStr.ToCLong(&payloadlen);
-            }
-            long qos=0;
-            {
-                wxString QosStr=dat[_T("Qos")][i];
-                QosStr.ToCLong(&qos);
-            }
-            long retain=0;
-            {
-                wxString RetainStr=dat[_T("Retain")][i];
-                RetainStr.ToCLong(&retain);
-            }
-
-            unsigned long long timestamp=0;
-            {
-                wxString TimeStampStr=dat[_T("TimeStamp")][i];
-                TimeStampStr.ToULongLong(&timestamp);
-            }
-
-            OnMQTTMessage(Topic,Payload.GetData(),payloadlen,qos,retain,timestamp);
-
-        }
-    }
-
 }
 
 void GuiMQTTMessagePage::OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain,time_t timestamp)
@@ -87,6 +49,26 @@ void GuiMQTTMessagePage::OnMQTTMessage(wxString topic,void *payload,size_t paylo
     if(timestamp==0)
     {
         timestamp=wxDateTime::GetTimeNow();
+    }
+
+    if(!Addr.empty())
+    {
+        uint8_t buff[4096]= {0};
+        SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+        SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,buff,sizeof(buff),topic.ToAscii(),topic.length());
+
+        for(size_t i=0; i<SMGS_TOPIC_PLY_END; i++)
+        {
+            if(plies[i]==NULL)
+            {
+                plies[i]="";//将NULL变为空字符串，防止出现字符串拼接错误
+            }
+        }
+
+        if(wxString(plies[SMGS_TOPIC_PLY_DESTADDR])!=Addr && wxString(plies[SMGS_TOPIC_PLY_SRCADDR])!=Addr)
+        {
+            return;
+        }
     }
 
     wxVector<wxVariant> Data;
@@ -113,6 +95,11 @@ void GuiMQTTMessagePage::OnMQTTMessage(wxString topic,void *payload,size_t paylo
     m_MQTTMessagedataViewList->InsertItem(0,Data);
 }
 
+
+void GuiMQTTMessagePage::SetAddr(wxString _Addr)
+{
+    Addr=_Addr;
+}
 
 void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
 {
@@ -148,7 +135,7 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
             SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
             SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,buff,sizeof(buff),Topic.ToAscii(),Topic.length());
 
-            for(size_t i=0;i<SMGS_TOPIC_PLY_END;i++)
+            for(size_t i=0; i<SMGS_TOPIC_PLY_END; i++)
             {
                 if(plies[i]==NULL)
                 {
@@ -171,6 +158,41 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
     }
 }
 
+void GuiMQTTMessagePage::OnInitMQTTMessagePagetimer( wxTimerEvent& event )
+{
+    {
+        std::map<wxString,wxArrayString> dat=InternalDatabase_Table_Get_AllData(SMGSDebugToolMQTTMessage);
+        for(size_t i=0; i<dat[_T("Topic")].size(); i++)
+        {
+            wxString Topic=dat[_T("Topic")][i];
+            auto Payload=wxBase64Decode(dat[_T("Payload")][i]);
+            long payloadlen=0;
+            {
+                wxString PayloadLenStr=dat[_T("PayloadLen")][i];
+                PayloadLenStr.ToCLong(&payloadlen);
+            }
+            long qos=0;
+            {
+                wxString QosStr=dat[_T("Qos")][i];
+                QosStr.ToCLong(&qos);
+            }
+            long retain=0;
+            {
+                wxString RetainStr=dat[_T("Retain")][i];
+                RetainStr.ToCLong(&retain);
+            }
+
+            unsigned long long timestamp=0;
+            {
+                wxString TimeStampStr=dat[_T("TimeStamp")][i];
+                TimeStampStr.ToULongLong(&timestamp);
+            }
+
+            OnMQTTMessage(Topic,Payload.GetData(),payloadlen,qos,retain,timestamp);
+
+        }
+    }
+}
 
 GuiMQTTMessagePage::~GuiMQTTMessagePage()
 {

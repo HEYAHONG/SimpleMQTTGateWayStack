@@ -1714,7 +1714,7 @@
                 <property name="window_style">wxTAB_TRAVERSAL</property>
             </object>
         </object>
-        <object class="Panel" expanded="0">
+        <object class="Panel" expanded="1">
             <property name="aui_managed">0</property>
             <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
             <property name="bg"></property>
@@ -1770,6 +1770,15 @@
                         <event name="OnDataViewListCtrlItemActivated">OnMQTTMessageItemActivated</event>
                     </object>
                 </object>
+            </object>
+            <object class="wxTimer" expanded="0">
+                <property name="enabled">1</property>
+                <property name="id">wxID_InitMQTTMessagePage</property>
+                <property name="name">m_InitMQTTMessagePagetimer</property>
+                <property name="oneshot">1</property>
+                <property name="period">250</property>
+                <property name="permission">protected</property>
+                <event name="OnTimer">OnInitMQTTMessagePagetimer</event>
             </object>
         </object>
     </object>

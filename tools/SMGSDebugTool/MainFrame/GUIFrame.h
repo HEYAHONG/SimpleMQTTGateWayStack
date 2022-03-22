@@ -54,6 +54,7 @@
 #define wxID_GateWayDetectorUpdatetimer 1012
 #define wxID_MenuItemCopy 1013
 #define wxID_MenuItemAddGateWayToWorkSpace 1014
+#define wxID_InitMQTTMessagePage 1015
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrame
@@ -238,9 +239,11 @@ class MQTTMessagePage : public wxPanel
 
 	protected:
 		wxDataViewListCtrl* m_MQTTMessagedataViewList;
+		wxTimer m_InitMQTTMessagePagetimer;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMQTTMessageItemActivated( wxDataViewEvent& event ) { event.Skip(); }
+		virtual void OnInitMQTTMessagePagetimer( wxTimerEvent& event ) { event.Skip(); }
 
 
 	public:
