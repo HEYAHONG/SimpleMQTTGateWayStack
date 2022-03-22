@@ -371,7 +371,7 @@ GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	m_mgr.SetManagedWindow(this);
 	m_mgr.SetFlags(wxAUI_MGR_DEFAULT);
 
-	m_auinotebook_gateway_workspace = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_DEFAULT_STYLE );
+	m_auinotebook_gateway_workspace = new wxAuiNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxAUI_NB_TAB_MOVE );
 	m_mgr.AddPane( m_auinotebook_gateway_workspace, wxAuiPaneInfo() .Left() .CaptionVisible( false ).CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).CentrePane() );
 
 
