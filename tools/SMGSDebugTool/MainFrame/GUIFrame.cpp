@@ -418,3 +418,26 @@ MQTTMessagePage::~MQTTMessagePage()
 	this->Disconnect( wxID_InitMQTTMessagePage, wxEVT_TIMER, wxTimerEventHandler( MQTTMessagePage::OnInitMQTTMessagePagetimer ) );
 
 }
+
+MQTTMessageDataDetail::MQTTMessageDataDetail( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxSize( 400,300 ), wxDefaultSize );
+
+	wxBoxSizer* bSizer7;
+	bSizer7 = new wxBoxSizer( wxVERTICAL );
+
+	bSizer7->SetMinSize( wxSize( 400,300 ) );
+	m_textDetail = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY );
+	bSizer7->Add( m_textDetail, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL, 5 );
+
+
+	this->SetSizer( bSizer7 );
+	this->Layout();
+	bSizer7->Fit( this );
+
+	this->Centre( wxBOTH );
+}
+
+MQTTMessageDataDetail::~MQTTMessageDataDetail()
+{
+}

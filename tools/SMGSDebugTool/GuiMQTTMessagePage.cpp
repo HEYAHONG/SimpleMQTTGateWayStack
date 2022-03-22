@@ -154,7 +154,10 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
 
         }
 
-        wxMessageBox(msg,_T("详情"));
+        //wxMessageBox(msg,_T("详情"));
+        MQTTMessageDataDetail dlg(this,wxID_ANY,_T("详情"));
+        dlg.m_textDetail->SetValue(msg);
+        dlg.ShowModal();
     }
 }
 
