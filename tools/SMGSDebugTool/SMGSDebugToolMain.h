@@ -116,6 +116,12 @@ private:
 
     virtual void OnMaintreeItemActivated( wxTreeEvent& event ) ;
     virtual void OnMaintreeItemRightClick( wxTreeEvent& event ) ;
+
+    wxString CurrentGateWaySerialNumber;//当前选中的网关地址,主要用于弹出菜单
+    virtual void OnMenuMaintreeCopySerialNumber( wxCommandEvent& event ) ;
+    virtual void OnMenuMaintreeSendMQTTRawMessageDefaultName( wxCommandEvent& event ) ;
+    virtual void OnMenuMaintreeSendMQTTRawMessageToolName( wxCommandEvent& event ) ;
+
 };
 
 #endif // SMGSDebugTOOLMAIN_H

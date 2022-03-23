@@ -20,6 +20,7 @@
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
 #include <wx/base64.h>
+#include <wx/clipbrd.h>
 #include "Res.h"
 #include "GuiMainPage.h"
 #include "GuiMQTTDialog.h"
@@ -437,9 +438,10 @@ void SMGSDebugToolFrame::OnAbout(wxCommandEvent &event)
 
 void SMGSDebugToolFrame::OnMaintreeItemActivated( wxTreeEvent& event )
 {
-    //工作区中网关被选中
+    //网关被选中
 
     wxString Addr=m_maintree->GetItemText(event.GetItem());
+    CurrentGateWaySerialNumber=Addr;
 
     {
         std::map<wxString,wxString> Con;
@@ -467,8 +469,35 @@ void SMGSDebugToolFrame::OnMaintreeItemActivated( wxTreeEvent& event )
 
 void SMGSDebugToolFrame::OnMaintreeItemRightClick( wxTreeEvent& event )
 {
+    //右键菜单
+    wxString Addr=m_maintree->GetItemText(event.GetItem());
+    CurrentGateWaySerialNumber=Addr;
+    PopupMenu(m_menu_maintree);
 
 }
+
+void SMGSDebugToolFrame::OnMenuMaintreeCopySerialNumber( wxCommandEvent& event )
+{
+    if (wxTheClipboard->Open())
+    {
+        wxTheClipboard->SetData(new wxTextDataObject(CurrentGateWaySerialNumber));
+        wxTheClipboard->Close();
+    }
+    wxLogMessage(_T("%s已复制"),(const char *) CurrentGateWaySerialNumber);
+}
+void SMGSDebugToolFrame::OnMenuMaintreeSendMQTTRawMessageDefaultName( wxCommandEvent& event )
+{
+    GuiSendMQTTRawMessageDialog dlg(this);
+    dlg.m_textCtrl_topic->SetValue((CurrentGateWaySerialNumber+"/"+wxString(CONFIG_SMGS_SERVER_DEFAULT_NAME)));
+    dlg.ShowModal();
+}
+void SMGSDebugToolFrame::OnMenuMaintreeSendMQTTRawMessageToolName( wxCommandEvent& event )
+{
+    GuiSendMQTTRawMessageDialog dlg(this);
+    dlg.m_textCtrl_topic->SetValue((CurrentGateWaySerialNumber+"/"+InternalDatebase_ProgramInfo_Get(_T("Name"))));
+    dlg.ShowModal();
+}
+
 
 SMGSDebugToolFrame::~SMGSDebugToolFrame()
 {

@@ -137,6 +137,23 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_UpdateUItimer.SetOwner( this, wxID_UpdateUItimer );
 	m_UpdateUItimer.Start( 10 );
 
+	m_menu_maintree = new wxMenu();
+	wxMenuItem* m_menuItem_copyserialnumber;
+	m_menuItem_copyserialnumber = new wxMenuItem( m_menu_maintree, wxID_Menu_maintree_CopySerialNumber, wxString( wxT("复制序列号") ) , wxT("复制当前选中的网关的序列号"), wxITEM_NORMAL );
+	m_menu_maintree->Append( m_menuItem_copyserialnumber );
+
+	m_menu_maintree->AppendSeparator();
+
+	wxMenuItem* m_menuItem_sendMQTTrawmessage_defaultname;
+	m_menuItem_sendMQTTrawmessage_defaultname = new wxMenuItem( m_menu_maintree, wxID_Menu_maintree_SendMQTTRawMessage_DefaultName, wxString( wxT("发送原始MQTT消息(默认地址)") ) , wxT("使用默认服务器地址作为源地址发送MQTT消息"), wxITEM_NORMAL );
+	m_menu_maintree->Append( m_menuItem_sendMQTTrawmessage_defaultname );
+
+	wxMenuItem* m_menuItem_sendMQTTrawmessage_toolname;
+	m_menuItem_sendMQTTrawmessage_toolname = new wxMenuItem( m_menu_maintree, wxID_Menu_maintree_SendMQTTRawMessage_ToolName, wxString( wxT("发送原始MQTT消息(工具地址)") ) , wxT("使用调试工具地址作为源地址发送MQTT消息"), wxITEM_NORMAL );
+	m_menu_maintree->Append( m_menuItem_sendMQTTrawmessage_toolname );
+
+	this->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GUIFrame::GUIFrameOnContextMenu ), NULL, this );
+
 
 	m_mgr.Update();
 	this->Centre( wxBOTH );
@@ -158,6 +175,9 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_maintree->Connect( wxEVT_COMMAND_TREE_ITEM_RIGHT_CLICK, wxTreeEventHandler( GUIFrame::OnMaintreeItemRightClick ), NULL, this );
 	this->Connect( wxID_MQTTPingTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnMQTTPingTimer ) );
 	this->Connect( wxID_UpdateUItimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnUpdateUITimer ) );
+	m_menu_maintree->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMaintreeCopySerialNumber ), this, m_menuItem_copyserialnumber->GetId());
+	m_menu_maintree->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMaintreeSendMQTTRawMessageDefaultName ), this, m_menuItem_sendMQTTrawmessage_defaultname->GetId());
+	m_menu_maintree->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuMaintreeSendMQTTRawMessageToolName ), this, m_menuItem_sendMQTTrawmessage_toolname->GetId());
 }
 
 GUIFrame::~GUIFrame()
@@ -172,6 +192,7 @@ GUIFrame::~GUIFrame()
 
 	m_mgr.UnInit();
 
+	delete m_menu_maintree;
 }
 
 MainPage::MainPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )

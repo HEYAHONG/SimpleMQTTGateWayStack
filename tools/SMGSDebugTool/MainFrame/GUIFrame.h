@@ -54,10 +54,13 @@
 #define wxID_InitTimer 1010
 #define wxID_MQTTPingTimer 1011
 #define wxID_UpdateUItimer 1012
-#define wxID_GateWayDetectorUpdatetimer 1013
-#define wxID_MenuItemCopy 1014
-#define wxID_MenuItemAddGateWayToWorkSpace 1015
-#define wxID_InitMQTTMessagePage 1016
+#define wxID_Menu_maintree_CopySerialNumber 1013
+#define wxID_Menu_maintree_SendMQTTRawMessage_DefaultName 1014
+#define wxID_Menu_maintree_SendMQTTRawMessage_ToolName 1015
+#define wxID_GateWayDetectorUpdatetimer 1016
+#define wxID_MenuItemCopy 1017
+#define wxID_MenuItemAddGateWayToWorkSpace 1018
+#define wxID_InitMQTTMessagePage 1019
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrame
@@ -78,6 +81,7 @@ class GUIFrame : public wxFrame
 		wxTreeCtrl* m_maintree;
 		wxTimer m_MQTTPingtimer;
 		wxTimer m_UpdateUItimer;
+		wxMenu* m_menu_maintree;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnMenuFileSave( wxCommandEvent& event ) { event.Skip(); }
@@ -96,6 +100,9 @@ class GUIFrame : public wxFrame
 		virtual void OnMaintreeItemRightClick( wxTreeEvent& event ) { event.Skip(); }
 		virtual void OnMQTTPingTimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnUpdateUITimer( wxTimerEvent& event ) { event.Skip(); }
+		virtual void OnMenuMaintreeCopySerialNumber( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuMaintreeSendMQTTRawMessageDefaultName( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuMaintreeSendMQTTRawMessageToolName( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -106,6 +113,11 @@ class GUIFrame : public wxFrame
 		wxAuiManager m_mgr;
 
 		~GUIFrame();
+
+		void GUIFrameOnContextMenu( wxMouseEvent &event )
+		{
+			this->PopupMenu( m_menu_maintree, event.GetPosition() );
+		}
 
 };
 

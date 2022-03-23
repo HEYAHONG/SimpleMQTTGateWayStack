@@ -535,6 +535,57 @@
                 <property name="permission">protected</property>
                 <event name="OnTimer">OnUpdateUITimer</event>
             </object>
+            <object class="wxMenu" expanded="0">
+                <property name="label">工作区菜单</property>
+                <property name="name">m_menu_maintree</property>
+                <property name="permission">protected</property>
+                <object class="wxMenuItem" expanded="0">
+                    <property name="bitmap"></property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help">复制当前选中的网关的序列号</property>
+                    <property name="id">wxID_Menu_maintree_CopySerialNumber</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">复制序列号</property>
+                    <property name="name">m_menuItem_copyserialnumber</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
+                    <event name="OnMenuSelection">OnMenuMaintreeCopySerialNumber</event>
+                </object>
+                <object class="separator" expanded="0">
+                    <property name="name">m_separator4</property>
+                    <property name="permission">none</property>
+                </object>
+                <object class="wxMenuItem" expanded="0">
+                    <property name="bitmap"></property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help">使用默认服务器地址作为源地址发送MQTT消息</property>
+                    <property name="id">wxID_Menu_maintree_SendMQTTRawMessage_DefaultName</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">发送原始MQTT消息(默认地址)</property>
+                    <property name="name">m_menuItem_sendMQTTrawmessage_defaultname</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
+                    <event name="OnMenuSelection">OnMenuMaintreeSendMQTTRawMessageDefaultName</event>
+                </object>
+                <object class="wxMenuItem" expanded="0">
+                    <property name="bitmap"></property>
+                    <property name="checked">0</property>
+                    <property name="enabled">1</property>
+                    <property name="help">使用调试工具地址作为源地址发送MQTT消息</property>
+                    <property name="id">wxID_Menu_maintree_SendMQTTRawMessage_ToolName</property>
+                    <property name="kind">wxITEM_NORMAL</property>
+                    <property name="label">发送原始MQTT消息(工具地址)</property>
+                    <property name="name">m_menuItem_sendMQTTrawmessage_toolname</property>
+                    <property name="permission">none</property>
+                    <property name="shortcut"></property>
+                    <property name="unchecked_bitmap"></property>
+                    <event name="OnMenuSelection">OnMenuMaintreeSendMQTTRawMessageToolName</event>
+                </object>
+            </object>
         </object>
         <object class="Panel" expanded="0">
             <property name="aui_managed">0</property>
