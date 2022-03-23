@@ -224,6 +224,7 @@ class GateWayPage : public wxPanel
 	protected:
 		wxAuiNotebook* m_auinotebook_gateway_workspace;
 		wxPanel* m_operatepanel;
+		wxDataViewTreeCtrl* m_dataViewTreeCtrl_GateWay;
 
 	public:
 

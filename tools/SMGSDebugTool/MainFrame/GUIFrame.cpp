@@ -381,8 +381,19 @@ GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 
 
 	m_operatepanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_mgr.AddPane( m_operatepanel, wxAuiPaneInfo() .Top() .CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).LeftDockable( false ).RightDockable( false ).MinSize( wxSize( 600,100 ) ) );
+	m_mgr.AddPane( m_operatepanel, wxAuiPaneInfo() .Top() .CloseButton( false ).PinButton( true ).Dock().Resizable().FloatingSize( wxDefaultSize ).LeftDockable( false ).RightDockable( false ).MinSize( wxSize( 600,200 ) ) );
 
+	wxBoxSizer* bSizer9;
+	bSizer9 = new wxBoxSizer( wxVERTICAL );
+
+	bSizer9->SetMinSize( wxSize( 600,200 ) );
+	m_dataViewTreeCtrl_GateWay = new wxDataViewTreeCtrl( m_operatepanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer9->Add( m_dataViewTreeCtrl_GateWay, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_operatepanel->SetSizer( bSizer9 );
+	m_operatepanel->Layout();
+	bSizer9->Fit( m_operatepanel );
 
 	m_mgr.Update();
 }
