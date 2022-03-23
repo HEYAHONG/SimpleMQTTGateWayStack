@@ -472,12 +472,21 @@ void SMGSDebugToolFrame::OnMaintreeItemRightClick( wxTreeEvent& event )
     //右键菜单
     wxString Addr=m_maintree->GetItemText(event.GetItem());
     CurrentGateWaySerialNumber=Addr;
+    if(CurrentGateWaySerialNumber.empty())
+    {
+        return;
+    }
     PopupMenu(m_menu_maintree);
 
 }
 
 void SMGSDebugToolFrame::OnMenuMaintreeCopySerialNumber( wxCommandEvent& event )
 {
+    if(CurrentGateWaySerialNumber.empty())
+    {
+        return;
+    }
+
     if (wxTheClipboard->Open())
     {
         wxTheClipboard->SetData(new wxTextDataObject(CurrentGateWaySerialNumber));
@@ -487,12 +496,22 @@ void SMGSDebugToolFrame::OnMenuMaintreeCopySerialNumber( wxCommandEvent& event )
 }
 void SMGSDebugToolFrame::OnMenuMaintreeSendMQTTRawMessageDefaultName( wxCommandEvent& event )
 {
+    if(CurrentGateWaySerialNumber.empty())
+    {
+        return;
+    }
+
     GuiSendMQTTRawMessageDialog dlg(this);
     dlg.m_textCtrl_topic->SetValue((CurrentGateWaySerialNumber+"/"+wxString(CONFIG_SMGS_SERVER_DEFAULT_NAME)));
     dlg.ShowModal();
 }
 void SMGSDebugToolFrame::OnMenuMaintreeSendMQTTRawMessageToolName( wxCommandEvent& event )
 {
+    if(CurrentGateWaySerialNumber.empty())
+    {
+        return;
+    }
+
     GuiSendMQTTRawMessageDialog dlg(this);
     dlg.m_textCtrl_topic->SetValue((CurrentGateWaySerialNumber+"/"+InternalDatebase_ProgramInfo_Get(_T("Name"))));
     dlg.ShowModal();
