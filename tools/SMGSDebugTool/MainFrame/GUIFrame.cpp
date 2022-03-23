@@ -415,14 +415,41 @@ GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	m_operatepanel->SetSizer( bSizer9 );
 	m_operatepanel->Layout();
 	bSizer9->Fit( m_operatepanel );
+	m_UpdateGateWayPagetimer.SetOwner( this, wxID_ANY );
+	m_UpdateGateWayPagetimer.Start( 200 );
+
 
 	m_mgr.Update();
+
+	// Connect Events
+	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GateWayPage::OnUpdateGateWayPagetimer ) );
 }
 
 GateWayPage::~GateWayPage()
 {
+	// Disconnect Events
+	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GateWayPage::OnUpdateGateWayPagetimer ) );
+
 	m_mgr.UnInit();
 
+}
+
+GateWayPageLogPage::GateWayPageLogPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+{
+	wxBoxSizer* bSizer10;
+	bSizer10 = new wxBoxSizer( wxVERTICAL );
+
+	m_textCtrl_log = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY );
+	bSizer10->Add( m_textCtrl_log, 1, wxALL|wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer10 );
+	this->Layout();
+	bSizer10->Fit( this );
+}
+
+GateWayPageLogPage::~GateWayPageLogPage()
+{
 }
 
 MQTTMessagePage::MQTTMessagePage( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )

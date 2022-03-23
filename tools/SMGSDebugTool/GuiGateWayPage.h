@@ -2,6 +2,8 @@
 #define GUIGATEWAYPAGE_H
 
 #include "GUIFrame.h"
+#include <wx/msgqueue.h>
+#include <functional>
 
 class GuiGateWayPage:public GateWayPage
 {
@@ -10,13 +12,19 @@ class GuiGateWayPage:public GateWayPage
         virtual ~GuiGateWayPage();
 
 
+        void AppendLogText(wxString _log);
+
 
     protected:
 
         void AddMQTTMessagePage();
+        void AddLogPage();
+        virtual void OnUpdateGateWayPagetimer( wxTimerEvent& event );
 
     private:
         wxString GateWayAddr;
+        GateWayPageLogPage *log;
+        wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
 };
 
 #endif // GUIGATEWAYPAGE_H

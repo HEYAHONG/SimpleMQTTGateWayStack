@@ -237,6 +237,11 @@ class GateWayPage : public wxPanel
 		wxAuiNotebook* m_auinotebook_gateway_workspace;
 		wxPanel* m_operatepanel;
 		wxDataViewTreeCtrl* m_dataViewTreeCtrl_GateWay;
+		wxTimer m_UpdateGateWayPagetimer;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnUpdateGateWayPagetimer( wxTimerEvent& event ) { event.Skip(); }
+
 
 	public:
 
@@ -244,6 +249,24 @@ class GateWayPage : public wxPanel
 		wxAuiManager m_mgr;
 
 		~GateWayPage();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class GateWayPageLogPage
+///////////////////////////////////////////////////////////////////////////////
+class GateWayPageLogPage : public wxPanel
+{
+	private:
+
+	protected:
+
+	public:
+		wxTextCtrl* m_textCtrl_log;
+
+		GateWayPageLogPage( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
+
+		~GateWayPageLogPage();
 
 };
 
