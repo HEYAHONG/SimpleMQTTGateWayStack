@@ -119,6 +119,14 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
         wxString msg;
         data->GetValueByRow(var,row,0);
         wxString Topic=var;
+        data->GetValueByRow(var,row,1);
+        wxString Payload=var;
+        data->GetValueByRow(var,row,2);
+        wxString Qos=var;
+        data->GetValueByRow(var,row,3);
+        wxString Retain=var;
+        data->GetValueByRow(var,row,4);
+        wxString Timestamp=var;
 
         unsigned long long timestamp=0;
         {
@@ -153,6 +161,17 @@ void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
             msg+=wxString(_T("命令参数3: "))+plies[SMGS_TOPIC_PLY_CMD_PARA_3]+_T("\r\n");
 
         }
+
+        msg+=_T("---------------\r\n");
+        msg+=(wxString(_T("MQTT主题:\r\n"))+Topic+_T("\r\n"));
+        msg+=_T("---------------\r\n");
+        msg+=(wxString(_T("MQTT负载:\r\n"))+Payload+_T("\r\n"));
+        msg+=_T("---------------\r\n");
+        msg+=(wxString(_T("QOS:\r\n"))+Qos+_T("\r\n"));
+        msg+=_T("---------------\r\n");
+        msg+=(wxString(_T("Retain:\r\n"))+Retain+_T("\r\n"));
+        msg+=_T("---------------\r\n");
+        msg+=(wxString(_T("TimeStamp:\r\n"))+Timestamp+_T("\r\n"));
 
         //wxMessageBox(msg,_T("详情"));
         MQTTMessageDataDetail dlg(this,wxID_ANY,_T("详情"));
