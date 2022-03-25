@@ -255,6 +255,25 @@
                     </object>
                 </object>
                 <object class="wxMenu" expanded="0">
+                    <property name="label">外部工具</property>
+                    <property name="name">Menu_Tools</property>
+                    <property name="permission">protected</property>
+                    <object class="wxMenuItem" expanded="0">
+                        <property name="bitmap"></property>
+                        <property name="checked">0</property>
+                        <property name="enabled">1</property>
+                        <property name="help">打开计算器</property>
+                        <property name="id">ID_Menu_Toos_Calc</property>
+                        <property name="kind">wxITEM_NORMAL</property>
+                        <property name="label">计算器</property>
+                        <property name="name">Menu_Tools_Calc</property>
+                        <property name="permission">none</property>
+                        <property name="shortcut">Ctrl+Alt+C</property>
+                        <property name="unchecked_bitmap"></property>
+                        <event name="OnMenuSelection">OnMenuToolsCalc</event>
+                    </object>
+                </object>
+                <object class="wxMenu" expanded="0">
                     <property name="label">帮助</property>
                     <property name="name">Menu_Help</property>
                     <property name="permission">protected</property>

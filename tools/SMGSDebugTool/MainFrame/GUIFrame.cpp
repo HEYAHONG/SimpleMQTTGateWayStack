@@ -85,6 +85,13 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 
 	m_menubar->Append( Menu_GateWay, wxT("网关") );
 
+	Menu_Tools = new wxMenu();
+	wxMenuItem* Menu_Tools_Calc;
+	Menu_Tools_Calc = new wxMenuItem( Menu_Tools, ID_Menu_Toos_Calc, wxString( wxT("计算器") ) + wxT('\t') + wxT("Ctrl+Alt+C"), wxT("打开计算器"), wxITEM_NORMAL );
+	Menu_Tools->Append( Menu_Tools_Calc );
+
+	m_menubar->Append( Menu_Tools, wxT("外部工具") );
+
 	Menu_Help = new wxMenu();
 	wxMenuItem* Menu_About;
 	Menu_About = new wxMenuItem( Menu_Help, ID_Menu_About, wxString( wxT("关于本程序") ) , wxT("关于本程序"), wxITEM_NORMAL );
@@ -168,6 +175,7 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	Menu_Net->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuSendMQTTRawMessage ), this, Menu_Net_SendMQTTRawMessage->GetId());
 	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuGateWayDetector ), this, Menu_GateWayDetector->GetId());
 	Menu_GateWay->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuAddGateWay ), this, Menu_Add_GateWay->GetId());
+	Menu_Tools->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnMenuToolsCalc ), this, Menu_Tools_Calc->GetId());
 	Menu_Help->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GUIFrame::OnAbout ), this, Menu_About->GetId());
 	m_panel_log->Connect( wxEVT_SIZE, wxSizeEventHandler( GUIFrame::OnLogPanelSize ), NULL, this );
 	this->Connect( wxID_InitTimer, wxEVT_TIMER, wxTimerEventHandler( GUIFrame::OnInitTimer ) );

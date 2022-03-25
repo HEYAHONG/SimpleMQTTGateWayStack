@@ -50,17 +50,18 @@
 #define ID_Menu_SendMQTTRawMessage 1006
 #define ID_Menu_GateWayDetector 1007
 #define ID_Menu_Add_GateWay 1008
-#define ID_Menu_About 1009
-#define wxID_InitTimer 1010
-#define wxID_MQTTPingTimer 1011
-#define wxID_UpdateUItimer 1012
-#define wxID_Menu_maintree_CopySerialNumber 1013
-#define wxID_Menu_maintree_SendMQTTRawMessage_DefaultName 1014
-#define wxID_Menu_maintree_SendMQTTRawMessage_ToolName 1015
-#define wxID_GateWayDetectorUpdatetimer 1016
-#define wxID_MenuItemCopy 1017
-#define wxID_MenuItemAddGateWayToWorkSpace 1018
-#define wxID_InitMQTTMessagePage 1019
+#define ID_Menu_Toos_Calc 1009
+#define ID_Menu_About 1010
+#define wxID_InitTimer 1011
+#define wxID_MQTTPingTimer 1012
+#define wxID_UpdateUItimer 1013
+#define wxID_Menu_maintree_CopySerialNumber 1014
+#define wxID_Menu_maintree_SendMQTTRawMessage_DefaultName 1015
+#define wxID_Menu_maintree_SendMQTTRawMessage_ToolName 1016
+#define wxID_GateWayDetectorUpdatetimer 1017
+#define wxID_MenuItemCopy 1018
+#define wxID_MenuItemAddGateWayToWorkSpace 1019
+#define wxID_InitMQTTMessagePage 1020
 
 ///////////////////////////////////////////////////////////////////////////////
 /// Class GUIFrame
@@ -75,6 +76,7 @@ class GUIFrame : public wxFrame
 		wxMenu* Menu_File;
 		wxMenu* Menu_Net;
 		wxMenu* Menu_GateWay;
+		wxMenu* Menu_Tools;
 		wxMenu* Menu_Help;
 		wxTimer m_Inittimer;
 		wxAuiNotebook* m_notebook_workspace;
@@ -93,6 +95,7 @@ class GUIFrame : public wxFrame
 		virtual void OnMenuSendMQTTRawMessage( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuGateWayDetector( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnMenuAddGateWay( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnMenuToolsCalc( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLogPanelSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnInitTimer( wxTimerEvent& event ) { event.Skip(); }

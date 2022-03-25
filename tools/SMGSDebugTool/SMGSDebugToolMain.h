@@ -26,6 +26,8 @@
 #include "functional"
 #include <wx/thread.h>
 #include <wx/vector.h>
+#include <wx/utils.h>
+#include <wx/msgdlg.h>
 
 
 class SMGSDebugToolFrame: public GUIFrame
@@ -100,6 +102,8 @@ private:
     virtual void OnMenuGateWayDetector( wxCommandEvent& event );
 
     virtual void OnMenuAddGateWay( wxCommandEvent& event );
+
+    virtual void OnMenuToolsCalc( wxCommandEvent& event );
 
     virtual void OnClose(wxCloseEvent& event);
     virtual void OnQuit(wxCommandEvent& event);
