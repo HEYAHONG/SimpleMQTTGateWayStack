@@ -414,16 +414,16 @@ void SMGSDebugToolFrame::OnMenuAddGateWay( wxCommandEvent& event )
 void SMGSDebugToolFrame::OnMenuToolsCalc( wxCommandEvent& event )
 {
 #ifdef WIN32
-    wxString cmd="calc || kcalc || gnome-calculator || xcalc";
+    wxString cmd="calc || kcalc || galculator || gnome-calculator || xcalc";
 #else
-    wxString cmd="kcalc || gnome-calculator || xcalc";
+    wxString cmd="kcalc || galculator || gnome-calculator || xcalc";
 #endif
     if(wxExecute(cmd,wxEXEC_ASYNC))
     {
         return;
     }
 
-    wxMessageBox(_T("未找到计算器,请安装kcalc、gnome-calculator、xcalc之一"),_T("错误"));
+    wxMessageBox(_T("未找到计算器,请安装kcalc、galculator、gnome-calculator、xcalc之一"),_T("错误"));
 }
 
 void SMGSDebugToolFrame::OnLogPanelSize( wxSizeEvent& event )
