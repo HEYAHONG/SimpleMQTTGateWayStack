@@ -22,7 +22,7 @@ bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_co
 
     memset(plies,0,max_plies_count);
 
-    strcpy((char *)buff,topic);
+    memcpy((char *)buff,topic,topic_length);
 
     size_t current_index=0;
 
