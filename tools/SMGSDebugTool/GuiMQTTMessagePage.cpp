@@ -41,6 +41,7 @@ GuiMQTTMessagePage::GuiMQTTMessagePage(wxWindow* parent, wxWindowID id, const wx
         col->SetWidth(128);
     }
 
+    SetOnMQTTMessageCallback(NULL);
 
 }
 
@@ -68,6 +69,11 @@ void GuiMQTTMessagePage::OnMQTTMessage(wxString topic,void *payload,size_t paylo
         if(wxString(plies[SMGS_TOPIC_PLY_DESTADDR])!=Addr && wxString(plies[SMGS_TOPIC_PLY_SRCADDR])!=Addr)
         {
             return;
+        }
+
+        if(OnMsgCb!=NULL)
+        {
+            OnMsgCb(topic,payload,payloadlen,qos,retain,timestamp);//调用回调函数
         }
     }
 
@@ -99,6 +105,11 @@ void GuiMQTTMessagePage::OnMQTTMessage(wxString topic,void *payload,size_t paylo
 void GuiMQTTMessagePage::SetAddr(wxString _Addr)
 {
     Addr=_Addr;
+}
+
+void GuiMQTTMessagePage::SetOnMQTTMessageCallback(std::function<void(wxString,void *,size_t,uint8_t,int,time_t)> _OnMsgCb)
+{
+    OnMsgCb=_OnMsgCb;
 }
 
 void GuiMQTTMessagePage::OnMQTTMessageItemActivated( wxDataViewEvent& event )
@@ -219,6 +230,7 @@ void GuiMQTTMessagePage::OnInitMQTTMessagePagetimer( wxTimerEvent& event )
 GuiMQTTMessagePage::~GuiMQTTMessagePage()
 {
     //dtor
+    SetOnMQTTMessageCallback(NULL);
     SMGSDebugToolFrame *Frame=SMGSDebugToolApp_GetMainFrame();
     if(Frame!=NULL)
     {

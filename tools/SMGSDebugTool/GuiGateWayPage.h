@@ -4,6 +4,7 @@
 #include "GUIFrame.h"
 #include <wx/msgqueue.h>
 #include <functional>
+#include <wx/datetime.h>
 
 class GuiGateWayPage:public GateWayPage
 {
@@ -12,7 +13,9 @@ class GuiGateWayPage:public GateWayPage
         virtual ~GuiGateWayPage();
 
 
-        void AppendLogText(wxString _log);
+        void AppendLogText(wxString _log,wxDateTime now = wxDateTime::Now());
+
+        void OnMQTTMessage(wxString topic,void *payload,size_t payloadlen,uint8_t qos,int retain,time_t timestamp);
 
 
     protected:

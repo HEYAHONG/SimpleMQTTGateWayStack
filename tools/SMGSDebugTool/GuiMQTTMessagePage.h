@@ -3,6 +3,7 @@
 
 #include "GUIFrame.h"
 #include <wx/datetime.h>
+#include <functional>
 
 class GuiMQTTMessagePage:public MQTTMessagePage
 {
@@ -15,6 +16,8 @@ class GuiMQTTMessagePage:public MQTTMessagePage
 
         void SetAddr(wxString _Addr);//设置地址,当此值不为空时,将筛选地址为_Addr的消息
 
+        void SetOnMQTTMessageCallback(std::function<void(wxString,void *,size_t,uint8_t,int,time_t)> _OnMsgCb);
+
     protected:
 
         virtual void OnMQTTMessageItemActivated( wxDataViewEvent& event );
@@ -23,6 +26,7 @@ class GuiMQTTMessagePage:public MQTTMessagePage
 
     private:
         wxString Addr;
+        std::function<void(wxString,void *,size_t,uint8_t,int,time_t)> OnMsgCb;
 };
 
 #endif // GUIMQTTMESSAGEPAGE_H
