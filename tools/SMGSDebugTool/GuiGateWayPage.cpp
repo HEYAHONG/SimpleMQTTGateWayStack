@@ -14,6 +14,8 @@ GuiGateWayPage::GuiGateWayPage(wxString Addr,wxWindow* parent, wxWindowID id, co
     Dat[_T("IsOpen")]=_T("1");
     InternalDatabase_Table_Update_Data(_T(SMGSDebugToolWorkSpaceGateWayList),Dat,Con);
 
+    m_listbook_gateway->SetPageText(m_listbook_gateway->FindPage(m_panel_status),_T("状态"));
+
     AddMQTTMessagePage();
     AddLogPage();
 
@@ -78,12 +80,26 @@ void GuiGateWayPage::OnMQTTMessage(wxString topic,void *payload,size_t payloadle
                         {
                             //上线
                             AppendLogText(GateWayAddr+_T("已上线!"),timestamp);
+                            {
+                                auto cb=[=]()
+                                {
+                                    SetOnline(true);
+                                };
+                                UpdateUIMsgQueue.Post(cb);
+                            }
                         }
                         break;
                         case SMGS_GATEWAY_CMDID_OFFLINE:
                         {
                             //下线
                             AppendLogText(GateWayAddr+_T("已离线!"),timestamp);
+                            {
+                                auto cb=[=]()
+                                {
+                                    SetOnline(false);
+                                };
+                                UpdateUIMsgQueue.Post(cb);
+                            }
                         }
                         break;
                         case SMGS_GATEWAY_CMDID_REPORT_DEVICETABLE_ONLINE:
@@ -169,6 +185,18 @@ void GuiGateWayPage::OnUpdateGateWayPagetimer( wxTimerEvent& event )
         }
     }
 
+}
+
+void GuiGateWayPage::SetOnline(bool IsOnline)
+{
+    if(IsOnline)
+    {
+        m_propertyGridItem_Status_IsOnLine->SetValue(_T("在线"));
+    }
+    else
+    {
+        m_propertyGridItem_Status_IsOnLine->SetValue(_T("离线"));
+    }
 }
 
 GuiGateWayPage::~GuiGateWayPage()

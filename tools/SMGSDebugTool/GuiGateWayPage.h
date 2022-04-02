@@ -28,6 +28,8 @@ class GuiGateWayPage:public GateWayPage
         wxString GateWayAddr;
         GateWayPageLogPage *log;
         wxMessageQueue<std::function<void()>> UpdateUIMsgQueue;
+
+        void SetOnline(bool IsOnline=true);
 };
 
 #endif // GUIGATEWAYPAGE_H

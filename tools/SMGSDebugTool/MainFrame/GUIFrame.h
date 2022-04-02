@@ -35,6 +35,9 @@
 #include <wx/dialog.h>
 #include <wx/button.h>
 #include <wx/listctrl.h>
+#include <wx/propgrid/propgrid.h>
+#include <wx/propgrid/advprops.h>
+#include <wx/listbook.h>
 #include <wx/dataview.h>
 #include <wx/checkbox.h>
 #include <wx/radiobox.h>
@@ -239,7 +242,10 @@ class GateWayPage : public wxPanel
 	protected:
 		wxAuiNotebook* m_auinotebook_gateway_workspace;
 		wxPanel* m_operatepanel;
-		wxDataViewTreeCtrl* m_dataViewTreeCtrl_GateWay;
+		wxListbook* m_listbook_gateway;
+		wxPanel* m_panel_status;
+		wxPropertyGrid* m_propertyGrid_status;
+		wxPGProperty* m_propertyGridItem_Status_IsOnLine;
 		wxTimer m_UpdateGateWayPagetimer;
 
 		// Virtual event handlers, override them in your derived class

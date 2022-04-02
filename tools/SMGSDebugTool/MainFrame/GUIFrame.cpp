@@ -416,8 +416,32 @@ GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	bSizer9 = new wxBoxSizer( wxVERTICAL );
 
 	bSizer9->SetMinSize( wxSize( 600,200 ) );
-	m_dataViewTreeCtrl_GateWay = new wxDataViewTreeCtrl( m_operatepanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer9->Add( m_dataViewTreeCtrl_GateWay, 1, wxALL|wxEXPAND, 5 );
+	m_listbook_gateway = new wxListbook( m_operatepanel, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLB_DEFAULT );
+	m_panel_status = new wxPanel( m_listbook_gateway, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer11;
+	bSizer11 = new wxBoxSizer( wxVERTICAL );
+
+	m_propertyGrid_status = new wxPropertyGrid(m_panel_status, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER);
+	m_propertyGridItem_Status_IsOnLine = m_propertyGrid_status->Append( new wxStringProperty( wxT("是否在线"), wxT("是否在线") ) );
+	m_propertyGrid_status->SetPropertyHelpString( m_propertyGridItem_Status_IsOnLine, wxT("指示网关是否在线") );
+	bSizer11->Add( m_propertyGrid_status, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND, 5 );
+
+
+	m_panel_status->SetSizer( bSizer11 );
+	m_panel_status->Layout();
+	bSizer11->Fit( m_panel_status );
+	m_listbook_gateway->AddPage( m_panel_status, wxT("a page"), false );
+	#ifdef __WXGTK__ // Small icon style not supported in GTK
+	wxListView* m_listbook_gatewayListView = m_listbook_gateway->GetListView();
+	long m_listbook_gatewayFlags = m_listbook_gatewayListView->GetWindowStyleFlag();
+	if( m_listbook_gatewayFlags & wxLC_SMALL_ICON )
+	{
+		m_listbook_gatewayFlags = ( m_listbook_gatewayFlags & ~wxLC_SMALL_ICON ) | wxLC_ICON;
+	}
+	m_listbook_gatewayListView->SetWindowStyleFlag( m_listbook_gatewayFlags );
+	#endif
+
+	bSizer9->Add( m_listbook_gateway, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND, 5 );
 
 
 	m_operatepanel->SetSizer( bSizer9 );
