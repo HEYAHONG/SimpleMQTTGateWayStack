@@ -278,6 +278,7 @@ static bool SMGS_MessagePublish(struct __SMGS_gateway_context_t *ctx,const char 
 /*
 主程序
 */
+std::string subtoic;//订阅的主题字符串需要一直有效
 int main(int argc,char *argv[])
 {
     //关闭输出缓冲
@@ -376,7 +377,7 @@ int main(int argc,char *argv[])
         }
 
         //订阅主题
-        std::string subtoic=GateWaySerialNumber+"/#";
+        subtoic=GateWaySerialNumber+"/#";
         if(SUCCESS!=MQTTSubscribe(&mqttclient,subtoic.c_str(),QOS0,mqttmessageHandler))
         {
             printf("%s:MQTT订阅失败!!\r\n",TAG);
