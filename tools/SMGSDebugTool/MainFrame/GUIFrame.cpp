@@ -421,9 +421,18 @@ GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	wxBoxSizer* bSizer11;
 	bSizer11 = new wxBoxSizer( wxVERTICAL );
 
-	m_propertyGrid_status = new wxPropertyGrid(m_panel_status, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER);
-	m_propertyGridItem_Status_IsOnLine = m_propertyGrid_status->Append( new wxStringProperty( wxT("是否在线"), wxT("是否在线") ) );
+	m_propertyGrid_status = new wxPropertyGrid(m_panel_status, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE|wxPG_HIDE_CATEGORIES|wxPG_HIDE_MARGIN|wxPG_LIMITED_EDITING|wxPG_SPLITTER_AUTO_CENTER);
+	m_propertyGridItem_Status_IsOnLine = m_propertyGrid_status->Append( new wxBoolProperty( wxT("在线状态"), wxT("在线状态") ) );
 	m_propertyGrid_status->SetPropertyHelpString( m_propertyGridItem_Status_IsOnLine, wxT("指示网关是否在线") );
+	m_propertyGridItem_Status_GateWaySerialNumber = m_propertyGrid_status->Append( new wxStringProperty( wxT("序列号"), wxT("序列号") ) );
+	m_propertyGrid_status->SetPropertyHelpString( m_propertyGridItem_Status_GateWaySerialNumber, wxT("网关序列号") );
+	m_propertyGridItem_Status_GateWayName = m_propertyGrid_status->Append( new wxStringProperty( wxT("名称"), wxT("名称") ) );
+	m_menu_status = new wxMenu();
+	wxMenuItem* m_menuItem_gatewaypage_readgatewayname;
+	m_menuItem_gatewaypage_readgatewayname = new wxMenuItem( m_menu_status, wxID_ANY, wxString( wxT("读取网关名称") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu_status->Append( m_menuItem_gatewaypage_readgatewayname );
+
+
 	bSizer11->Add( m_propertyGrid_status, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxEXPAND, 5 );
 
 
@@ -454,12 +463,17 @@ GateWayPage::GateWayPage( wxWindow* parent, wxWindowID id, const wxPoint& pos, c
 	m_mgr.Update();
 
 	// Connect Events
+	m_panel_status->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GateWayPage::OnStatusMenu ), NULL, this );
+	m_propertyGrid_status->Connect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GateWayPage::OnStatusMenu ), NULL, this );
+	m_menu_status->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( GateWayPage::OnReadGatewayName ), this, m_menuItem_gatewaypage_readgatewayname->GetId());
 	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GateWayPage::OnUpdateGateWayPagetimer ) );
 }
 
 GateWayPage::~GateWayPage()
 {
 	// Disconnect Events
+	m_panel_status->Disconnect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GateWayPage::OnStatusMenu ), NULL, this );
+	m_propertyGrid_status->Disconnect( wxEVT_RIGHT_DOWN, wxMouseEventHandler( GateWayPage::OnStatusMenu ), NULL, this );
 	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( GateWayPage::OnUpdateGateWayPagetimer ) );
 
 	m_mgr.UnInit();

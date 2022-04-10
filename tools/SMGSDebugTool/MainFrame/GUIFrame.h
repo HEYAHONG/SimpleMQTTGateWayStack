@@ -36,7 +36,6 @@
 #include <wx/button.h>
 #include <wx/listctrl.h>
 #include <wx/propgrid/propgrid.h>
-#include <wx/propgrid/advprops.h>
 #include <wx/listbook.h>
 #include <wx/dataview.h>
 #include <wx/checkbox.h>
@@ -246,9 +245,14 @@ class GateWayPage : public wxPanel
 		wxPanel* m_panel_status;
 		wxPropertyGrid* m_propertyGrid_status;
 		wxPGProperty* m_propertyGridItem_Status_IsOnLine;
+		wxPGProperty* m_propertyGridItem_Status_GateWaySerialNumber;
+		wxPGProperty* m_propertyGridItem_Status_GateWayName;
+		wxMenu* m_menu_status;
 		wxTimer m_UpdateGateWayPagetimer;
 
 		// Virtual event handlers, override them in your derived class
+		virtual void OnStatusMenu( wxMouseEvent& event ) { event.Skip(); }
+		virtual void OnReadGatewayName( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnUpdateGateWayPagetimer( wxTimerEvent& event ) { event.Skip(); }
 
 

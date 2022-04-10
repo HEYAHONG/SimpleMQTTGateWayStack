@@ -1913,6 +1913,7 @@
                                     <property name="window_extra_style"></property>
                                     <property name="window_name"></property>
                                     <property name="window_style">wxTAB_TRAVERSAL</property>
+                                    <event name="OnRightDown">OnStatusMenu</event>
                                     <object class="wxBoxSizer" expanded="0">
                                         <property name="minimum_size"></property>
                                         <property name="name">bSizer11</property>
@@ -1939,7 +1940,7 @@
                                                 <property name="center_pane">0</property>
                                                 <property name="close_button">1</property>
                                                 <property name="context_help"></property>
-                                                <property name="context_menu">1</property>
+                                                <property name="context_menu">0</property>
                                                 <property name="default_pane">0</property>
                                                 <property name="dock">Dock</property>
                                                 <property name="dock_fixed">0</property>
@@ -1952,7 +1953,7 @@
                                                 <property name="gripper">0</property>
                                                 <property name="hidden">0</property>
                                                 <property name="id">wxID_ANY</property>
-                                                <property name="include_advanced">1</property>
+                                                <property name="include_advanced">0</property>
                                                 <property name="max_size"></property>
                                                 <property name="maximize_button">0</property>
                                                 <property name="maximum_size"></property>
@@ -1970,19 +1971,53 @@
                                                 <property name="resize">Resizable</property>
                                                 <property name="show">1</property>
                                                 <property name="size"></property>
-                                                <property name="style">wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER</property>
+                                                <property name="style">wxPG_DEFAULT_STYLE|wxPG_HIDE_CATEGORIES|wxPG_HIDE_MARGIN|wxPG_LIMITED_EDITING|wxPG_SPLITTER_AUTO_CENTER</property>
                                                 <property name="subclass">; ; forward_declare</property>
                                                 <property name="toolbar_pane">0</property>
                                                 <property name="tooltip"></property>
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
+                                                <event name="OnRightDown">OnStatusMenu</event>
                                                 <object class="propGridItem" expanded="0">
                                                     <property name="help">指示网关是否在线</property>
-                                                    <property name="label">是否在线</property>
+                                                    <property name="label">在线状态</property>
                                                     <property name="name">m_propertyGridItem_Status_IsOnLine</property>
                                                     <property name="permission">protected</property>
+                                                    <property name="type">Bool</property>
+                                                </object>
+                                                <object class="propGridItem" expanded="0">
+                                                    <property name="help">网关序列号</property>
+                                                    <property name="label">序列号</property>
+                                                    <property name="name">m_propertyGridItem_Status_GateWaySerialNumber</property>
+                                                    <property name="permission">protected</property>
                                                     <property name="type">String</property>
+                                                </object>
+                                                <object class="propGridItem" expanded="0">
+                                                    <property name="help"></property>
+                                                    <property name="label">名称</property>
+                                                    <property name="name">m_propertyGridItem_Status_GateWayName</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">String</property>
+                                                </object>
+                                                <object class="wxMenu" expanded="0">
+                                                    <property name="label">网关状态</property>
+                                                    <property name="name">m_menu_status</property>
+                                                    <property name="permission">protected</property>
+                                                    <object class="wxMenuItem" expanded="0">
+                                                        <property name="bitmap"></property>
+                                                        <property name="checked">0</property>
+                                                        <property name="enabled">1</property>
+                                                        <property name="help"></property>
+                                                        <property name="id">wxID_ANY</property>
+                                                        <property name="kind">wxITEM_NORMAL</property>
+                                                        <property name="label">读取网关名称</property>
+                                                        <property name="name">m_menuItem_gatewaypage_readgatewayname</property>
+                                                        <property name="permission">none</property>
+                                                        <property name="shortcut"></property>
+                                                        <property name="unchecked_bitmap"></property>
+                                                        <event name="OnMenuSelection">OnReadGatewayName</event>
+                                                    </object>
                                                 </object>
                                             </object>
                                         </object>

@@ -2,6 +2,7 @@
 #include "InternalDatabase.h"
 #include "SMGSDebugToolMain.h"
 #include "GuiMQTTMessagePage.h"
+#include "GuiSendMQTTRawMessageDialog.h"
 #include <wx/datetime.h>
 #include <libSMGS-Server.h>
 
@@ -14,7 +15,14 @@ GuiGateWayPage::GuiGateWayPage(wxString Addr,wxWindow* parent, wxWindowID id, co
     Dat[_T("IsOpen")]=_T("1");
     InternalDatabase_Table_Update_Data(_T(SMGSDebugToolWorkSpaceGateWayList),Dat,Con);
 
-    m_listbook_gateway->SetPageText(m_listbook_gateway->FindPage(m_panel_status),_T("状态"));
+    m_listbook_gateway->SetPageText(m_listbook_gateway->FindPage(m_panel_status),_T("网关状态"));
+
+    {
+        SetOnline(false);
+        m_propertyGridItem_Status_GateWayName->Enable(false);
+        m_propertyGridItem_Status_GateWaySerialNumber->Enable(false);
+        m_propertyGridItem_Status_GateWaySerialNumber->SetValue(GateWayAddr);
+    }
 
     AddMQTTMessagePage();
     AddLogPage();
@@ -131,6 +139,65 @@ void GuiGateWayPage::OnMQTTMessage(wxString topic,void *payload,size_t payloadle
         case SMGS_TOPIC_PLY_COMTYPE_BINRESP:
         {
             //回复数据
+            if(SMGS_Get_Topic_Ply_Module(plies[SMGS_TOPIC_PLY_MODULE])==SMGS_TOPIC_PLY_MODULE_GATEWAY)
+            {
+                //网关模块
+                if(wxString(SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND))==plies[SMGS_TOPIC_PLY_CMD])
+                {
+                    //特殊命令
+
+                    if(payloadlen>=2)
+                    {
+                        uint16_t cmdid=0;
+                        cmdid+=((uint8_t*)payload)[1];
+                        cmdid<<=8;
+                        cmdid+=((uint8_t*)payload)[0];
+                        switch(cmdid)
+                        {
+                        case SMGS_GATEWAY_CMDID_QUERY_GATEWAYNAME:
+                        {
+                            if(payloadlen>3)
+                            {
+                                if(((uint8_t*)payload)[2]!=SMGS_PAYLOAD_RETCODE_SUCCESS)
+                                {
+                                    AppendLogText(wxString::Format(_T("读取网关名称失败!错误码：%d"),(int)(((uint8_t*)payload)[2])),timestamp);
+                                }
+                                else
+                                {
+                                    if(payloadlen>4)
+                                    {
+                                        char buff[payloadlen]= {0};
+                                        memcpy(buff,&((uint8_t*)payload)[3],payloadlen-3);
+                                        AppendLogText(wxString::Format(_T("读取网关名称成功!名称：%s"),buff),timestamp);
+                                        wxString Name(buff);
+                                        {
+                                            auto cb=[=]()
+                                            {
+                                                m_propertyGridItem_Status_GateWayName->SetValue(Name);
+                                            };
+                                            UpdateUIMsgQueue.Post(cb);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        AppendLogText(_T("读取网关名称失败!网关序列号不存在!"),timestamp);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                        default:
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+            else
+            {
+                //设备模块
+            }
         }
         break;
         default:
@@ -141,11 +208,43 @@ void GuiGateWayPage::OnMQTTMessage(wxString topic,void *payload,size_t payloadle
     if(GateWayAddr==plies[SMGS_TOPIC_PLY_DESTADDR])
     {
         //已发送消息
-        switch(SMGS_Get_Topic_Ply_ComType(plies[SMGS_TOPIC_PLY_MODULE]))
+
+        switch(SMGS_Get_Topic_Ply_ComType(plies[SMGS_TOPIC_PLY_COMTYPE]))
         {
         case SMGS_TOPIC_PLY_COMTYPE_BINREQ:
         {
-            //上报数据
+            //请求数据
+            if(SMGS_Get_Topic_Ply_Module(plies[SMGS_TOPIC_PLY_MODULE])==SMGS_TOPIC_PLY_MODULE_GATEWAY)
+            {
+                //网关模块
+                if(wxString(SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND))==plies[SMGS_TOPIC_PLY_CMD])
+                {
+                    //特殊命令
+                    if(payloadlen>=2)
+                    {
+                        uint16_t cmdid=0;
+                        cmdid+=((uint8_t*)payload)[1];
+                        cmdid<<=8;
+                        cmdid+=((uint8_t*)payload)[0];
+                        switch(cmdid)
+                        {
+                        case SMGS_GATEWAY_CMDID_QUERY_GATEWAYNAME:
+                        {
+                            AppendLogText(_T("发送读取网关名称命令!"),timestamp);
+                        }
+                        break;
+                        default:
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+            else
+            {
+                //设备模块
+            }
         }
         break;
         default:
@@ -172,6 +271,35 @@ void GuiGateWayPage::AddLogPage()
     m_auinotebook_gateway_workspace->InsertPage(0,log,_T("网关日志"),true);
 }
 
+void GuiGateWayPage::OnStatusMenu( wxMouseEvent& event )
+{
+    PopupMenu(m_menu_status);
+}
+
+void GuiGateWayPage::OnReadGatewayName( wxCommandEvent& event )
+{
+    GuiSendMQTTRawMessageDialog dlg(this);
+
+    wxString topic;
+    {
+        uint8_t buff[4096]= {0};
+        wxString ToolName=InternalDatebase_ProgramInfo_Get(_T("Name"));
+        SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
+        plies[SMGS_TOPIC_PLY_DESTADDR]=(const char *)GateWayAddr.c_str();
+        plies[SMGS_TOPIC_PLY_SRCADDR]=(const char *)ToolName.c_str();
+        plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINREQ);
+        plies[SMGS_TOPIC_PLY_MODULE]=SMGS_Get_Topic_Ply_Module_String(SMGS_TOPIC_PLY_MODULE_GATEWAY);
+        plies[SMGS_TOPIC_PLY_CMD]=SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND);
+        topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,sizeof(buff));
+    }
+    dlg.m_textCtrl_topic->SetValue(topic);
+    wxString payload;
+    {
+        payload+=wxString::Format("%02X %02X",(int)(SMGS_GATEWAY_CMDID_QUERY_GATEWAYNAME&0xFF),(int)((SMGS_GATEWAY_CMDID_QUERY_GATEWAYNAME>>8)&0xFF));
+    }
+    dlg.m_textCtrl_payload->SetValue(payload);
+    dlg.ShowModal();
+}
 
 void GuiGateWayPage::OnUpdateGateWayPagetimer( wxTimerEvent& event )
 {
@@ -191,11 +319,13 @@ void GuiGateWayPage::SetOnline(bool IsOnline)
 {
     if(IsOnline)
     {
-        m_propertyGridItem_Status_IsOnLine->SetValue(_T("在线"));
+        m_propertyGridItem_Status_IsOnLine->Enable(false);
+        m_propertyGridItem_Status_IsOnLine->SetValue(true);
     }
     else
     {
-        m_propertyGridItem_Status_IsOnLine->SetValue(_T("离线"));
+        m_propertyGridItem_Status_IsOnLine->Enable(false);
+        m_propertyGridItem_Status_IsOnLine->SetValue(false);
     }
 }
 
