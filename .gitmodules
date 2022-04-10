@@ -1,6 +1,6 @@
 [submodule "tests/GateWaySimulator/lib/3rdparty/argtable3"]
 	path = tests/GateWaySimulator/lib/3rdparty/argtable3
-	url = https://github.com/argtable/argtable3.git
+	url = ../../HEYAHONG/argtable3.git
 [submodule "lib/3rdparty/paho.mqtt.embedded-c"]
 	path = lib/3rdparty/paho.mqtt.embedded-c
-	url = https://github.com/eclipse/paho.mqtt.embedded-c.git
+	url = ../../HEYAHONG/paho.mqtt.embedded-c.git
