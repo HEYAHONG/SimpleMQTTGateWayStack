@@ -6,6 +6,8 @@
  *  \copyright MIT License.
  */
 
+
+
 #ifndef __libSMGS_h__
 #define __libSMGS_h__
 
@@ -20,6 +22,7 @@ extern "C"
 */
 #include "libSMGS_DefaultConfig.h"
 
+#include "libSMGSUtil.h"
 
 /*
 ====================================================================================================
@@ -51,26 +54,24 @@ typedef enum
  *
  * \param plies[] 分层后的子字符串数组,若执行成功，则能得到正确的数组,当数组某个成员不存在，则会被置为NULL。
  * \param max_plies_count 子字符串数组最大大小,指示上一个数组的大小,通常大于等于SMGS_TOPIC_PLY_END。
- * \param buff 缓冲指针,最终实际数据将存放在缓冲中，仅当不再使用plies时才可释放buff。
- * \param buff_size 缓冲大小,需要大于等于topic_length+1。
+ * \param Buff 缓冲区。
  * \param topic 主题字符串指针
  * \param topic_length 主题字符串长度(不包含\0字符)
  * \return 是否执行成功
  *
  */
-bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_count,uint8_t *buff,size_t buff_size,const char * topic,size_t topic_length);
+bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_count,SMGS_buff_t *Buff,const char * topic,size_t topic_length);
 
 
 /** \brief 主题编码
  *
  * \param plies[] 分层后的子字符串数组,当遇到值为NULL的数组成员时会直接结束。
  * \param plies_count 子字符串数组大小
- * \param buff 缓冲指针,最终的数据将存放在缓冲中,仅当不再使用返回的主题时才可释放buff.
- * \param buff_size 缓冲大小,必须能够容纳所有子字符串。
+ * \param Buff 缓冲区.
  * \return 主题指针，失败时返回NULL
  *
  */
-const char * SMGS_Topic_Plies_EnCode(SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *buff,size_t buff_size);
+const char * SMGS_Topic_Plies_EnCode(SMGS_topic_string_ptr_t plies[],size_t plies_count,SMGS_buff_t *Buff);
 
 
 typedef enum
@@ -534,27 +535,25 @@ bool SMGS_Is_GateWay_Context_OK(SMGS_gateway_context_t *ctx);
  * \param cmdid 命令ID
  * \param cmddata 命令附加数据,可为NULL
  * \param cmddata_length 命令附加数据长度,可为0
- * \param buff 缓冲
- * \param buff_size 缓冲长度,缓冲应该足够容纳主题加payload
+ * \param Buff 缓冲区
  * \param qos MQTT的QOS标志
  * \param retain Retain标志
  * \return 是否成功执行
  *
  */
-bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian);
+bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,SMGS_buff_t *Buff,uint8_t qos,int retian);
 
 
 /** \brief 网关上线,每次MQTT连接成功后用户应当调用此消息发送上线命令
  *
  * \param ctx 网关上下文
- * \param buff 缓冲
- * \param buff_size 缓冲长度,缓冲应该足够容纳主题加payload
+ * \param Buff 缓冲区
  * \param qos MQTT的QOS标志
  * \param retain Retain标志
  * \return 是否成功执行
  *
  */
-bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_size,uint8_t qos,int retian);
+bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,SMGS_buff_t *Buff,uint8_t qos,int retian);
 
 
 /** \brief 上报设备模块事件
@@ -567,14 +566,13 @@ bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_s
  * \param cmdid 命令ID
  * \param cmddata 命令附加数据,可为NULL
  * \param cmddata_length 命令附加数据长度,可为0
- * \param buff 缓冲
- * \param buff_size 缓冲长度,缓冲应该足够容纳主题加payload
+ * \param Buff 缓冲区
  * \param qos MQTT的QOS标志
  * \param retain Retain标志
  * \return 是否成功执行
  *
  */
-bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian);
+bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,SMGS_buff_t *Buff,uint8_t qos,int retian);
 
 typedef struct
 {
@@ -596,24 +594,22 @@ typedef struct
  * \param payloadlen MQTT负载长度
  * \param qos MQTT的QOS标志
  * \param retain Retain标志
- * \param buff 缓冲
- * \param buff_size 缓冲长度
+ * \param Buff 缓冲区
  * \return 是否执行成功
  *
  */
-bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic,size_t topiclen,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size);
+bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic,size_t topiclen,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,SMGS_buff_t *Buff);
 
 
 /** \brief 网关遗嘱编码
  *
  * \param ctx 网关上下文
  * \param will 遗嘱指针
- * \param buff 缓冲(实际数据将存放在缓冲中)
- * \param buff_size 缓冲大小
+ * \param Buff 缓冲区
  * \return 是否执行成功
  *
  */
-bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *will,uint8_t *buff,size_t buff_size);
+bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *will,SMGS_buff_t *Buff);
 
 #ifdef __cplusplus
 }

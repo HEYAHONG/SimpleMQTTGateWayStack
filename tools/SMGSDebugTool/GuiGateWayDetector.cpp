@@ -30,7 +30,8 @@ void GuiGateWayDetector::OnMQTTMessage(wxString topic,void *payload,size_t paylo
 {
     uint8_t buff[4096]= {0};
     SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
-    SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,buff,sizeof(buff),topic,topic.length());
+    SMGS_buff_t Buff=SMGS_build_buff(buff,sizeof(buff));
+    SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,&Buff,topic,topic.length());
 
     wxArrayString topic_plies;
 

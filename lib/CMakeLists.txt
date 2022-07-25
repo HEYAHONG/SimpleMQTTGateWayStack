@@ -6,8 +6,8 @@ project(libSMGS C CXX ASM)
 add_library(SMGS STATIC)
 
 #添加包含目录
-target_include_directories(SMGS PUBLIC include)
-target_include_directories(SMGS PRIVATE ./)
+target_include_directories(SMGS PRIVATE include)
+target_include_directories(SMGS PUBLIC ./)
 
 #添加源代码
 file(GLOB  LIBSMGS_C_FILES *.c *.C)

@@ -10,18 +10,23 @@
 #include "libSMGS.h"
 
 
-bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_count,uint8_t *buff,size_t buff_size,const char * topic,size_t topic_length)
+bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_count,SMGS_buff_t *Buff,const char * topic,size_t topic_length)
 {
     //参数检查
-    if(plies==NULL || max_plies_count==0 || buff ==NULL || buff_size < (topic_length+1) || topic==NULL || topic_length == 0)
+    if(plies==NULL || max_plies_count==0 || Buff ==NULL || topic==NULL || topic_length == 0)
     {
         return false;
     }
 
-    memset(buff,0,buff_size);
+    uint8_t *buff=SMGS_buff_alloc(Buff,topic_length+1);
 
+    if(buff==NULL)
+    {
+        return false;
+    }
+
+    memset((char *)buff,0,topic_length+1);
     memset(plies,0,max_plies_count);
-
     memcpy((char *)buff,topic,topic_length);
 
     size_t current_index=0;
@@ -30,7 +35,7 @@ bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_co
 
     current_index++;
 
-    for(size_t i=0; i<buff_size; i++)
+    for(size_t i=0; i<topic_length; i++)
     {
         if(buff[i]=='\0')
         {
@@ -58,14 +63,16 @@ bool SMGS_Topic_Plies_Decode(SMGS_topic_string_ptr_t plies[],size_t max_plies_co
 
 
 
-const char * SMGS_Topic_Plies_EnCode(SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *buff,size_t buff_size)
+const char * SMGS_Topic_Plies_EnCode(SMGS_topic_string_ptr_t plies[],size_t plies_count,SMGS_buff_t *Buff)
 {
     const char * ret=NULL;
 
-    if(plies==NULL || plies[0]==NULL || plies_count == 0 || buff == NULL || buff_size == 0)
+    if(plies==NULL || plies[0]==NULL || plies_count == 0 || Buff == NULL)
     {
         return ret;
     }
+
+    uint8_t *buff=NULL;
 
     //检查buff的大小是否足够
     {
@@ -79,16 +86,18 @@ const char * SMGS_Topic_Plies_EnCode(SMGS_topic_string_ptr_t plies[],size_t plie
             need_buff_size+=(strlen(plies[i])+1);
         }
 
-        if(need_buff_size>buff_size)
+        buff=SMGS_buff_alloc(Buff,need_buff_size);
+
+        if(buff==NULL)
         {
             return ret;
         }
+
+        memset(buff,0,need_buff_size);
     }
 
     //填写字符串
     {
-        memset(buff,0,buff_size);
-
         strcat((char *)buff,plies[0]);
 
         ret=(const char *)buff;
@@ -364,9 +373,9 @@ void SMGS_GateWay_Context_Init(SMGS_gateway_context_t *ctx,const char *SerialNum
 }
 
 
-bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
+bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,SMGS_buff_t *Buff,uint8_t qos,int retian)
 {
-    if(buff==NULL || buff_size == 0)
+    if(Buff==NULL)
     {
         return false;
     }
@@ -388,19 +397,18 @@ bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd
     plies[SMGS_TOPIC_PLY_CMD_PARA_2]=cmd_para_2;
     plies[SMGS_TOPIC_PLY_CMD_PARA_3]=cmd_para_3;
 
-    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,buff_size);
+    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,Buff);
     if(topic==NULL)
     {
         return false;
     }
 
-    //检查剩余buff大小
-    if((sizeof(cmdid)+cmddata_length) > (buff_size-(strlen(topic)+1)))
+    uint8_t *buff=SMGS_buff_alloc(Buff,(sizeof(cmdid)+cmddata_length));
+    if(buff==NULL)
     {
         return false;//buff不够
     }
-
-    uint8_t * payload=&buff[strlen(topic)+1];
+    uint8_t * payload=&buff[0];
     {
         payload[0]=(cmdid&0xFF);
         payload[1]=((cmdid>>8)&0xFF);
@@ -415,13 +423,20 @@ bool SMGS_GateWay_Send_GateWay_Event(SMGS_gateway_context_t *ctx,const char *cmd
 }
 
 
-bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
+bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,SMGS_buff_t *Buff,uint8_t qos,int retian)
 {
-    //发送上线消息
-    if(!SMGS_GateWay_Send_GateWay_Event(ctx,"online",NULL,NULL,SMGS_GATEWAY_CMDID_ONLINE,NULL,0,buff,buff_size,qos,retian))
+    if(Buff==NULL)
     {
         return false;
     }
+    SMGS_buff_t o=*Buff;//保存最初状态
+    //发送上线消息
+    if(!SMGS_GateWay_Send_GateWay_Event(ctx,"online",NULL,NULL,SMGS_GATEWAY_CMDID_ONLINE,NULL,0,Buff,qos,retian))
+    {
+        return false;
+    }
+
+    (*Buff)=o;//还原状态
 
     //上报设备表
     if(ctx->Device_Next!=NULL)
@@ -431,8 +446,10 @@ bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_s
         {
             if(SMGS_Is_Device_Context_OK(devctx))
             {
+                (*Buff)=o;//还原缓存状态
                 size_t cmddatalen=strlen(devctx->DeviceSerialNumber)+2;
-                if(cmddatalen>buff_size)
+                uint8_t *buff=SMGS_buff_alloc(Buff,cmddatalen);
+                if(buff==NULL)
                 {
                     continue;
                 }
@@ -444,7 +461,7 @@ bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_s
                 //复制字符串
                 strcpy((char *)&buff[1],devctx->DeviceSerialNumber);
 
-                if(!SMGS_GateWay_Send_GateWay_Event(ctx,NULL,NULL,NULL,SMGS_GATEWAY_CMDID_REPORT_DEVICETABLE_ONLINE,buff,cmddatalen,&buff[cmddatalen],buff_size-cmddatalen,qos,retian))
+                if(!SMGS_GateWay_Send_GateWay_Event(ctx,NULL,NULL,NULL,SMGS_GATEWAY_CMDID_REPORT_DEVICETABLE_ONLINE,buff,cmddatalen,Buff,qos,retian))
                 {
                     return false;
                 }
@@ -458,9 +475,9 @@ bool SMGS_GateWay_Online(SMGS_gateway_context_t *ctx,uint8_t *buff,size_t buff_s
     return true;
 }
 
-bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,uint8_t *buff,size_t buff_size,uint8_t qos,int retian)
+bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,const char *cmd_para_1,const char * cmd_para_2,const char * cmd_para_3,SMGS_payload_cmdid_t cmdid,void *cmddata,size_t cmddata_length,SMGS_buff_t *Buff,uint8_t qos,int retian)
 {
-    if(buff==NULL || buff_size == 0)
+    if(Buff==NULL )
     {
         return false;
     }
@@ -487,19 +504,21 @@ bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_cont
     plies[SMGS_TOPIC_PLY_CMD_PARA_2]=cmd_para_2;
     plies[SMGS_TOPIC_PLY_CMD_PARA_3]=cmd_para_3;
 
-    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,buff_size);
+    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,Buff);
     if(topic==NULL)
     {
         return false;
     }
 
+    uint8_t *buff=SMGS_buff_alloc(Buff,(sizeof(cmdid)+cmddata_length));
+
     //检查剩余buff大小
-    if((sizeof(cmdid)+cmddata_length) > (buff_size-(strlen(topic)+1)))
+    if(buff==NULL)
     {
         return false;//buff不够
     }
 
-    uint8_t * payload=&buff[strlen(topic)+1];
+    uint8_t * payload=&buff[0];
     {
         payload[0]=(cmdid&0xFF);
         payload[1]=((cmdid>>8)&0xFF);
@@ -516,13 +535,13 @@ bool SMGS_GateWay_Send_Device_Event(SMGS_gateway_context_t *ctx,SMGS_device_cont
 /*
 网关回复设备模块的BinReq。参数必须有效
 */
-static bool SMGS_GateWay_Reply_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t src_plies[],size_t src_plies_count,uint8_t *retpayload,size_t retpayloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+static bool SMGS_GateWay_Reply_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t src_plies[],size_t src_plies_count,uint8_t *retpayload,size_t retpayloadlen,uint8_t qos,int retain,SMGS_buff_t *Buff)
 {
     src_plies[SMGS_TOPIC_PLY_DESTADDR]=src_plies[SMGS_TOPIC_PLY_SRCADDR];//目的地址为源地址
     src_plies[SMGS_TOPIC_PLY_SRCADDR]=ctx->GateWaySerialNumber;//源地址为网关序列号
     src_plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINRESP);//通信类型为二进制回复
 
-    const char * topic=SMGS_Topic_Plies_EnCode(src_plies,src_plies_count,buff,buff_size);
+    const char * topic=SMGS_Topic_Plies_EnCode(src_plies,src_plies_count,Buff);
 
     if(topic!=NULL && ctx->MessagePublish!=NULL)
     {
@@ -634,9 +653,17 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device_CMD_Internal_Writ
 /*
 网关处理设备模块的BinReq。参数必须有效
 */
-static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_context_t *ctx,SMGS_device_context_t *devctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,SMGS_buff_t *Buff)
 {
     bool ret=false;
+
+    uint8_t *buff=SMGS_buff_alloc(Buff,0);
+    size_t  buff_size=Buff->total-Buff->used;
+    if(Buff==NULL || buff==NULL || buff_size==0)
+    {
+        return ret;
+    }
+
     switch(SMGS_Get_Topic_Ply_CMD(plies[SMGS_TOPIC_PLY_CMD]))
     {
     case SMGS_TOPIC_PLY_CMD_COMMAND:
@@ -681,7 +708,9 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                         free_buff+=retpaylodlen;
                         free_buff_size-=retpaylodlen;
 
-                        ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+                        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+
+                        ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,Buff);
 
                     }
 
@@ -721,7 +750,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                             free_buff+=retpaylodlen;
                             free_buff_size-=retpaylodlen;
 
-                            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+                            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+                            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,Buff);
 
                         }
 
@@ -787,7 +817,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 retpayload[4+i]=((dat>>(8*i))&0xFF);
             }
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
@@ -807,7 +838,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             retpayload[1]=(addr&0xFF);
             retpayload[2]=((addr>>8)&0xFF);
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
 
         }
 
@@ -899,12 +931,14 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
         if(success_count>0 && devctx->IsOnline(devctx))
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
             retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -972,7 +1006,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 retpayload[4+i]=((dat>>(8*i))&0xFF);
             }
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
@@ -992,7 +1027,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             retpayload[1]=(addr&0xFF);
             retpayload[2]=((addr>>8)&0xFF);
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
 
         }
     }
@@ -1095,15 +1131,16 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             }
         }
 
+        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
         if(success_count>0 && devctx->IsOnline(devctx))
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
             retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -1160,7 +1197,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
                 retpayload[4+i]=((dat>>(8*i))&0xFF);
             }
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
@@ -1180,7 +1218,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             retpayload[1]=(addr&0xFF);
             retpayload[2]=((addr>>8)&0xFF);
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
 
         }
     }
@@ -1260,15 +1299,16 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(SMGS_gateway_cont
             }
         }
 
+        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
         if(success_count>0 && devctx->IsOnline(devctx))
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
             retpayload[0]=(devctx->IsOnline(devctx)?SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID:SMGS_PAYLOAD_RETCODE_MODULE_INVALID);
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -1420,9 +1460,16 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay_CMD_Internal_Wri
 /*
 网关处理网关模块的BinReq。参数必须有效
 */
-static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,SMGS_buff_t *Buff)
 {
     bool ret=false;
+
+    uint8_t *buff=SMGS_buff_alloc(Buff,0);
+    size_t  buff_size=Buff->total-Buff->used;
+    if(Buff==NULL || buff==NULL || buff_size==0)
+    {
+        return ret;
+    }
 
     switch(SMGS_Get_Topic_Ply_CMD(plies[SMGS_TOPIC_PLY_CMD]))
     {
@@ -1469,7 +1516,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                         free_buff+=retpaylodlen;
                         free_buff_size-=retpaylodlen;
 
-                        ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+                        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+                        ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,Buff);
 
                     }
 
@@ -1509,7 +1557,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                             free_buff+=retpaylodlen;
                             free_buff_size-=retpaylodlen;
 
-                            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,free_buff,free_buff_size);
+                            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+                            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpaylodlen,qos,retain,Buff);
 
                         }
 
@@ -1575,7 +1624,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 retpayload[4+i]=((dat>>(8*i))&0xFF);
             }
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
@@ -1595,7 +1645,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             retpayload[1]=(addr&0xFF);
             retpayload[2]=((addr>>8)&0xFF);
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
 
         }
 
@@ -1684,15 +1735,16 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             }
         }
 
+        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
         if(success_count>0)
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -1759,8 +1811,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             {
                 retpayload[4+i]=((dat>>(8*i))&0xFF);
             }
-
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
@@ -1780,7 +1832,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             retpayload[1]=(addr&0xFF);
             retpayload[2]=((addr>>8)&0xFF);
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
 
         }
     }
@@ -1882,16 +1935,16 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 }
             }
         }
-
+        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
         if(success_count>0)
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -1948,7 +2001,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 retpayload[4+i]=((dat>>(8*i))&0xFF);
             }
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
@@ -1968,7 +2022,8 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
             retpayload[1]=(addr&0xFF);
             retpayload[2]=((addr>>8)&0xFF);
 
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
 
         }
     }
@@ -2047,16 +2102,16 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
                 }
             }
         }
-
+        SMGS_buff_alloc(Buff,free_buff-buff);//锁定已使用的空间
         if(success_count>0)
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_SUCCESS;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
         else
         {
             retpayload[0]=SMGS_PAYLOAD_RETCODE_RESOURCE_INVALID;
-            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,free_buff,free_buff_size);
+            ret=SMGS_GateWay_Reply_Comtype_BinReq(ctx,plies,plies_count,retpayload,retpayloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -2071,7 +2126,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(SMGS_gateway_con
 /*
 网关处理BinReq消息。参数必须有效
 */
-static bool SMGS_GateWay_Process_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+static bool SMGS_GateWay_Process_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS_topic_string_ptr_t plies[],size_t plies_count,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,SMGS_buff_t *Buff)
 {
     int Moddule=SMGS_Get_Topic_Ply_Module(plies[SMGS_TOPIC_PLY_MODULE]);
     bool ret=false;
@@ -2079,7 +2134,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS
     {
     case SMGS_TOPIC_PLY_MODULE_GATEWAY:
     {
-        ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(ctx,plies,plies_count,payload,payloadlen,qos,retain,buff,buff_size);
+        ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_GateWay(ctx,plies,plies_count,payload,payloadlen,qos,retain,Buff);
     }
     break;
     default://默认为设备模块
@@ -2121,7 +2176,7 @@ static bool SMGS_GateWay_Process_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS
 
         if(devctx!=NULL)//只处理有效的设备模块
         {
-            ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(ctx,devctx,plies,plies_count,payload,payloadlen,qos,retain,buff,buff_size);
+            ret=SMGS_GateWay_Process_Comtype_BinReq_Modbule_Device(ctx,devctx,plies,plies_count,payload,payloadlen,qos,retain,Buff);
         }
     }
     break;
@@ -2131,14 +2186,14 @@ static bool SMGS_GateWay_Process_Comtype_BinReq(SMGS_gateway_context_t *ctx,SMGS
     return ret;
 }
 
-bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic,size_t topiclen,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,uint8_t *buff,size_t buff_size)
+bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic,size_t topiclen,uint8_t *payload,size_t payloadlen,uint8_t qos,int retain,SMGS_buff_t *Buff)
 {
     if(!SMGS_Is_GateWay_Context_OK(ctx))
     {
         return false;
     }
 
-    if(topic==NULL || topiclen==0 || payload==NULL || payloadlen==0 || buff==NULL || buff_size==0)
+    if(topic==NULL || topiclen==0 || payload==NULL || payloadlen==0 || Buff==NULL)
     {
         return false;//参数有误
     }
@@ -2153,26 +2208,15 @@ bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic
         return false;//大于最大负载大小
     }
 
-    size_t    free_buff_size=buff_size;//空闲的buff大小
-    uint8_t *free_buff_start=buff;//空闲buff指针
     bool ret=false;
 
     SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END];
     memset(plies,0,sizeof(plies));
 
-    if(!SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,free_buff_start,free_buff_size,topic,topiclen))
+    if(!SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,Buff,topic,topiclen))
     {
         return false;
     }
-
-    if(free_buff_size<(topiclen+1))
-    {
-        return false;//剩余缓冲不够
-    }
-
-    //修改剩余buff大小
-    free_buff_size  -=(topiclen+1);
-    free_buff_start +=(topiclen+1);
 
     if(strcmp(plies[SMGS_TOPIC_PLY_DESTADDR],ctx->GateWaySerialNumber)!=0)
     {
@@ -2185,7 +2229,7 @@ bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic
     {
     case SMGS_TOPIC_PLY_COMTYPE_BINREQ://只响应BINREQ
     {
-        ret=SMGS_GateWay_Process_Comtype_BinReq(ctx,plies,SMGS_TOPIC_PLY_END,payload,payloadlen,qos,retain,free_buff_start,free_buff_size);
+        ret=SMGS_GateWay_Process_Comtype_BinReq(ctx,plies,SMGS_TOPIC_PLY_END,payload,payloadlen,qos,retain,Buff);
     }
     break;
     default:
@@ -2197,14 +2241,14 @@ bool SMGS_GateWay_Receive_MQTT_MSG(SMGS_gateway_context_t *ctx,const char *topic
     return ret;
 }
 
-bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *will,uint8_t *buff,size_t buff_size)
+bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *will,SMGS_buff_t *Buff)
 {
     if(will==NULL)
     {
         return false;
     }
 
-    if(buff==NULL || buff_size == 0)
+    if(Buff==NULL)
     {
         return false;
     }
@@ -2224,7 +2268,7 @@ bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *w
     plies[SMGS_TOPIC_PLY_CMD]=SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND);
     plies[SMGS_TOPIC_PLY_CMD_PARA_1]="offline";
 
-    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,buff_size);
+    const char *topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,Buff);
     if(topic==NULL)
     {
         return false;
@@ -2232,13 +2276,13 @@ bool SMGS_GateWay_Will_Encode(SMGS_gateway_context_t *ctx,SMGS_gateway_will_t *w
 
     will->topic=topic;
 
-
-    if(sizeof(SMGS_payload_cmdid_t)> (buff_size-(strlen(topic)+1)))
+    uint8_t *buff=SMGS_buff_alloc(Buff,sizeof(SMGS_payload_cmdid_t));
+    if(buff==NULL)
     {
         return false;//buff不够
     }
 
-    uint8_t *payload=&buff[strlen(topic)+1];
+    uint8_t *payload=&buff[0];
     payload[0]=(SMGS_GATEWAY_CMDID_OFFLINE&0xFF);
     payload[1]=((SMGS_GATEWAY_CMDID_OFFLINE>>8)&0xFF);
 

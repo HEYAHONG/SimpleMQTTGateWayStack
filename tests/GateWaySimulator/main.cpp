@@ -122,7 +122,8 @@ static void mqttmessageHandler(struct MessageData*msg)
     printf("%s:topic=%s,qos=%d,retain=%d\r\n",TAG,topic.c_str(),msg->message->qos,msg->message->retained);
 
     uint8_t buff[4096]= {0};
-    SMGS_GateWay_Receive_MQTT_MSG(&gateway_context,msg->topicName->lenstring.data,msg->topicName->lenstring.len,(uint8_t *)msg->message->payload,msg->message->payloadlen,msg->message->qos,msg->message->retained,buff,sizeof(buff));
+    SMGS_buff_t Buff=SMGS_build_buff(buff,sizeof(buff));
+    SMGS_GateWay_Receive_MQTT_MSG(&gateway_context,msg->topicName->lenstring.data,msg->topicName->lenstring.len,(uint8_t *)msg->message->payload,msg->message->payloadlen,msg->message->qos,msg->message->retained,&Buff);
 }
 
 /*
@@ -359,7 +360,8 @@ int main(int argc,char *argv[])
         //填写will
         uint8_t willbuff[256]= {0};
         SMGS_gateway_will_t will= {0};
-        SMGS_GateWay_Will_Encode(&gateway_context,&will,willbuff,sizeof(willbuff));
+	SMGS_buff_t Buff=SMGS_build_buff(willbuff,sizeof(willbuff));
+        SMGS_GateWay_Will_Encode(&gateway_context,&will,&Buff);
 
         cfg.will.topicName.cstring=(char *)will.topic;
         cfg.will.qos=will.qos;
@@ -389,7 +391,8 @@ int main(int argc,char *argv[])
         {
             //发送网关上线消息
             uint8_t buff[512]= {0};
-            SMGS_GateWay_Online(&gateway_context,buff,sizeof(buff),0,0);
+	    SMGS_buff_t Buff=SMGS_build_buff(buff,sizeof(buff));
+            SMGS_GateWay_Online(&gateway_context,&Buff,0,0);
         }
 
         {

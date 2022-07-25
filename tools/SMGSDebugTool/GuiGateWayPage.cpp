@@ -49,7 +49,8 @@ void GuiGateWayPage::OnMQTTMessage(wxString topic,void *payload,size_t payloadle
     //处理网关历史消息及实时消息
     uint8_t buff[4096]= {0};
     SMGS_topic_string_ptr_t plies[SMGS_TOPIC_PLY_END]= {0};
-    SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,buff,sizeof(buff),topic.ToAscii(),topic.length());
+    SMGS_buff_t Buff=SMGS_build_buff(buff,sizeof(buff));
+    SMGS_Topic_Plies_Decode(plies,SMGS_TOPIC_PLY_END,&Buff,topic.ToAscii(),topic.length());
 
     for(size_t i=0; i<SMGS_TOPIC_PLY_END; i++)
     {
@@ -290,7 +291,8 @@ void GuiGateWayPage::OnReadGatewayName( wxCommandEvent& event )
         plies[SMGS_TOPIC_PLY_COMTYPE]=SMGS_Get_Topic_Ply_ComType_String(SMGS_TOPIC_PLY_COMTYPE_BINREQ);
         plies[SMGS_TOPIC_PLY_MODULE]=SMGS_Get_Topic_Ply_Module_String(SMGS_TOPIC_PLY_MODULE_GATEWAY);
         plies[SMGS_TOPIC_PLY_CMD]=SMGS_Get_Topic_Ply_CMD_String(SMGS_TOPIC_PLY_CMD_COMMAND);
-        topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,buff,sizeof(buff));
+        SMGS_buff_t Buff=SMGS_build_buff(buff,sizeof(buff));
+        topic=SMGS_Topic_Plies_EnCode(plies,SMGS_TOPIC_PLY_END,&Buff);
     }
     dlg.m_textCtrl_topic->SetValue(topic);
     wxString payload;
