@@ -6,4 +6,4 @@
 	url = ../../HEYAHONG/paho.mqtt.embedded-c.git
 [submodule "lib/3rdparty/nanopb"]
 	path = lib/3rdparty/nanopb
-	url = git@github.com:HEYAHONG/nanopb.git
+	url = ../../HEYAHONG/nanopb.git
