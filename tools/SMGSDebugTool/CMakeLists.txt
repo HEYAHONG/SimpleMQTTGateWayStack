@@ -1,7 +1,7 @@
 
 Project(SMGSDebugTool)
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -62,3 +62,12 @@ find_package(wxWidgets REQUIRED all )
 include(${wxWidgets_USE_FILE})
 target_link_libraries(${PROJECT_NAME} ${wxWidgets_LIBRARIES})
 
+#添加谷歌protobuf库(protobuf+protobuf-c)
+find_package(Protobuf REQUIRED COMPONENTS)
+target_link_libraries(${PROJECT_NAME} protobuf::libprotobuf)
+if(NOT TARGET protobuf::libprotoc)
+	pkg_check_modules(LIBPROTOC REQUIRED IMPORTED_TARGET  libprotobuf-c )
+	target_link_libraries(${PROJECT_NAME} PkgConfig::LIBPROTOC)
+else()
+	target_link_libraries(${PROJECT_NAME} protobuf::libprotoc)
+endif()
