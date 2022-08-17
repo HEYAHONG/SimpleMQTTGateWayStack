@@ -8,7 +8,14 @@ set(CMAKE_CXX_STANDARD 17)
 option(STATIC_BUILD "static build" OFF)
 
 
-file(GLOB MAIN_C_CXX_FILES *.c *.cpp MainFrame/*cpp MainFrame/*c )
+file(GLOB MAIN_C_CXX_FILES
+*.c
+*h
+*.cpp
+MainFrame/*cpp
+MainFrame/*.h
+MainFrame/*c
+)
 
 list(APPEND MAIN_SRCS ${MAIN_C_CXX_FILES})
 

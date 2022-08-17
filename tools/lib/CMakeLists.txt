@@ -9,7 +9,12 @@ add_library(SMGSS STATIC)
 target_include_directories(SMGSS PUBLIC ./)
 
 #添加源代码
-file(GLOB  LIBSMGSS_C_FILES *.c *.C)
+file(GLOB  LIBSMGSS_C_FILES
+*.c
+*.h
+*.C
+*.H
+)
 
 target_sources(SMGSS PUBLIC ${LIBSMGSS_C_FILES})
 
